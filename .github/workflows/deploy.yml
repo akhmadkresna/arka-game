@@ -1,0 +1,46 @@
+name: Publish game
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install official Godot 4.6
+        run: |
+          mkdir -p "$RUNNER_TEMP/godot"
+          curl -fL https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip -o "$RUNNER_TEMP/godot/editor.zip"
+          unzip -q "$RUNNER_TEMP/godot/editor.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6-stable_linux.x86_64"
+          echo "GODOT_BIN=$RUNNER_TEMP/godot/Godot_v4.6-stable_linux.x86_64" >> "$GITHUB_ENV"
+          curl -fL https://github.com/godotengine/godot-builds/releases/download/4.6-stable/Godot_v4.6-stable_export_templates.tpz -o "$RUNNER_TEMP/godot/templates.zip"
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.6.stable"
+          unzip -j -q "$RUNNER_TEMP/godot/templates.zip" 'templates/web_nothreads_debug.zip' 'templates/web_nothreads_release.zip' -d "$HOME/.local/share/godot/export_templates/4.6.stable"
+      - name: Build browser game
+        run: sh scripts/build-web.sh
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4

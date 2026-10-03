@@ -1,0 +1,27 @@
+{
+  "challenger": {
+    "label": "\ud83c\udfc1 Challenger Drift",
+    "name": "Challenger Drift",
+    "scene": "res://models/garage/challenger.tscn",
+    "preserve_colors": true,
+    "color": "#f1f0e9",
+    "photo": "challenger-reference.jpg",
+    "height_offset": 0.15
+  },
+  "race": {
+    "label": "\ud83c\udfce Race car",
+    "scene": "res://models/garage/race.glb"
+  },
+  "small": {
+    "label": "\ud83d\ude97 Small car",
+    "scene": "res://models/garage/hatchback-sports.glb"
+  },
+  "suv": {
+    "label": "\ud83d\ude99 SUV",
+    "scene": "res://models/garage/suv.glb"
+  },
+  "van": {
+    "label": "\ud83d\ude90 Van",
+    "scene": "res://models/garage/delivery.glb"
+  }
+}
