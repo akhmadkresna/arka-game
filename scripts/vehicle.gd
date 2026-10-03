@@ -28,6 +28,36 @@ class_name Vehicle extends Node3D
 @onready var engine_sound: AudioStreamPlayer3D = $Container/EngineSound
 @onready var impact_sound: AudioStreamPlayer3D = $Container/ImpactSound
 
+var toddler_mode := false
+var toddler_path := Curve3D.new()
+var toddler_distance := 0.0
+var toddler_speed := 0.0
+
+func _ready() -> void:
+	# Rounded corners stay within the broad streets, clear of buildings.
+	for corner in [Vector3(24,0,-24),Vector3(56,0,-24),Vector3(56,0,-56),Vector3(24,0,-56)]:
+		var start := PI if corner.x == 24 and corner.z == -24 else (PI/2 if corner.z == -24 else (0.0 if corner.x == 56 else -PI/2))
+		for step in range(13):
+			var angle := start - step * PI / 24
+			toddler_path.add_point(corner + Vector3(cos(angle)*4,0,sin(angle)*4))
+	toddler_path.add_point(toddler_path.get_point_position(0))
+
+func drive_toddler(delta: float) -> void:
+	toddler_speed = move_toward(toddler_speed, 5.0 if controls_enabled and touch_throttle > 0 else 0.0, delta*10)
+	toddler_distance = fposmod(toddler_distance + toddler_speed*delta, toddler_path.get_baked_length())
+	var at := toddler_path.sample_baked(toddler_distance)
+	var ahead := toddler_path.sample_baked(fposmod(toddler_distance+0.3,toddler_path.get_baked_length()))
+	var forward := (ahead-at).normalized()
+	sphere.global_position = Vector3(at.x,0.75,at.z)
+	vehicle_model.position = sphere.position - Vector3(0,0.65,0)
+	vehicle_model.rotation.y = atan2(forward.x,forward.z)
+	linear_speed = toddler_speed/12
+	input = Vector3(0,0,linear_speed)
+	acceleration = linear_speed
+	effect_engine(delta)
+	effect_body(delta)
+	effect_wheels(delta)
+
 var touch_steering: float = 0.0
 var touch_throttle: float = 0.0
 var controls_enabled: bool = true
@@ -54,6 +84,11 @@ func get_vehicle_position() -> Vector3: return vehicle_model.global_position
 # Functions
 
 func _physics_process(delta):
+
+	sphere.freeze = toddler_mode
+	if toddler_mode:
+		drive_toddler(delta)
+		return
 
 	handle_input(delta)
 

@@ -16,6 +16,10 @@ func _physics_process(_delta: float) -> void:
 		var raw = JavaScriptBridge.eval("JSON.stringify(window.toyGarageState || {})")
 		var state = JSON.parse_string(str(raw))
 		if state is Dictionary:
+			var toddler := bool(state.get("toddler", true))
+			if toddler != vehicle.toddler_mode:
+				vehicle.toddler_mode = toddler
+				reset_vehicle()
 			vehicle.controls_enabled = bool(state.get("driving", false))
 			vehicle.touch_steering = clampf(float(state.get("steering", 0)), -1, 1)
 			vehicle.touch_throttle = clampf(float(state.get("throttle", 0)), -1, 1)
@@ -32,6 +36,8 @@ func _physics_process(_delta: float) -> void:
 		reset_vehicle()
 
 func reset_vehicle() -> void:
+	vehicle.toddler_distance = 0
+	vehicle.toddler_speed = 0
 	vehicle.sphere.global_position = home
 	vehicle.sphere.linear_velocity = Vector3.ZERO
 	vehicle.sphere.angular_velocity = Vector3.ZERO
