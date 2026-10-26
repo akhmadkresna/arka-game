@@ -2,9 +2,9 @@
 import * as THREE from '../vendor/three.module.js';
 import { R, DESA, SAWAH, TPA, KANTOR, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG, JALAN } from './konfig.js';
 import { tinggi, lantai, buatTerrain } from './terrain.js';
-import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite } from './objek.js';
+import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite, motorPemain, mobilDinas } from './objek.js';
 import { buatEfek } from './efek.js';
-import { bunyi, aktifkan, setBisu, bisuSekarang } from './bunyi.js';
+import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_OJOL, GAGAL_OJOL } from './teks.js';
 
@@ -25,9 +25,9 @@ const COOLDOWN_UMKM = 25, TUTUP_SETELAH = 3, LAMA_TUTUP = 120, DURASI_APARAT = 6
 const G = {
   t: 0, bulan: 1, jalan: false, jeda: false,
   cuan: 20, restu: 60, panas: 5, rakyat: 5, kabut: 0, citra: 0, berkas: 1,
-  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0,
+  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, naik: null, balihoList: [],
   bangunan: [], baliho: 0, selfie: 0, kabutPuncak: 0, gulungTikar: 0, misi: 0,
-  stat: { bakar: 0, tanam: 0, bangun: 0, blokir: 0, palak: 0, panen: 0 },
+  stat: { bakar: 0, tanam: 0, bangun: 0, blokir: 0, palak: 0, panen: 0, naik: 0, lompat: 0 },
   penghasilan: 0,
 };
 
@@ -93,8 +93,19 @@ function titikJalur(o, s) {
 OJOL.forEach(o => { const p = titikJalur(o, o.s); o.x = p.x; o.z = p.z; o.g.position.set(p.x, lantai(p.x, p.z), p.z); });
 
 // Baliho awal (posisi dijamin tidak menabrak benda lain, lihat tata.js)
-function pasangBaliho(x, z, hadap, tema) { const b = baliho(x, z, hadap, tema); scene.add(b); G.baliho++; return b; }
+function pasangBaliho(x, z, hadap, tema, dinamis = false) {
+  const b = baliho(x, z, hadap, tema); scene.add(b); G.baliho++;
+  if (dinamis) { G.balihoList.push({ x, z, hadap, tema }); tambahJejak(x, z, 6, 'baliho'); dunia.bersihkan(x, z, 8); }
+  return b;
+}
 BALIHO_AWAL.forEach(b => pasangBaliho(b.x, b.z, b.ry, b.tema));
+
+// ---------- Kendaraan: motor dekat titik mulai, mobil dinas dekat Kantor Dinas ----------
+const KENDARAAN = [
+  { jenis: 'motor', nama: 'Motor', g: motorPemain(), x: 8, z: 22, ry: 2.4, maks: 25, belok: 2.5, duduk: 0.55 },
+  { jenis: 'mobil', nama: 'Mobil Dinas', g: mobilDinas(), x: 26, z: 54, ry: Math.PI, maks: 34, belok: 1.6, duduk: 0 },
+];
+KENDARAAN.forEach(k => { k.v = 0; k.y = lantai(k.x, k.z); k.vy = 0; k.tanah = true; k.jejak = 0; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry; scene.add(k.g); });
 
 // Penanda tujuan
 const tujuan = pilar(); tujuan.visible = false; scene.add(tujuan);
@@ -124,7 +135,7 @@ kanvas.addEventListener('touchend', () => { jarakCubit = 0; }, { passive: true }
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   tombol[k] = true;
-  if (!e.repeat) aksiTombol(k);
+  if (!e.repeat) aksiTombol(k === ' ' ? 'j' : k);
   if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
 });
 addEventListener('keyup', e => { tombol[e.key.toLowerCase()] = false; });
@@ -243,6 +254,10 @@ function tutupkan(u) {
   }
   E.semburan(new THREE.Vector3(u.x, tinggi(u.x, u.z) + 1.5, u.z), 'debu', 14); bunyi.gagal();
 }
+function visualTutup(u, tutup) {
+  if (u.jenis === 'ojol') { u.label.userData.set(tutup ? 'OJOL MOGOK' : 'OJOL ' + u.tipe.toUpperCase(), tutup ? 'mogok' : u.tipe); return; }
+  const d = u.g.userData; d.pemilik.visible = !tutup; d.tutup.visible = tutup; d.label.visible = !tutup; d.atap.color.setHex(tutup ? 0x777777 : d.warnaAsli);
+}
 function bukaLagi(u) {
   u.tutup = false; u.berhasil = 0; u.cd = 0;
   if (u.jenis === 'ojol') { u.label.userData.set('OJOL ' + u.tipe.toUpperCase(), u.tipe); return; }
@@ -282,6 +297,14 @@ function tanam(p, oleh = null) {
 }
 function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Coba PALAK UMKM atau ojol dulu.`); bunyi.blokir(); return false; } return true; }
 const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+function pasangBangunan(jenis, x, z, rotY, skalaAwal = 1) {
+  const g = jenis === 'mbg' ? bangunanMBG() : bangunanKopdes();
+  const fond = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 11), M.batu); fond.position.y = -1.6; g.add(fond);
+  g.position.set(x, tinggi(x, z), z); g.rotation.y = rotY; g.scale.setScalar(skalaAwal); scene.add(g);
+  const b = { jenis, umur: 0, mangkrak: false, g, x, z, pop: skalaAwal < 1 ? 0 : 1 };
+  G.bangunan.push(b); tambahJejak(x, z, 9, 'bangunan'); dunia.bersihkan(x, z, 14);
+  return b;
+}
 function bangun(jenis) {
   const biaya = HARGA[jenis], ry = pemain.rotation.y;
   const x = pemain.position.x + Math.sin(ry) * 9, z = pemain.position.z + Math.cos(ry) * 9;
@@ -300,15 +323,11 @@ function bangun(jenis) {
   }
   G.cuan += (jenis === 'mbg' ? 160 : 130) - biaya;
   G.restu = batas(G.restu + 4); G.panas = batas(G.panas + 2); G.citra += 3; G.stat.bangun++;
-  const g = jenis === 'mbg' ? bangunanMBG() : bangunanKopdes();
-  const fond = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 11), M.batu); fond.position.y = -1.6; g.add(fond);
-  g.position.set(x, tinggi(x, z), z); g.rotation.y = ry + Math.PI; g.scale.setScalar(0.01); scene.add(g);
-  G.bangunan.push({ jenis, umur: 0, mangkrak: false, g, x, z, pop: 0 });
-  tambahJejak(x, z, 9, 'bangunan'); dunia.bersihkan(x, z, 14);
+  pasangBangunan(jenis, x, z, ry + Math.PI, 0.01);
   const rot = ry + Math.PI, depan = [Math.sin(rot), Math.cos(rot)], kanan = [Math.cos(rot), -Math.sin(rot)];
   const calon = [[kanan[0] * 17, kanan[1] * 17], [-kanan[0] * 17, -kanan[1] * 17], [depan[0] * 18, depan[1] * 18], [-depan[0] * 18, -depan[1] * 18]];
   const tempat = calon.map(([dx, dz]) => [x + dx, z + dz]).find(([bx, bz]) => tinggi(bx, bz) > 0.6 && !klasifikasi(bx, bz).benar && !petakDi(bx, bz) && adaTempat(bx, bz, 6, 0.5));
-  if (tempat) { pasangBaliho(tempat[0], tempat[1], rot); tambahJejak(tempat[0], tempat[1], 6, 'baliho'); dunia.bersihkan(tempat[0], tempat[1], 8); }
+  if (tempat) pasangBaliho(tempat[0], tempat[1], rot, undefined, true);
   const pusat = V(x, z, 2);
   fxSumber = pusat; E.semburan(pusat, 'debu', 34); E.semburan(V(x, z, 6), 'konfeti', 36); E.getar(0.5); bunyi.bangun();
   E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPDES EMAS!', 'besar emas');
@@ -356,6 +375,7 @@ function jalankanAksi(k) {
   else if (k === '1') bangun('mbg'); else if (k === '2') bangun('kopdes');
   else if (k === 'f') selfie(); else if (k === 'c') ngeles();
   else if (k === 'g') beliGelar(); else if (k === 'u') beliPupuk(); else if (k === 'o') rekrutOknum();
+  else if (k === 'j') lompat(); else if (k === 'n') naikTurun(); else if (k === 'h') klakson();
   else if (k === 'r') laporan(false);
   else if (k === 'e') { if (!dekatKantor()) toast('Berkas dibeli di Kantor Dinas.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
   else if (k === 'k') { if (!dekatKantor()) toast('Kambing hitam dicari di Kantor Dinas.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Staf "penanggung jawab" dimutasi. Panas KPK -30.'); } }
@@ -376,6 +396,7 @@ const MISI_DEF = [
   { selesai: () => PETAK.filter(p => p.status === 'sawit').length >= 3, target: () => terdekat('lahan') || terdekat('hutan'), sorot: 'p' },
   { selesai: () => G.stat.bangun >= 1, target: () => TITIK_BEBAS, sorot: '1' },
   { selesai: () => G.stat.blokir >= 1, target: () => DESA[0], sorot: '1' },
+  { selesai: () => G.stat.naik >= 1, target: () => KENDARAAN[0], sorot: 'n' },
   { selesai: () => false, target: () => null, sorot: null },
 ];
 let targetTerakhir = null, wMisiBaru = 0, misiTampil = -1, sigTombol = '';
@@ -437,6 +458,115 @@ function perbaruiTombol(s) {
   gl.style.visibility = 'hidden';
 }
 
+// ---------- Jalan kaki, lompat, kendaraan ----------
+const fis = { vy: 0, tanah: true };
+function jalanKaki(dt) {
+  const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
+  let mx = 0, mz = 0;
+  if (tombol.w || tombol.arrowup) { mx += fx; mz += fz; }
+  if (tombol.s || tombol.arrowdown) { mx -= fx; mz -= fz; }
+  if (tombol.d || tombol.arrowright) { mx += rx; mz += rz; }
+  if (tombol.a || tombol.arrowleft) { mx -= rx; mz -= rz; }
+  if (joyX || joyY) { mx += fx * -joyY + rx * joyX; mz += fz * -joyY + rz * joyX; }
+  const bergerak = mx || mz;
+  if (bergerak) {
+    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * dt;
+    const nx = pemain.position.x + mx / n * v, nz = pemain.position.z + mz / n * v;
+    if (lantai(nx, nz) > 0.25 && Math.hypot(nx, nz) < R - 8) { pemain.position.x = nx; pemain.position.z = nz; }
+    else if (lantai(nx, pemain.position.z) > 0.25) pemain.position.x = nx;
+    else if (lantai(pemain.position.x, nz) > 0.25) pemain.position.z = nz;
+    pemain.rotation.y = Math.atan2(mx, mz);
+  }
+  const ayun = (bergerak && fis.tanah) ? Math.sin(waktu * 12) * 0.7 : 0;
+  lenganK.rotation.x = ayun; lenganN.rotation.x = -ayun; kakiK.rotation.x = -ayun; kakiN.rotation.x = ayun;
+  if (!fis.tanah) { lenganK.rotation.x = lenganN.rotation.x = -2.4; kakiK.rotation.x = 0.5; kakiN.rotation.x = -0.4; }
+  // Tinggi: mengikuti tanah, atau fisika bila melompat / jatuh dari tebing
+  const dasar = lantai(pemain.position.x, pemain.position.z);
+  if (fis.tanah && pemain.position.y <= dasar + 0.35) {
+    const yT = dasar + (bergerak ? Math.abs(Math.sin(waktu * 12)) * 0.15 : 0);
+    pemain.position.y += (yT - pemain.position.y) * Math.min(1, dt * 14);
+  } else {
+    fis.tanah = false; fis.vy -= 30 * dt; pemain.position.y += fis.vy * dt;
+    if (pemain.position.y <= dasar) {
+      const vJatuh = fis.vy; pemain.position.y = dasar; fis.vy = 0; fis.tanah = true;
+      if (vJatuh < -6) { E.semburan(pemain.position.clone().setY(dasar + 0.3), 'debu', 10); bunyi.mendarat(); }
+    }
+  }
+  if (Math.abs(kamera.fov - 60) > 0.2) { kamera.fov += (60 - kamera.fov) * Math.min(1, dt * 4); kamera.updateProjectionMatrix(); }
+}
+function lompat() {
+  if (G.naik && G.naik.jenis === 'mobil') return toast('Mobil dinas tidak bisa melompat. Itu bukan kuda.');
+  if (G.naik) { if (!G.naik.tanah) return; G.naik.vy = 9; G.naik.tanah = false; }
+  else { if (!fis.tanah) return; fis.vy = 11; fis.tanah = false; }
+  G.stat.lompat++; bunyi.lompat(); E.semburan(pemain.position.clone().setY(pemain.position.y + 0.3), 'debu', 6);
+}
+function kendarai(dt, k) {
+  let gas = 0, kemudi = 0;
+  if (tombol.w || tombol.arrowup) gas += 1;
+  if (tombol.s || tombol.arrowdown) gas -= 1;
+  if (tombol.a || tombol.arrowleft) kemudi += 1;
+  if (tombol.d || tombol.arrowright) kemudi -= 1;
+  gas = Math.max(-1, Math.min(1, gas - joyY)); kemudi = Math.max(-1, Math.min(1, kemudi - joyX));
+  const arah = k.v >= 0 ? 1 : -1, kontrol = Math.min(1, Math.abs(k.v) / 5);
+  k.ry += kemudi * k.belok * kontrol * arah * dt;
+  if (gas > 0.1) k.v += gas * (k.jenis === 'mobil' ? 20 : 24) * dt * (k.v < 0 ? 2 : 1);
+  else if (gas < -0.1) k.v += gas * (k.v > 0 ? 42 : 12) * dt;
+  else k.v -= Math.sign(k.v) * Math.min(Math.abs(k.v), 9 * dt);
+  k.v = Math.max(-9, Math.min(k.maks, k.v));
+  const nx = k.x + Math.sin(k.ry) * k.v * dt, nz = k.z + Math.cos(k.ry) * k.v * dt;
+  if (lantai(nx, nz) > 0.25 && Math.hypot(nx, nz) < R - 8) { k.x = nx; k.z = nz; }
+  else { if (Math.abs(k.v) > 4) { E.getar(0.25); bunyi.tabrak(); } k.v *= -0.25; }
+  for (const f of FOOT) { // menabrak bangunan dan baliho
+    if (f.r < 3 || f.n === 'spawn' || f.n === 'jembatan') continue;
+    const d = jarakDua(k.x, k.z, f.x, f.z), lim = f.r * 0.9 + 1.4;
+    if (d < lim && d > 0.01) {
+      k.x = f.x + (k.x - f.x) / d * lim; k.z = f.z + (k.z - f.z) / d * lim;
+      if (Math.abs(k.v) > 6) { E.getar(Math.min(0.6, Math.abs(k.v) / 40)); bunyi.tabrak(); E.semburan(V(k.x, k.z, 1.5), 'debu', 8); }
+      k.v *= -0.3;
+    }
+  }
+  const dasar = lantai(k.x, k.z);
+  if (k.tanah && k.y <= dasar + 0.6) k.y += (dasar - k.y) * Math.min(1, dt * 18);
+  else {
+    k.tanah = false; k.vy -= 30 * dt; k.y += k.vy * dt;
+    if (k.y <= dasar) { const vj = k.vy; k.y = dasar; k.vy = 0; k.tanah = true; if (vj < -6) { E.semburan(V(k.x, k.z, 0.5), 'debu', 10); bunyi.mendarat(); } }
+  }
+  k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
+  if (k.jenis === 'motor') k.g.rotation.z += ((-kemudi * 0.35 * Math.min(1, Math.abs(k.v) / k.maks)) - k.g.rotation.z) * Math.min(1, dt * 6);
+  k.g.userData.roda.forEach(r => { r.rotation.x += k.v * dt * 1.6; });
+  pemain.position.set(k.x, k.y + k.duduk, k.z); pemain.rotation.y = k.ry; pemain.visible = k.jenis === 'motor';
+  lenganK.rotation.x = lenganN.rotation.x = k.jenis === 'motor' ? -1.1 : 0; kakiK.rotation.x = kakiN.rotation.x = k.jenis === 'motor' ? -1.2 : 0;
+  k.jejak -= dt;
+  if (Math.abs(k.v) > 8 && k.jejak <= 0) { k.jejak = 0.12; E.semburan(V(k.x - Math.sin(k.ry) * 2, k.z - Math.cos(k.ry) * 2, 0.3), 'debu', 1); }
+  if (k.jenis === 'mobil') { const kedip = Math.sin(waktu * 14) > 0; k.g.userData.lampuM.visible = kedip; k.g.userData.lampuB.visible = !kedip; }
+  mesin(true, Math.abs(k.v) / k.maks);
+  if (jari.size === 0 && Math.abs(k.v) > 1.5) { // kamera menyusul arah laju
+    let d = k.ry + Math.PI - yaw; d = ((d + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; yaw += d * Math.min(1, dt * 2.2);
+  }
+  const fovT = 60 + 16 * Math.abs(k.v) / k.maks; kamera.fov += (fovT - kamera.fov) * Math.min(1, dt * 4); kamera.updateProjectionMatrix();
+}
+const kendaraanDekat = () => { let b = null; for (const k of KENDARAAN) { const d = jarakDua(pemain.position.x, pemain.position.z, k.x, k.z); if (d < 9 && (!b || d < b.d)) b = { k, d }; } return b ? b.k : null; };
+function naikTurun() {
+  if (G.naik) {
+    const k = G.naik; G.naik = null; k.v = 0; mesin(false);
+    let sx = k.x - Math.cos(k.ry) * 4, sz = k.z + Math.sin(k.ry) * 4;
+    if (lantai(sx, sz) < 0.25) { sx = k.x + Math.cos(k.ry) * 4; sz = k.z - Math.sin(k.ry) * 4; }
+    pemain.position.set(sx, lantai(sx, sz), sz); pemain.visible = true; fis.vy = 0; fis.tanah = true; k.g.rotation.z = 0;
+    if (k.jenis === 'mobil') k.g.userData.lampuM.visible = k.g.userData.lampuB.visible = false;
+    bunyi.pop(); toast(`Turun dari ${k.nama}.`);
+    return;
+  }
+  const k = kendaraanDekat();
+  if (!k) return toast('Tidak ada kendaraan di dekat Anda. Motor ada dekat titik mulai, mobil dinas dekat Kantor Dinas.');
+  G.naik = k; k.v = 0; G.stat.naik++; bunyi.pop(); E.semburan(V(k.x, k.z, 1), 'debu', 10);
+  toast(`Naik ${k.nama}. Kemudikan dengan W/A/S/D atau joystick. Tekan ${sentuh ? 'Naik' : 'N'} lagi untuk turun.`);
+}
+function klakson() {
+  if (!G.naik) return toast('Klakson hanya ada di kendaraan.');
+  bunyi.klakson(); E.getar(0.1); E.teks(pemain.position.clone().setY(pemain.position.y + 3.5), 'TIIIN!', 'besar info');
+  for (const o of OJOL) if (!o.tutup && jarakDua(o.x, o.z, G.naik.x, G.naik.z) < 35) o.klakson = Math.max(o.klakson, 1.4);
+}
+
 function perbaruiOjol(dt) {
   for (const o of OJOL) {
     if (o.cd > 0) o.cd -= dt;
@@ -467,27 +597,8 @@ function update(dt) {
   if (wMisiBaru > 0) wMisiBaru -= dt;
   if (!G.jalan || G.jeda) return;
 
-  // Gerak relatif kamera, berhenti di air
-  const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
-  let mx = 0, mz = 0;
-  if (tombol.w || tombol.arrowup) { mx += fx; mz += fz; }
-  if (tombol.s || tombol.arrowdown) { mx -= fx; mz -= fz; }
-  if (tombol.d || tombol.arrowright) { mx += rx; mz += rz; }
-  if (tombol.a || tombol.arrowleft) { mx -= rx; mz -= rz; }
-  if (joyX || joyY) { mx += fx * -joyY + rx * joyX; mz += fz * -joyY + rz * joyX; }
-  const bergerak = mx || mz;
-  if (bergerak) {
-    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * dt;
-    const nx = pemain.position.x + mx / n * v, nz = pemain.position.z + mz / n * v;
-    if (lantai(nx, nz) > 0.25 && Math.hypot(nx, nz) < R - 8) { pemain.position.x = nx; pemain.position.z = nz; }
-    else if (lantai(nx, pemain.position.z) > 0.25) pemain.position.x = nx;
-    else if (lantai(pemain.position.x, nz) > 0.25) pemain.position.z = nz;
-    pemain.rotation.y = Math.atan2(mx, mz);
-  }
-  const ayun = bergerak ? Math.sin(waktu * 12) * 0.7 : 0;
-  lenganK.rotation.x = ayun; lenganN.rotation.x = -ayun; kakiK.rotation.x = -ayun; kakiN.rotation.x = ayun;
-  const yTarget = lantai(pemain.position.x, pemain.position.z) + (bergerak ? Math.abs(Math.sin(waktu * 12)) * 0.15 : 0);
-  pemain.position.y += (yTarget - pemain.position.y) * Math.min(1, dt * 14);
+  // Gerak: jalan kaki (dengan lompat) atau mengendarai motor/mobil
+  if (G.naik) kendarai(dt, G.naik); else jalanKaki(dt);
 
   // Waktu, setoran
   G.t += dt;
@@ -584,7 +695,10 @@ function update(dt) {
   const sorot = perbaruiMisi();
   const p = petakDi(pemain.position.x, pemain.position.z), u = kiosDekat();
   let h = '';
-  if (u) {
+  const kd = kendaraanDekat();
+  if (G.naik) h = `${G.naik.nama} · ${tb('n')} Turun · ${tb('h')} Klakson${G.naik.jenis === 'motor' ? ` · ${tb('j')} Lompat` : ''}`;
+  else if (kd && !u) h = `${kd.nama}: ${tb('n')} Naik · ${tb('j')} Lompat`;
+  else if (u) {
     const peluang = G.aparat > 0 ? 100 : Math.round(PELUANG[u.tipe] * 100);
     const oj = u.jenis === 'ojol';
     h = u.tutup ? `${u.nama}: ${oj ? 'sedang mogok.' : 'gulung tikar.'}` : `${u.nama} · ${oj ? 'pengendara' : 'pemilik'} ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${HARGA.aparat})`}`;
@@ -602,6 +716,7 @@ function update(dt) {
   else if (p && p.status === 'hutan' && (G.misi === 1 || G.misi === 3)) s = 'b';
   else if (p && p.status === 'lahan' && G.misi >= 2 && G.cuan >= HARGA.tanam) s = 'p';
   else if ((G.misi === 4 || G.misi === 5) && dekatTarget && !p) s = '1';
+  if (G.misi === 6 && !G.naik && kd) s = 'n';
   perbaruiTombol(s);
 }
 
@@ -690,10 +805,82 @@ let terakhir = performance.now();
 renderer.setAnimationLoop(now => {
   const dt = Math.min(0.1, (now - terakhir) / 1000); terakhir = now;
   update(dt); hud(); kameraIkut();
+  if (G.jalan) { jedaSimpan += dt; if (jedaSimpan > 20) { jedaSimpan = 0; simpan(); } }
+  if (wInfoSimpan > 0 && (wInfoSimpan -= dt) <= 0) $('simpanInfo').style.opacity = 0;
   renderer.render(scene, kamera);
 });
 
-$('mulai').onclick = () => { aktifkan(); bunyi.klik(); $('judul').hidden = true; G.jalan = true; monolog('mulai'); };
+// ---------- Simpan dan muat progres (localStorage) ----------
+const KUNCI = 'republikEmas.simpan.v1';
+let simpanGagal = false, jedaSimpan = 0, wInfoSimpan = 0;
+function infoSimpan(teks) { $('simpanInfo').textContent = teks; $('simpanInfo').style.opacity = 1; wInfoSimpan = 2.2; }
+function kumpul() {
+  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'misi', 'selfie'];
+  const g = {}; KUNCI_G.forEach(k => { g[k] = G[k]; }); g.stat = { ...G.stat };
+  return {
+    v: 1, waktuSimpan: Date.now(), G: g,
+    pemain: { x: pemain.position.x, z: pemain.position.z, ry: pemain.rotation.y, yaw, pitch, jarak },
+    petak: PETAK.map(p => [p.status, p.siklus, p.umurLahan, p.api]),
+    bangunan: G.bangunan.map(b => ({ jenis: b.jenis, x: b.x, z: b.z, rot: b.g.rotation.y, umur: b.umur, mangkrak: b.mangkrak })),
+    baliho: G.balihoList.slice(),
+    kios: KIOS.map(u => [u.cd, u.berhasil, u.tutup, u.sisaTutup]),
+    ojol: OJOL.map(o => [o.s, o.arah, o.tutup, o.sisaTutup, o.berhasil]),
+    kendaraan: KENDARAAN.map(k => [k.x, k.z, k.ry]),
+    naik: G.naik ? G.naik.jenis : null,
+  };
+}
+function simpan(manual = false) {
+  if (!G.jalan && !manual) return; // jangan menimpa simpanan sebelum permainan dimulai
+  try {
+    localStorage.setItem(KUNCI, JSON.stringify(kumpul()));
+    infoSimpan('✓ Tersimpan');
+    if (manual) { bunyi.simpan(); toast('Progres disimpan di peramban ini.'); }
+  } catch (e) {
+    if (!simpanGagal || manual) { simpanGagal = true; toast('Penyimpanan tidak tersedia di peramban ini (mode privat atau penuh).'); }
+  }
+}
+function baca() {
+  try { const s = localStorage.getItem(KUNCI); if (!s) return null; const d = JSON.parse(s); return d && d.v === 1 && d.G ? d : null; } catch (e) { return null; }
+}
+function muat(d) {
+  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'misi', 'selfie']
+    .forEach(k => { if (typeof d.G[k] === 'number' && isFinite(d.G[k])) G[k] = d.G[k]; });
+  Object.assign(G.stat, d.G.stat || {});
+  (d.petak || []).forEach((s, i) => { const p = PETAK[i]; if (!p) return; p.siklus = s[1] || 0; p.umurLahan = s[2] || 0; p.api = s[3] || 0; ubahStatus(p, s[0]); });
+  (d.bangunan || []).forEach(b => { const r = pasangBangunan(b.jenis, b.x, b.z, b.rot, 1); r.umur = b.umur || 0; if (b.mangkrak) { r.mangkrak = true; mangkrakkan(r.g); } });
+  (d.baliho || []).forEach(b => pasangBaliho(b.x, b.z, b.hadap, b.tema, true));
+  (d.kios || []).forEach((s, i) => { const u = KIOS[i]; if (!u) return; u.cd = s[0] || 0; u.berhasil = s[1] || 0; u.tutup = !!s[2]; u.sisaTutup = s[3] || 0; if (u.tutup) visualTutup(u, true); });
+  (d.ojol || []).forEach((s, i) => { const o = OJOL[i]; if (!o) return; o.s = Math.max(0, Math.min(o.tot, s[0] || 0)); o.arah = s[1] || 1; o.tutup = !!s[2]; o.sisaTutup = s[3] || 0; o.berhasil = s[4] || 0; if (o.tutup) visualTutup(o, true); });
+  (d.kendaraan || []).forEach((s, i) => { const k = KENDARAAN[i]; if (!k) return; k.x = s[0]; k.z = s[1]; k.ry = s[2]; k.y = lantai(k.x, k.z); k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry; });
+  for (let i = 0; i < G.oknum; i++) { const f = manusia(M.rompi, false); f.position.copy(pemain.position); scene.add(f); daftarOknum.push({ f, waktu: 2 + i }); }
+  const p = d.pemain || {};
+  if (typeof p.x === 'number') { pemain.position.set(p.x, lantai(p.x, p.z), p.z); pemain.rotation.y = p.ry || 0; yaw = p.yaw || 0; pitch = p.pitch || 0.42; jarak = p.jarak || 11; }
+  if (d.naik) { const k = KENDARAAN.find(x => x.jenis === d.naik); if (k) G.naik = k; }
+  misiTampil = -1;
+}
+function siapkanJudul() {
+  const d = baca();
+  if (!d) return;
+  $('lanjutkan').hidden = false; $('lanjutkan').textContent = `Lanjutkan (bulan ${d.G.bulan}, Cuan ${Math.floor(d.G.cuan)})`;
+  $('infoSimpan').textContent = 'Simpanan terakhir: ' + new Date(d.waktuSimpan).toLocaleString('id-ID');
+  $('mulai').textContent = 'Mulai baru (hapus simpanan)';
+}
+function mulaiGame() { aktifkan(); bunyi.klik(); $('judul').hidden = true; G.jalan = true; monolog('mulai'); }
+let konfirmasiBaru = false;
+$('mulai').onclick = () => {
+  if (baca() && !konfirmasiBaru) { konfirmasiBaru = true; $('mulai').textContent = 'Yakin? Klik lagi untuk menghapus simpanan'; return; }
+  try { localStorage.removeItem(KUNCI); } catch (e) { /* abaikan */ }
+  mulaiGame();
+};
+$('lanjutkan').onclick = () => {
+  const d = baca();
+  if (d) { try { muat(d); } catch (e) { console.error(e); } }
+  mulaiGame();
+};
+$('btnSimpan').onclick = () => simpan(true);
+addEventListener('visibilitychange', () => { if (document.hidden) simpan(); });
+addEventListener('pagehide', () => simpan());
+siapkanJudul();
 addEventListener('pointerdown', aktifkan, { once: true });
 addEventListener('keydown', aktifkan, { once: true });
 const labelSuara = () => { $('btnSuara').textContent = bisuSekarang() ? 'Suara: mati' : 'Suara: hidup'; };
@@ -719,5 +906,5 @@ document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener(
 if (sentuh) document.body.classList.add('sentuh');
 
 // Kait untuk pengujian otomatis
-window.__g = { kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
+window.__g = { simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };

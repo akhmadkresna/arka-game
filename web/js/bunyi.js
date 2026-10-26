@@ -33,6 +33,19 @@ function derau(dur, vol = 0.15, lp = 2000, tunda = 0, hp = 0) {
   g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   s.connect(f); f.connect(g); g.connect(ctx.destination); s.start(t); s.stop(t + dur + 0.03);
 }
+// Mesin kendaraan: satu osilator yang frekuensi dan volumenya mengikuti laju
+let mOsc = null, mGain = null;
+export function mesin(aktif, laju = 0) {
+  if (!ctx) return;
+  if (!aktif || bisu) { if (mOsc) { try { mOsc.stop(); } catch (e) { /* abaikan */ } mOsc = null; mGain = null; } return; }
+  if (!mOsc) {
+    mOsc = ctx.createOscillator(); mGain = ctx.createGain(); mOsc.type = 'sawtooth'; mGain.gain.value = 0;
+    mOsc.connect(mGain); mGain.connect(ctx.destination); mOsc.start();
+  }
+  const t = ctx.currentTime;
+  mOsc.frequency.setTargetAtTime(45 + laju * 110, t, 0.08);
+  mGain.gain.setTargetAtTime(0.018 + laju * 0.03, t, 0.08);
+}
 export const bunyi = {
   koin() { const n = performance.now(); if (n - terakhirKoin < 55) return; terakhirKoin = n; const f = 1100 + Math.random() * 500; nada(f, 0.09, 'square', 0.045); nada(f * 1.5, 0.15, 'square', 0.045, null, 0.06); },
   uangKeluar() { nada(720, 0.16, 'triangle', 0.08, 300); },
@@ -48,5 +61,9 @@ export const bunyi = {
   setoran() { [900, 760, 620, 480].forEach((f, i) => nada(f, 0.12, 'square', 0.05, null, i * 0.07)); },
   denda() { nada(150, 0.5, 'sawtooth', 0.12, 55); derau(0.3, 0.15, 600); },
   klik() { nada(620, 0.05, 'square', 0.05); },
+  lompat() { nada(260, 0.16, 'sine', 0.1, 520); },
+  mendarat() { derau(0.1, 0.18, 600); nada(120, 0.1, 'sine', 0.1, 70); },
+  tabrak() { derau(0.25, 0.3, 500); nada(90, 0.25, 'sawtooth', 0.12, 40); },
+  simpan() { nada(660, 0.08, 'triangle', 0.07); nada(880, 0.1, 'triangle', 0.07, null, 0.08); },
   pop() { nada(300, 0.1, 'sine', 0.1, 900); },
 };

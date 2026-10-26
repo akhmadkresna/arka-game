@@ -28,14 +28,16 @@
     <div class="angka">Citra <b id="citra">0</b> · Berkas <b id="berkas">0</b></div>
     <div class="angka">Hutan <b id="hutan">100%</b> · Stunting <b id="stunting">20.0%</b></div>
     <div class="angka" id="aparat"></div>
-    <button id="btnLaporan">Laporan</button> <button id="btnSuara">Suara: hidup</button>
+    <button id="btnLaporan">Laporan</button> <button id="btnSuara">Suara: hidup</button> <button id="btnSimpan">Simpan</button>
+    <div id="simpanInfo"></div>
   </div>
   <div id="prompt"></div>
   <div id="toast"></div>
   <div id="monolog"></div>
   <div id="bantuan">WASD/panah: jalan · Shift: lari · Seret mouse: putar kamera · Roda: zoom · R: laporan<br>
     <kbd>X</kbd> palak UMKM · <kbd>V</kbd> sewa aparat · <kbd>B</kbd> bakar · <kbd>T</kbd> tebang · <kbd>P</kbd> tanam sawit · <kbd>1</kbd> dapur MBG · <kbd>2</kbd> Kopdes · <kbd>F</kbd> selfie · <kbd>C</kbd> konferensi pers<br>
-    <kbd>U</kbd> pupuk · <kbd>O</kbd> oknum · <kbd>G</kbd> gelar · <kbd>E</kbd>/<kbd>K</kbd> berkas/kambing hitam (di Kantor Dinas)</div>
+    <kbd>U</kbd> pupuk · <kbd>O</kbd> oknum · <kbd>G</kbd> gelar · <kbd>E</kbd>/<kbd>K</kbd> berkas/kambing hitam (di Kantor Dinas)<br>
+    <kbd>Spasi</kbd> lompat · <kbd>N</kbd> naik/turun motor atau mobil dinas · <kbd>H</kbd> klakson · progres tersimpan otomatis</div>
 </div>
 
 <div id="sentuh">
@@ -44,6 +46,7 @@
     <button data-k="x">Palak</button><button data-k="v">Aparat</button><button data-k="b">Bakar</button><button data-k="t">Tebang</button><button data-k="p">Tanam</button>
     <button data-k="1">MBG</button><button data-k="2">Kopdes</button><button data-k="f">Selfie</button><button data-k="c">Pers</button><button data-k="e">Berkas</button>
     <button data-k="k">Kambing</button><button data-k="u">Pupuk<small id="hargaPupuk"></small></button><button data-k="o">Oknum<small id="hargaOknum"></small></button><button data-k="g">Gelar<small id="hargaGelar"></small></button>
+    <button data-k="j">Lompat</button><button data-k="n">Naik</button><button data-k="h">Klakson</button>
   </div>
 </div>
 <div id="melayang"></div>
@@ -56,6 +59,8 @@
     <p class="sub">Simulator Menteri Paling Berjasa Sepanjang Masa</p>
     <p>Anda <b>Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M.</b>, menteri terbaik yang pernah ada (menurut Anda). Tidak punya modal? Tarik "pajak" dari UMKM. Bakar hutan, tanam sawit, bangun dapur dan koperasi di tempat yang salah. Tidak ada akhir, hanya laporan tahunan.</p>
     <p class="redup">Pulau, tokoh, dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik. Anda di sini adalah pihak yang salah, dan akibatnya akan terlihat.</p>
+    <p id="infoSimpan" class="redup"></p>
+    <button id="lanjutkan" hidden>Lanjutkan</button>
     <button id="mulai">Mulai bertugas</button>
   </div>
 </div>

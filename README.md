@@ -24,6 +24,10 @@ Di komputer: WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mous
 
 Setiap interaksi punya efek visual dan suara: uang beterbangan ke kantong (atau keluar saat membayar), angka perubahan melayang, percikan api, serpihan kayu, konfeti, getar kamera. Tombol **Suara** di pojok kanan atas mematikan efek suara.
 
+**Kendaraan:** motor ada dekat titik mulai, mobil dinas (bersirene) dekat Kantor Dinas. Naik dengan `N`, kemudikan dengan W/A/S/D atau joystick. Kendaraan menabrak bangunan dan baliho, berhenti di tepi air, dan motor bisa melompat.
+
+**Simpan:** progres tersimpan otomatis di peramban (tiap 20 detik dan saat tab ditutup), plus tombol **Simpan**. Di layar judul pilih **Lanjutkan** atau **Mulai baru**. Simpanan hanya ada di peramban dan perangkat yang sama.
+
 Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (direshuffle, dipanggil KPK, demo besar) hanya berupa denda. Tiap 12 bulan muncul **Laporan Tahunan** yang membandingkan versi resmi dengan kenyataan (`R` untuk melihatnya kapan saja).
 
 Versi giliran (prototipe awal) masih ada di `web/giliran/index.html`.

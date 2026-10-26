@@ -51,7 +51,7 @@ button:hover{filter:brightness(1.1)}
 
 .kotak h1.kecil{font-size:1.4rem;letter-spacing:.02em}
 #penghasilan{color:#9ad98f}
-#btnLaporan,#btnSuara{pointer-events:auto;margin:6px 0 0;padding:4px 10px;min-height:0;font-size:.75rem;background:#ffffff30;color:#fff}
+#btnLaporan,#btnSuara,#btnSimpan{pointer-events:auto;margin:6px 0 0;padding:4px 10px;min-height:0;font-size:.75rem;background:#ffffff30;color:#fff}
 #aparat{color:#7fb0ff}
 #aksiSentuh small{display:block;font-size:.62rem;font-weight:400;opacity:.8}
 #aksiSentuh button.sorot{animation:denyut 0.9s infinite;background:#ffe27a;box-shadow:0 0 0 3px #fff}
@@ -104,3 +104,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 #cuan.bump{animation:bump .22s ease-out;color:#fff}
 @keyframes bump{40%{transform:scale(1.5)}}
 @media(max-height:480px){.mel{font-size:1rem}.mel.besar{font-size:1.4rem}}
+
+#simpanInfo{font-size:.72rem;color:#9ad98f;min-height:1em;opacity:0;transition:opacity .4s;text-align:right}
+#lanjutkan{background:#5fb36a;color:#06210c;margin-right:8px}
+#infoSimpan{margin:4px 0}
+@media(max-height:480px){#aksiSentuh button{height:36px;min-height:36px}}

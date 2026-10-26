@@ -441,3 +441,37 @@ export function ojol(indeks) {
   g.userData = { pemilik: pengendara, roda };
   return g;
 }
+
+// ---------- Kendaraan yang bisa dikendarai pemain ----------
+export function motorPemain() {
+  const g = new THREE.Group();
+  const cat = new THREE.MeshLambertMaterial({ color: 0xc89a2a }), krom = new THREE.MeshLambertMaterial({ color: 0xb8b8b8 });
+  g.add(kotak(cat, 0, 1.0, 0, 0.9, 0.6, 2.4), kotak(cat, 0, 1.55, 0.5, 0.8, 0.4, 1.0), kotak(M.hitam, 0, 1.32, -0.3, 0.8, 0.18, 1.0));
+  g.add(kotak(krom, 0, 1.2, 1.0, 0.14, 1.0, 0.14), kotak(M.hitam, 0, 1.7, 0.9, 1.5, 0.12, 0.12), kotak(krom, 0, 0.75, -1.15, 0.5, 0.2, 0.5));
+  const lampu = kotak(new THREE.MeshBasicMaterial({ color: 0xfff2b0 }), 0, 1.5, 1.2, 0.35, 0.25, 0.1); g.add(lampu);
+  const roda = [];
+  [1.1, -1.05].forEach(z => {
+    const r = mesh(geo.silinder, M.hitam, 0, 0.58, z, 0.58, 0.3, 0.58); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0, 0, 0, 0.5, 1.05, 0.2));
+    g.add(r); roda.push(r);
+  });
+  g.scale.setScalar(1.15);
+  g.userData = { roda };
+  return g;
+}
+export function mobilDinas() {
+  const g = new THREE.Group();
+  const cat = new THREE.MeshLambertMaterial({ color: 0x1e1e22 }), emasM = new THREE.MeshLambertMaterial({ color: 0xe8b83c });
+  const merah = new THREE.MeshBasicMaterial({ color: 0xff2a2a }), biru = new THREE.MeshBasicMaterial({ color: 0x2a6aff });
+  g.add(kotak(cat, 0, 1.15, 0, 2.7, 1.2, 6.0), kotak(cat, 0, 2.05, -0.2, 2.4, 1.0, 3.2), kotak(M.kaca, 0, 2.1, 1.32, 2.2, 0.8, 0.1), kotak(M.kaca, 0, 2.1, -1.74, 2.2, 0.8, 0.1));
+  [-1, 1].forEach(s => g.add(kotak(M.kaca, s * 1.22, 2.1, -0.2, 0.1, 0.75, 2.6)));
+  g.add(kotak(emasM, 0, 1.25, 3.02, 2.0, 0.28, 0.08), kotak(emasM, 0, 1.25, -3.02, 2.0, 0.28, 0.08));
+  [[-1, 2.9], [1, 2.9]].forEach(([s, z]) => g.add(kotak(new THREE.MeshBasicMaterial({ color: 0xfff2b0 }), s * 0.8, 1.2, z, 0.5, 0.3, 0.08)));
+  const lampuM = kotak(merah, -0.5, 2.7, -0.2, 0.9, 0.25, 0.5), lampuB = kotak(biru, 0.5, 2.7, -0.2, 0.9, 0.25, 0.5); g.add(lampuM, lampuB);
+  const roda = [];
+  [[-1.4, 1.9], [1.4, 1.9], [-1.4, -1.9], [1.4, -1.9]].forEach(([x, z]) => {
+    const r = mesh(geo.silinder, M.hitam, x, 0.7, z, 0.72, 0.32, 0.72); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0, 0, 0, 0.45, 1.05, 0.2)); g.add(r); roda.push(r);
+  });
+  const pl = papan('MOBIL DINAS', 2.4, 0.6, { latar: '#e8b83c' }); pl.position.set(0, 1.9, 3.1); g.add(pl);
+  g.userData = { roda, lampuM, lampuB };
+  return g;
+}

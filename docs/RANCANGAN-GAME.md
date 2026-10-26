@@ -361,3 +361,19 @@ Masukan: terlalu banyak tiang kosong, bangunan bertumpuk, tokoh sebaiknya berbaj
 - **Gerak:** bangunan "melompat" muncul dengan sedikit membal, kamera bergetar saat membangun, membakar, gagal, dan kena denda, pemilik kios dan ojol mengangkat tangan saat marah.
 - **Suara sintetis** (WebAudio, tanpa berkas audio): koin, gagal, api, kayu, tanam, bangun, diblokir, selfie, klakson, misi selesai, setoran, denda. Tombol **Suara** mematikannya, dan pilihan itu diingat.
 - **Kamera aman bangunan:** bila garis pandang tertembus bangunan, kamera dirapatkan ke tokoh agar tidak berada di dalam dinding.
+
+---
+
+## 15. Lompat, kendaraan, dan simpan progres
+
+**Lompat.** `Spasi` (ponsel: tombol Lompat) dengan fisika gravitasi, pose tangan terangkat, debu dan suara saat mendarat. Tokoh juga jatuh bila berjalan melewati tebing.
+
+**Kendaraan.** Motor (emas, dekat titik mulai) dan mobil dinas (hitam, sirene merah-biru berkedip, dekat Kantor Dinas). `N` untuk naik/turun, W/A/S/D atau joystick untuk gas, rem, mundur, dan belok. Belok hanya berpengaruh bila kendaraan bergerak, dan terbalik saat mundur. Kendaraan:
+- menabrak bangunan, baliho, dan kios (terdorong keluar, memantul, kamera bergetar, debu, suara tabrak);
+- berhenti di tepi air dan di tepi pulau, tetapi bisa menyeberangi jembatan;
+- motor bisa melompat dan miring saat belok, mobil tidak bisa melompat;
+- meninggalkan debu di belakang saat melaju cepat, bidang pandang kamera melebar mengikuti laju, dan kamera menyusul arah laju (kecuali pemain sedang memutar kamera);
+- punya suara mesin yang naik-turun mengikuti laju, dan klakson `H` membuat ojol di sekitarnya berhenti sejenak.
+Semua aksi tetap bisa dilakukan dari atas kendaraan, termasuk memalak (satir: "razia dari mobil dinas"). Misi 7 mengajarkan naik kendaraan.
+
+**Simpan.** `localStorage` peramban, kunci `republikEmas.simpan.v1`, sekitar 2,5 KB. Disimpan otomatis tiap 20 detik, saat tab disembunyikan atau ditutup, dan lewat tombol **Simpan**. Yang disimpan: semua indikator dan statistik, bulan dan waktu, misi, status tiap petak (hutan, api, lahan, sawit, termasuk pewaktu), semua bangunan (termasuk yang mangkrak), baliho, kios yang gulung tikar, ojol (posisi di jalur dan status mogok), posisi dan arah kendaraan, jumlah oknum, serta posisi tokoh dan kamera, termasuk bila sedang mengendarai. Layar judul menawarkan **Lanjutkan** dan **Mulai baru** (meminta konfirmasi sebelum menghapus). Pengujian: kondisi sebelum dan sesudah memuat ulang halaman identik. Keterbatasan: simpanan terikat pada satu peramban dan satu perangkat; mode privat dapat menolak penyimpanan (pemain diberi tahu); versi simpanan (`v`) disiapkan untuk migrasi di masa depan.
