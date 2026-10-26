@@ -171,7 +171,7 @@ Belum ada: Reshuffle, level kabur, animasi, suara, penyimpanan progres, dan jalu
 | **Cuan Nusantara** | Ringan, fokus pada "tani cuan" | Kurang tajam sebagai satir. |
 | **Semua Beres, Pak!** | Jawaban khas bawahan | Bagus untuk slogan. |
 
-**Rekomendasi:** judul **WANI PIRO? NUSANTARA**, subjudul *Simulator Menteri Asal Bapak Senang*.
+**Rekomendasi (diperbarui, lihat 8.7):** karena tokoh utama narsistik, judul harus memuji diri sendiri: **BERKAT SAYA, NEGERI INI MAJU**, subjudul *Simulator Menteri Paling Berjasa Sepanjang Masa*. Daftar judul di atas tetap berguna sebagai cadangan atau nama mode.
 
 **Hindari:** memelesetkan lambang negara (Garuda Pancasila), semboyan Bhinneka Tunggal Ika, bendera, atau lagu kebangsaan. UU 24/2009 melarang penghinaan terhadap simbol negara. Itu risiko hukum yang tidak perlu untuk sebuah lelucon.
 
@@ -227,3 +227,40 @@ Lingkup irisan vertikal pertama: satu pulau kecil, jalan kaki/motor, 20 petak hu
 2. Three.js atau Godot?
 3. Apakah dunia murni fiksi, atau terinspirasi peta nyata (Kalimantan, Jawa) dengan nama samaran?
 4. Rating target (semua umur atau 17+)? Ini memengaruhi seberapa gamblang adegan kebakaran dan kabut.
+
+### 8.7 Tokoh utama narsistik dan judul yang memuji diri sendiri
+
+#### Judul memuji diri (pilihan)
+| Judul | Catatan |
+|---|---|
+| **Berkat Saya, Negeri Ini Maju** | Rekomendasi. Pujian diri murni, mudah diingat, cocok jadi hashtag. |
+| **Tanpa Saya, Negeri Ini Bubar** | Versi lebih keras dan lebih lucu. |
+| **Menteri Paling Merakyat (Menurut Baliho Saya)** | Menyentuh budaya baliho. Agak panjang. |
+| **Sang Maestro Pembangunan** | Gelar bombastis, cocok untuk menu utama. |
+| **Hebat Banget Saya** | Singkat, kasual, bergaya TikTok. |
+| **Dr. (H.C.) Ir. H. Anu, S.E., M.M., Ph.D.: Putra Terbaik Bangsa** | Judul yang gelarnya makin panjang seiring permainan (lihat gelar di bawah). |
+
+Subjudul: *Simulator Menteri Paling Berjasa Sepanjang Masa*.
+
+#### Tokoh: Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M. (nama fiktif)
+Menteri yang yakin dirinya penyelamat bangsa. **Narsisme adalah sifat tokoh yang menjadi mekanik, bukan sekadar bumbu cerita.**
+
+- **Semua keberhasilan karena saya, semua kegagalan karena "oknum".** Setiap hasil menampilkan dua narasi: monolog batin yang memuji diri dan laporan resmi yang menyalahkan bawahan.
+- **Butuh pujian.** Indikator baru **Ego** turun jika tidak diberi pujian, kritik, atau ketika orang lain mendapat sorotan. Ego rendah membuat tokoh uring-uringan: kendali bergetar, dialog ketus, Restu Bos susah naik. Ego tinggi membuat lengah: Panas KPK naik karena ia merasa kebal.
+- **Tidak tahan kritik.** Kritik (warga, wartawan, staf jujur) bukan menurunkan Ego sendiri, melainkan memicu mode **Ngambek**: aksi baik terblokir sementara.
+- **Cermin dan selfie.** Tombol selfie di setiap lokasi. Foto selfie di tempat yang tampak "berhasil" menambah Viralitas dan Restu; selfie di tempat kerja sungguhan tidak menghasilkan apa-apa.
+- **Baliho.** Setiap bangunan dan kebun menambah baliho berwajah tokoh di peta, makin lama makin besar dan lebih banyak daripada bangunan sungguhan.
+- **Gelar bertambah.** Beli gelar kehormatan dan penghargaan dari "lembaga" abal-abal dengan Cuan. Nama di layar bertambah panjang hingga tidak muat. Gelar menaikkan Ego dan Kinerja Resmi, tidak menaikkan kemampuan.
+- **Pencitraan sebagai mata uang kedua.** Cuan membeli barang; **Citra** membeli perhatian. Citra didapat dari baliho, selfie, peresmian, dan penghargaan, dihabiskan untuk meredam Viralitas buruk.
+
+#### Monolog batin (contoh, fiktif)
+- "Sekali lagi, keputusan yang jenius. Sayang tidak ada yang mencatat."
+- "Kalau jembatan ini runtuh, itu pasti ulah oknum. Kalau berdiri, itu saya."
+- "Rakyat butuh pemimpin seperti saya. Saya juga butuh rakyat, untuk difoto."
+- "Gelar saya memang panjang. Prestasi saya lebih panjang."
+
+#### Hubungan dengan Bapak Presiden
+Bapak Presiden tetap sumber Restu Bos. Tokoh utama menjilat ke atas dan memuji diri ke samping. Ketika Presiden memuji menteri lain, Ego anjlok dan tokoh mulai merencanakan sabotase kecil.
+
+#### Batas satir
+Narsisme di sini adalah **tipe karakter** (pejabat yang haus pencitraan), bukan potret orang nyata. Nama, gelar, dan monolog sepenuhnya rekaan. Jangan memakai gelar atau ciri yang khas milik pejabat tertentu.
