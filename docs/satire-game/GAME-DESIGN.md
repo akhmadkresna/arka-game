@@ -87,3 +87,40 @@ The repo currently holds a Godot 4 toddler car game. Recommend a **separate proj
 2. Build the Leaking Budget screen alone: coin streams, tiers, percentages. Playtest whether it's funny with zero art.
 3. Add Viral Meter + one microgame (Ngeles press conference).
 4. Do a sensitivity pass on anything referencing real harm (food poisoning, protester deaths) before showing it publicly.
+
+---
+
+## 6. Character sheet: "Bapak Presiden" (caricature of Prabowo)
+
+**Role in game:** The source of *Restu Bos*. Not a playable character and not a villain you defeat. He is the sun the whole ministry orbits: every action is judged by how it looks from his chair.
+
+### Satire boundary (read before drawing anything)
+- **Target:** public persona, public statements, and policies (the free meals program, the flag-for-Independence-Day appeal, the state wealth fund, big-ticket projects inherited or continued, a large cabinet to staff).
+- **Do not:** accuse him of crimes, depict personal enrichment, or joke about the 1998-era human-rights allegations or the August 2025 deaths. Those are contested, serious, and legally and ethically a different category from caricaturing a public persona.
+- **Keep the name off the box.** Use a parody name ("Bapak Presiden", "Pak Jenderal Gemoy") and a stylized look; let the audience recognize it. Add the "all characters fictional" credit line.
+- **Legal:** the new criminal code reportedly covers insulting the president (verify the exact article and whether it is complaint-based). Have a lawyer review before any public release.
+
+### Look (stylized, not photoreal)
+| Trait | Caricature direction |
+|---|---|
+| Build | Stocky, upright military posture; big chest, small stride |
+| Head | Round face, short cropped hair, heavy brow, expressive jowls |
+| Outfit | Dark safari jacket with oversized medals, plus a black peci/songkok alternate skin |
+| Signature pose | Salute that turns into a dance mid-animation ("gemoy" campaign persona) |
+| Prop | Giant ceremonial scissors for ribbon cuttings; a food tray that keeps being handed to children, played gently |
+
+### Behavior in game
+- **Idle:** stands on a podium; whichever ministry hits "serapan 100%" gets a thumbs-up.
+- **Mood states:** *Happy* (Restu +), *Stern salute* (warning, next meter hit doubles), *Dance break* (all NPCs freeze for 3 seconds; free action window).
+- **Visits:** appears at "Gunting Pita" levels. If the project is visibly unfinished, the player must hide it with banners before he turns his head.
+- **Never fought or humiliated.** Humor comes from everyone arranging the world around his gaze, not from him being abused.
+
+### Voice and lines (examples, all invented)
+- "Pokoknya harus jalan. Tidak boleh ada yang tidak jalan." *(Just make it work. Nothing may not work.)*
+- "Serapan berapa persen?" *(What is your absorption rate?)*, the only question he ever asks.
+- "Bagus. Teruskan." *(Good. Carry on.)* Said whether or not the thing exists.
+
+### Model/asset notes
+- Style: low-poly or chibi, readable at small size, matching the existing Godot assets in `models/`.
+- Rig: simple humanoid with 3 animations (salute, dance, ribbon-cut) and a head-turn used by the "cover it up before he looks" mechanic.
+- Variants: ceremonial uniform, safari jacket, peci. Swap by Restu Bos tier.
