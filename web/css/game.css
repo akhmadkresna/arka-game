@@ -48,3 +48,22 @@ button:hover{filter:brightness(1.1)}
   #aksiSentuh{grid-template-columns:repeat(5,58px)}#aksiSentuh button{height:42px;min-height:42px}
   .sentuh #prompt{bottom:110px}.sentuh #monolog{bottom:160px}.sentuh #toast{top:70px}
 }
+
+#misi{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:min(460px,38vw);background:var(--kartu);border:1px solid var(--emas);border-radius:10px;padding:7px 12px;font-size:.8rem;line-height:1.3}
+#misi b{color:var(--emas)}
+.kotak h1.kecil{font-size:1.4rem;letter-spacing:.02em}
+#penghasilan{color:#9ad98f}
+#btnLaporan{pointer-events:auto;margin:6px 0 0;padding:4px 10px;min-height:0;font-size:.75rem;background:#ffffff30;color:#fff}
+#aparat{color:#7fb0ff}
+#aksiSentuh small{display:block;font-size:.62rem;font-weight:400;opacity:.8}
+#aksiSentuh button.sorot{animation:denyut 0.9s infinite;background:#ffe27a;box-shadow:0 0 0 3px #fff}
+@keyframes denyut{50%{transform:scale(1.1)}}
+.sentuh #misi{top:auto;bottom:auto;top:96px;max-width:min(520px,52vw);font-size:.72rem;padding:5px 9px}
+@media(max-height:480px){
+  #aksiSentuh{grid-template-columns:repeat(5,56px);gap:4px}
+  #aksiSentuh button{height:38px;min-height:38px;font-size:.7rem;line-height:1.05}
+  .sentuh #misi{top:6px;left:190px;transform:none;max-width:calc(100vw - 190px - 190px - 24px)}
+  .sentuh #prompt{bottom:6px;left:150px;right:300px;transform:none;max-width:none;font-size:.72rem;padding:5px 8px}
+  .sentuh #monolog{bottom:70px;left:150px;right:300px;transform:none;max-width:none;font-size:.8rem}
+  .sentuh #toast{top:100px}
+}

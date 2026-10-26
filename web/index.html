@@ -16,26 +16,30 @@
     <div class="baris"><span>Amarah Rakyat</span><div class="bar bahaya"><i id="bRakyat"></i></div></div>
     <div class="baris"><span>Kabut</span><div class="bar netral"><i id="bKabut"></i></div></div>
   </div>
+  <div id="misi"><b>Misi</b> <span id="misiTeks"></span></div>
   <div id="kananAtas">
-    <div id="bulan">Bulan 1/12</div>
-    <div class="angka">Cuan <b id="cuan">0</b></div>
-    <div class="angka">Setoran bulan ini <b id="kuota">0</b></div>
+    <div id="bulan">Bulan 1</div>
+    <div class="angka">Cuan <b id="cuan">0</b> <small id="penghasilan">+0/dtk</small></div>
+    <div class="angka">Setoran <b id="kuota">0</b> dalam <b id="sisaBulan">30 dtk</b></div>
     <div class="angka">Citra <b id="citra">0</b> · Berkas <b id="berkas">0</b></div>
     <div class="angka">Hutan <b id="hutan">100%</b> · Stunting <b id="stunting">20.0%</b></div>
+    <div class="angka" id="aparat"></div>
+    <button id="btnLaporan">Laporan</button>
   </div>
   <div id="prompt"></div>
   <div id="toast"></div>
   <div id="monolog"></div>
-  <div id="bantuan">WASD/panah: jalan · Shift: lari · Seret mouse: putar kamera · Roda: zoom<br>
-    B bakar · T tebang · P tanam sawit · 1 dapur MBG · 2 Kopdes · F selfie · C konferensi pers · G beli gelar (300) · E/K kantor dinas</div>
+  <div id="bantuan">WASD/panah: jalan · Shift: lari · Seret mouse: putar kamera · Roda: zoom · R: laporan<br>
+    <b>X</b> palak UMKM · <b>A</b> sewa aparat · <b>B</b> bakar · <b>T</b> tebang · <b>P</b> tanam sawit · <b>1</b> dapur MBG · <b>2</b> Kopdes · <b>F</b> selfie · <b>C</b> konferensi pers<br>
+    <b>U</b> pupuk · <b>O</b> oknum · <b>G</b> gelar · <b>E</b>/<b>K</b> berkas/kambing hitam (di Kantor Dinas)</div>
 </div>
+
 <div id="sentuh">
   <div id="joy"><div id="knob"></div></div>
   <div id="aksiSentuh">
-    <button data-k="b">Bakar</button><button data-k="t">Tebang</button><button data-k="p">Tanam</button>
-    <button data-k="1">MBG</button><button data-k="2">Kopdes</button><button data-k="f">Selfie</button>
-    <button data-k="c">Pers</button><button data-k="e">Berkas</button><button data-k="k">Kambing</button>
-    <button data-k="g">Gelar</button>
+    <button data-k="x">Palak</button><button data-k="a">Aparat</button><button data-k="b">Bakar</button><button data-k="t">Tebang</button><button data-k="p">Tanam</button>
+    <button data-k="1">MBG</button><button data-k="2">Kopdes</button><button data-k="f">Selfie</button><button data-k="c">Pers</button><button data-k="e">Berkas</button>
+    <button data-k="k">Kambing</button><button data-k="u">Pupuk<small id="hargaPupuk"></small></button><button data-k="o">Oknum<small id="hargaOknum"></small></button><button data-k="g">Gelar<small id="hargaGelar"></small></button>
   </div>
 </div>
 <div id="kilat"></div>
@@ -45,21 +49,29 @@
     <h1>REPUBLIK EMAS</h1>
     <h2>(anti stunting)</h2>
     <p class="sub">Simulator Menteri Paling Berjasa Sepanjang Masa</p>
-    <p>Anda <b>Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M.</b>, menteri terbaik yang pernah ada (menurut Anda). Setiap bulan Bos menagih setoran. Cari Cuan, jaga Restu Bos, dan bertahanlah 12 bulan.</p>
-    <p class="redup">Pulau, tokoh, dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik.</p>
+    <p>Anda <b>Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M.</b>, menteri terbaik yang pernah ada (menurut Anda). Tidak punya modal? Tarik "pajak" dari UMKM. Bakar hutan, tanam sawit, bangun dapur dan koperasi di tempat yang salah. Tidak ada akhir, hanya laporan tahunan.</p>
+    <p class="redup">Pulau, tokoh, dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik. Anda di sini adalah pihak yang salah, dan akibatnya akan terlihat.</p>
     <button id="mulai">Mulai bertugas</button>
   </div>
 </div>
 
-<div id="akhir" class="layar" hidden>
+<div id="laporan" class="layar" hidden>
   <div class="kotak">
-    <h1 id="akhirJudul"></h1>
-    <p id="akhirAlasan"></p>
+    <h1 id="laporanJudul"></h1>
+    <p id="laporanAlasan"></p>
     <div class="dua">
-      <div><h3>Laporan Resmi</h3><div id="akhirResmi"></div></div>
-      <div><h3>Kenyataan</h3><div id="akhirNyata"></div></div>
+      <div><h3>Laporan Resmi</h3><div id="laporanResmi"></div></div>
+      <div><h3>Kenyataan</h3><div id="laporanNyata"></div></div>
     </div>
-    <button id="ulang">Coba lagi dengan menteri baru</button>
+    <button id="lanjut">Lanjut menjabat</button>
+  </div>
+</div>
+
+<div id="kartu" class="layar" hidden>
+  <div class="kotak">
+    <h1 id="kartuJudul" class="kecil"></h1>
+    <p id="kartuTeks"></p>
+    <button id="kartuLanjut">Lanjut</button>
   </div>
 </div>
 

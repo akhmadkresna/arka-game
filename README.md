@@ -6,20 +6,23 @@ Semua tokoh dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang
 
 ## Cara main
 
-Game dunia terbuka 3D (Three.js, tanpa build). Karena memakai modul ES, jalankan lewat server lokal:
+Game dunia terbuka 3D santai tanpa akhir (Three.js, tanpa build). Karena memakai modul ES, jalankan lewat server lokal:
 
 ```sh
 python3 -m http.server 8000 --directory web
 # buka http://localhost:8000
 ```
 
-**Kontrol:** WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mouse zoom.
-**Aksi:** `B` bakar petak hutan, `T` tebang, `P` tanam sawit, `1` dapur MBG, `2` Kopdes, `F` selfie, `C` konferensi pers, `G` beli gelar, `E`/`K` berkas dan kambing hitam di Kantor Dinas.
+Di ponsel: joystick kiri bawah, tombol aksi kanan bawah, geser jari untuk memutar kamera, cubit untuk zoom. Mode lanskap disarankan.
+Di komputer: WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mouse zoom.
 
-- Masa jabatan 12 bulan (30 detik per bulan). Tiap akhir bulan Bos menagih **setoran** yang terus naik.
-- **Tani cuan:** bakar hutan lalu tanam sawit, atau bangun dapur MBG dan Kopdes. Membangun dekat desa **diblokir** birokrasi; membangun di tempat absurd (tepi sungai, tengah sawah, samping TPA) langsung disetujui, lalu mangkrak.
-- Berkas menurunkan Panas KPK saat membakar. Asap menaikkan Amarah Rakyat. Stunting nyata naik, laporan resmi selalu "turun".
-- Kalah jika Restu Bos habis, Panas KPK 100, atau Amarah Rakyat 100. Bermain jujur membuat Anda direshuffle sekitar bulan 5.
+**Tanpa modal? Mulai dari sini:**
+1. **Palak UMKM** (`X`): tarik "pajak" dari kios berpapan nama. Pemilik ramah (85%), biasa (60%), atau galak (30%) menentukan peluang berhasil. **Sewa aparat** (`A`, 120 Cuan, 60 detik) menjamin 100% berhasil, tapi 25% hasilnya untuk aparat dan Amarah Rakyat naik. Kios yang dipajaki tiga kali gulung tikar.
+2. **Bakar hutan** (`B`, gratis) lalu **tanam sawit** (`P`, 40 Cuan). Sawit menghasilkan Cuan sendiri.
+3. **Bangun dapur MBG** (`1`) atau **Kopdes** (`2`). Dekat desa diblokir birokrasi; di tempat absurd langsung disetujui, lalu mangkrak.
+4. Belanjakan Cuan: **Pupuk** (`U`), **Oknum** otomatis (`O`), **Gelar** (`G`), berkas (`E`) dan kambing hitam (`K`) di Kantor Dinas, selfie (`F`) dan konferensi pers (`C`).
+
+Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (direshuffle, dipanggil KPK, demo besar) hanya berupa denda. Tiap 12 bulan muncul **Laporan Tahunan** yang membandingkan versi resmi dengan kenyataan (`R` untuk melihatnya kapan saja).
 
 Versi giliran (prototipe awal) masih ada di `web/giliran/index.html`.
 

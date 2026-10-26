@@ -304,3 +304,23 @@ Keputusan: **Three.js**, **peta fiksi**. Irisan vertikal pertama ada di `web/` (
 **Belum ada:** kendaraan (motor ojol, mobil dinas dengan sirene), kontrol sentuh untuk ponsel, suara, NPC, kunjungan Presiden, Ego dan mode Ngambek, Reshuffle, level kabur, dan ending rahasia.
 
 **Asumsi rating:** tampilan bergaya low-poly tanpa gambar korban; kebakaran hanya berupa api kerucut, kabut, dan peta yang menggelap. Rating target belum diputuskan.
+
+---
+
+## 11. Pembaruan berdasarkan uji coba pertama
+
+Masukan pemain: (1) buat tanpa akhir dan lebih santai, (2) perbaiki peta, terrain, bangunan, hutan, (3) cara bertani tidak jelas dan Cuan habis sehingga tidak bisa membakar.
+
+**Akar masalah 3:** setoran bulan pertama (200) tepat menghabiskan modal awal (200), jadi pemain terjebak tanpa Cuan.
+
+**Perbaikan:**
+- **Tanpa modal lewat palak UMKM.** Pemain mulai dengan 20 Cuan dan bisa menarik "pajak" dari kios UMKM. Peluang berhasil bergantung pada pemilik (ramah 85%, biasa 60%, galak 30%). Menyewa aparat membuat 100% berhasil, dengan biaya sewa dan potongan 25%. Kegagalan membuat pemain dipermalukan (Cuan, Citra, Restu turun, Amarah Rakyat naik). Kios yang dipajaki tiga kali gulung tikar selama 120 detik, dan jumlahnya muncul di laporan "Kenyataan".
+- **Bakar gratis.** Tanam sawit 40 Cuan. Tidak pernah macet: setoran menyisakan minimal 20 Cuan.
+- **Misi berpenanda.** Panel misi dengan pilar cahaya kuning di dunia dan tombol relevan yang berkedip.
+- **Mode santai tanpa akhir.** Tidak ada game over. Kegagalan menjadi kartu denda. Laporan Tahunan tiap 12 bulan. Setoran = nilai dasar + 25% penghasilan bulanan, sehingga bisnis yang makin besar tetap ditagih.
+- **Pengeluaran jangka panjang:** pupuk (5 level), oknum otomatis (4), gelar kehormatan (7), aparat sewaan.
+- **Hutan tumbuh kembali** pada lahan yang dibiarkan 150 detik, supaya pertanian bisa terus berjalan.
+
+**Peta baru:** terrain berbukit prosedural dengan warna per ketinggian, sungai berkelok dan jembatan, jalan tanah, tiga zona hutan (tajuk bulat dan kerucut, ratusan pohon dekoratif, batu), dua desa dengan tiga jenis rumah, balai desa, lumbung, palem, tiang listrik, sawah bertekstur, TPA, Kantor Dinas bertiang, 14 kios UMKM dengan label pemilik, bangunan MBG dan Kopdes yang lebih detail, awan, dan perahu. Tanah di petak berubah warna: gelap saat terbakar, cokelat saat dibuka, hijau muda saat ditanami.
+
+**Satir dan kepekaan.** Dalam mekanik palak, pemain adalah pihak yang salah dan akibatnya ditampilkan (Amarah Rakyat naik, kios gulung tikar, laporan "Kenyataan" mencatat UMKM yang bangkrut). Pemilik kios tidak diejek; yang diejek adalah nama-nama "pajak" yang absurd dan aparat sewaan. "Aparat" dibuat generik dan fiktif, tanpa lambang instansi nyata. Pungli adalah masalah terdokumentasi (lihat bagian riset: Ombudsman RI mencatat ribuan aduan pungli per tahun).

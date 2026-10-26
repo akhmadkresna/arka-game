@@ -12,6 +12,14 @@ export const MONOLOG = {
   setoranKurang: ['Setoran kurang? Itu salah oknum di bagian setoran.', 'Bos kecewa. Pasti ada yang menyabotase kehebatan saya.'],
   ngeles: ['"Itu hoaks, tapi sudah kami evaluasi." Selalu manjur.'],
   berkas: ['Berkas rapi adalah perisai. Saya bawa dua.'],
+  pupuk: ['Pupuk bersubsidi, hasil non-subsidi. Itu namanya efisiensi.'],
+  oknum: ['Rekrut oknum baru. Dia bekerja, saya bertanggung jawab (atas fotonya).'],
+  gelar: ['Gelar baru. Ilmu? Itu urusan belakangan.'],
+  palak: ['Itu bukan memalak. Itu "kontribusi sukarela yang diwajibkan".', 'UMKM kuat kalau rajin berkontribusi. Pada saya.'],
+  palakGagal: ['Pemilik kiosnya tidak paham konsep "pajak". Sungguh kurang edukasi.', 'Videonya viral. Pasti editan.'],
+  aparat: ['Aparat sewaan: pengawal yang loyal selama bayarannya lancar.'],
+  tutup: ['Kiosnya tutup? Berarti pajaknya sudah lunas. Selamanya.'],
+  tumbuh: ['Hutan tumbuh lagi sendiri? Berarti saya boleh membakarnya lagi.'],
 };
 
 export const BLOKIR = [
@@ -30,12 +38,35 @@ export const LOKASI = {
   tpa: 'persis di samping tempat pembuangan sampah. Baunya ikut diresmikan.',
   hutan: 'di tengah hutan, jauh dari penduduk mana pun.',
   kantor: 'di halaman kantor dinas, demi efisiensi foto.',
+  bukit: 'di puncak bukit berangin. Tidak ada jalan, tapi pemandangannya bagus untuk baliho.',
   kosong: 'di lahan kosong tanpa jalan, tanpa air, tanpa penduduk.',
 };
 
-export const KARTU_AKHIR = {
-  restu: ['Direshuffle', 'Bos kehilangan kepercayaan. Besok pagi Anda tidak lagi menjabat.'],
-  panas: ['Dipanggil KPK', 'Berkas Anda dibuka. Kali ini kambing hitamnya tidak cukup.'],
-  rakyat: ['Dicopot setelah demo besar', 'Kemarahan rakyat tidak bisa lagi diredam dengan konferensi pers.'],
-  selesai: ['Masa jabatan selesai', 'Anda selamat. Sistem tersenyum. Bumi tidak.'],
+// Kartu denda: kegagalan di mode santai hanyalah kerugian
+export const DENDA = {
+  restu: ['Direshuffle (jabatan baru, nasib sama)', 'Bos kehilangan kepercayaan. Anda dipindah ke kementerian yang sama dengan nama berbeda. Denda administrasi 40% Cuan. Restu Bos dipulihkan ke 45.'],
+  panas: ['Dipanggil KPK (hanya sebagai saksi)', 'Berkas diperiksa, kambing hitam disita. Denda 40% Cuan. Berkas habis. Panas KPK turun ke 25.'],
+  rakyat: ['Demo besar di depan kantor', 'Rakyat turun ke jalan membawa panci. Anda "berdialog" dengan mereka, 30% Cuan hilang sebagai biaya dialog. Amarah turun ke 35.'],
 };
+
+// Panduan misi
+export const MISI = [
+  'Tidak punya modal? Ikuti penanda kuning ke warung terdekat, lalu tekan PALAK (tarik "pajak"). Pemilik galak bisa melawan. Sewa APARAT supaya 100% berhasil.',
+  'Sudah ada Cuan. Ikuti penanda kuning ke hutan, lalu tekan BAKAR (gratis).',
+  'Tunggu api padam, lalu TANAM sawit (40 Cuan). Dari sini Cuan mengalir sendiri.',
+  'Perbanyak kebun sawit: bakar dan tanam sampai 3 petak.',
+  'Bangun DAPUR MBG di tempat bebas (penanda kuning di bukit, jauh dari desa).',
+  'Sekarang coba bangun dekat desa. Lihat apa yang terjadi.',
+  'Bos menagih setoran tiap akhir bulan. Beli PUPUK, rekrut OKNUM, sewa APARAT. Selamat bertugas, tanpa akhir!',
+];
+
+export const PAJAK = [
+  'Pajak Keamanan Lingkungan', 'Retribusi Bayangan', 'Iuran Sampah Spiritual', 'Pajak Kehadiran',
+  'Biaya Izin Berjualan Sambil Berdiri', 'Sumbangan Wajib Pembangunan', 'Pajak Udara Segar', 'Iuran Fotokopi Berkas Imajiner',
+];
+export const GAGAL = [
+  'Pemilik kios berteriak, menyiram Anda dengan air cucian, dan warga merekam semuanya.',
+  'Pemilik kios mengancam melapor. Videonya sudah ditonton ribuan orang.',
+  'Ibu pemilik kios lebih galak dari aparat mana pun. Anda mundur teratur.',
+  'Pemilik kios menunjukkan struk yang membuktikan Anda yang berutang. Memalukan.',
+];
