@@ -4,7 +4,7 @@ import { R, DESA, SAWAH, TPA, KANTOR, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA,
 import { tinggi, lantai, buatTerrain } from './terrain.js';
 import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan } from './objek.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
-import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL } from './teks.js';
+import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL } from './teks.js';
 
 // ---------- Konstanta permainan ----------
 const DETIK_PER_BULAN = 30;
@@ -114,6 +114,9 @@ let wToast = 0, wMono = 0;
 function toast(teks) { $('toast').textContent = teks; $('toast').style.opacity = 1; wToast = 3.6; }
 function monolog(kunci) { $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
 function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warna; f.style.transition = 'none'; f.style.opacity = 0.85; requestAnimationFrame(() => { f.style.transition = 'opacity .6s'; f.style.opacity = 0; }); }
+// Nama tombol sesuai perangkat: ponsel menampilkan nama tombol, komputer menampilkan hurufnya
+const tb = k => `<kbd>${sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
+const isiTombol = teks => teks.replace(/\{(\w)\}/g, (_, k) => tb(k));
 let promptLama = '';
 function setPrompt(h) { if (h !== promptLama) { $('prompt').innerHTML = h; $('prompt').style.visibility = h ? 'visible' : 'hidden'; promptLama = h; } }
 function kartu(judul, teks, tombolTeks = 'Lanjut') {
@@ -262,7 +265,7 @@ function rekrutOknum() {
 function aksiTombol(k) {
   if (!G.jalan || G.jeda) return;
   const p = petakDi(pemain.position.x, pemain.position.z);
-  if (k === 'x') palak(); else if (k === 'a') sewaAparat();
+  if (k === 'x') palak(); else if (k === 'v') sewaAparat();
   else if (k === 'b') bakar(p); else if (k === 't') tebang(p); else if (k === 'p') tanam(p);
   else if (k === '1') bangun('mbg'); else if (k === '2') bangun('kopdes');
   else if (k === 'f') selfie(); else if (k === 'c') ngeles();
@@ -283,23 +286,69 @@ const MISI_DEF = [
   { selesai: () => G.stat.blokir >= 1, target: () => DESA[0], sorot: '1' },
   { selesai: () => false, target: () => null, sorot: null },
 ];
+let targetTerakhir = null, wMisiBaru = 0, misiTampil = -1, sigTombol = '';
 function perbaruiMisi() {
-  while (G.misi < MISI_DEF.length - 1 && MISI_DEF[G.misi].selesai()) { G.misi++; toast('Misi selesai!'); }
-  const d = MISI_DEF[G.misi], t = d.target();
+  const sebelum = G.misi;
+  while (G.misi < MISI_DEF.length - 1 && MISI_DEF[G.misi].selesai()) { G.misi++; }
+  if (G.misi !== sebelum) { toast(`Misi ${G.misi} selesai! Lanjut ke misi berikutnya.`); wMisiBaru = 5; }
+  const d = MISI_DEF[G.misi];
+  const t = d.target() || targetTerakhir; // jangan sampai penanda hilang
+  targetTerakhir = t;
   const tx = t ? (t.cx ?? t.x) : null, tz = t ? (t.cz ?? t.z) : null;
-  const dekat = t && jarakDua(pemain.position.x, pemain.position.z, tx, tz) < 16;
-  if (t && !dekat) { tujuan.visible = true; tujuan.position.set(tx, tinggi(tx, tz), tz); tujuan.userData.kerucut.position.y = 14 + Math.sin(waktu * 3) * 1.2; } else tujuan.visible = false;
-  const meter = t ? Math.round(jarakDua(pemain.position.x, pemain.position.z, tx, tz)) : null;
-  $('misiTeks').textContent = MISI[G.misi] + (meter !== null && meter > 12 ? `  (${meter} m)` : '');
+  const px = pemain.position.x, pz = pemain.position.z;
+  const jarakT = t ? jarakDua(px, pz, tx, tz) : 0, jauh = jarakT > 22;
+  if (t) {
+    const u = tujuan.userData;
+    tujuan.visible = true; tujuan.position.set(tx, tinggi(tx, tz), tz);
+    u.tabung.visible = jauh;
+    u.kerucut.position.y = (jauh ? 14 : 10) + Math.sin(waktu * 4) * 1.2;
+    const s = 1 + 0.12 * Math.sin(waktu * 5); u.cincin.scale.set(s, s, s);
+  } else tujuan.visible = false;
+  // Teks misi (diperbarui hanya saat berganti langkah atau perangkat berubah)
+  if (misiTampil !== G.misi) {
+    misiTampil = G.misi;
+    $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`;
+    $('misiTeks').innerHTML = isiTombol(MISI[G.misi].teks);
+  }
+  $('misi').classList.toggle('baru', wMisiBaru > 0);
+  // Panah kompas di layar menunjuk ke tujuan
+  const kp = $('panah');
+  if (t && jarakT > 6) {
+    const dx = tx - px, dz = tz - pz;
+    const kanan = dx * Math.cos(yaw) + dz * -Math.sin(yaw), depan = dx * -Math.sin(yaw) + dz * -Math.cos(yaw);
+    $('panahIkon').style.transform = `rotate(${Math.atan2(kanan, depan)}rad)`;
+    $('panahJarak').textContent = Math.round(jarakT) + ' m';
+    kp.style.visibility = 'visible';
+  } else kp.style.visibility = 'hidden';
   return d.sorot;
 }
 
+// Tombol sentuh: sorot yang harus ditekan, redupkan yang belum perlu, dan taruh gelembung "Ketuk" di atasnya
+function perbaruiTombol(s) {
+  const buka = MISI[G.misi].buka;
+  const sig = s + '|' + G.misi;
+  if (sig !== sigTombol) {
+    sigTombol = sig;
+    document.querySelectorAll('#aksiSentuh button').forEach(b => {
+      b.classList.toggle('sorot', b.dataset.k === s);
+      b.classList.toggle('redup', !!buka && !buka.includes(b.dataset.k) && b.dataset.k !== s);
+    });
+  }
+  const gl = $('gelembung');
+  if (sentuh && s) {
+    const bt = document.querySelector(`#aksiSentuh button[data-k="${s}"]`);
+    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = (r.left + r.width / 2) + 'px'; gl.style.top = (r.top - 30) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
+  }
+  gl.style.visibility = 'hidden';
+}
+
 // ---------- Pembaruan ----------
-let waktu = 0, sorotLama = '';
+let waktu = 0;
 function update(dt) {
   waktu += dt;
   if (wToast > 0 && (wToast -= dt) <= 0) $('toast').style.opacity = 0;
   if (wMono > 0 && (wMono -= dt) <= 0) $('monolog').style.opacity = 0;
+  if (wMisiBaru > 0) wMisiBaru -= dt;
   if (!G.jalan || G.jeda) return;
 
   // Gerak relatif kamera, berhenti di air
@@ -408,17 +457,22 @@ function update(dt) {
   let h = '';
   if (u) {
     const peluang = G.aparat > 0 ? 100 : Math.round(PELUANG[u.tipe] * 100);
-    h = u.tutup ? `${u.nama}: gulung tikar.` : `${u.nama} · pemilik ${u.tipe.toUpperCase()} · peluang ${peluang}% · <b>X</b> Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · <b>A</b> Sewa aparat (${HARGA.aparat})`}`;
+    h = u.tutup ? `${u.nama}: gulung tikar.` : `${u.nama} · pemilik ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${HARGA.aparat})`}`;
   } else if (p) {
-    if (p.status === 'hutan') h = `Petak hutan: <b>B</b> Bakar (gratis) · <b>T</b> Tebang (${HARGA.tebang})`;
-    else if (p.status === 'lahan') h = `Lahan terbuka: <b>P</b> Tanam sawit (${HARGA.tanam})`;
+    if (p.status === 'hutan') h = `Petak hutan: ${tb('b')} Bakar (gratis) · ${tb('t')} Tebang (${HARGA.tebang})`;
+    else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${HARGA.tanam})`;
     else if (p.status === 'sawit') h = 'Kebun sawit: panen otomatis. Jauhkan dari api.';
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
-  } else if (dekatKantor()) h = `Kantor Dinas: <b>E</b> Berkas (${HARGA.berkas}) · <b>K</b> Kambing hitam (${HARGA.kambing})`;
+  } else if (dekatKantor()) h = `Kantor Dinas: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
   setPrompt(h);
-  let s = sorot;
-  if (u && !u.tutup && u.cd <= 0) s = 'x'; else if (p && p.status === 'hutan' && G.misi >= 1) s = 'b'; else if (p && p.status === 'lahan') s = 'p';
-  if (s !== sorotLama) { document.querySelectorAll('#aksiSentuh button').forEach(b => b.classList.toggle('sorot', b.dataset.k === s)); sorotLama = s; }
+  // Sorot tombol hanya saat aksinya benar-benar bisa dilakukan sekarang
+  let s = null;
+  const tt = targetTerakhir, dekatTarget = tt && jarakDua(pemain.position.x, pemain.position.z, tt.cx ?? tt.x, tt.cz ?? tt.z) < 20;
+  if (u && !u.tutup && u.cd <= 0 && (G.misi === 0 || G.cuan < HARGA.tanam)) s = 'x';
+  else if (p && p.status === 'hutan' && (G.misi === 1 || G.misi === 3)) s = 'b';
+  else if (p && p.status === 'lahan' && G.misi >= 2 && G.cuan >= HARGA.tanam) s = 'p';
+  else if ((G.misi === 4 || G.misi === 5) && dekatTarget && !p) s = '1';
+  perbaruiTombol(s);
 }
 
 function akhirBulan() {
@@ -512,5 +566,5 @@ document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener(
 if (sentuh) document.body.classList.add('sentuh');
 
 // Kait untuk pengujian otomatis
-window.__g = { info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
+window.__g = { tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };

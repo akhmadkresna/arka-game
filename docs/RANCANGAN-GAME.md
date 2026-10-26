@@ -335,3 +335,13 @@ Masukan: terlalu banyak tiang kosong, bangunan bertumpuk, tokoh sebaiknya berbaj
 - **Tidak ada tumpang tindih:** modul `web/js/tata.js` menjaga "jejak" lingkaran untuk semua benda tetap. Desa (rumah, balai, lumbung, palem) disusun otomatis dengan pengecekan tabrakan dan menjauhi jalan. Pengecekan menemukan tiga kios yang bertumpuk (dengan Kantor Dinas, dengan TPA, dan di dalam petak hutan) dan ketiganya digeser. Saat pemain membangun: lokasi yang sudah dipakai ditolak ("Geser sedikit"), petak yang masih hutan atau sawit ditolak ("Bakar atau tebang dulu, baru bangun"), pohon dan batu di sekitar bangunan disingkirkan, dan baliho dicarikan tempat kosong.
 - **Baju krem, tanpa medali:** jaket safari krem, medali emas dihapus.
 - **Proporsi:** akar masalahnya pemilik kios berskala 0,55 sedangkan tokoh utama 1,0. Semua manusia kini berskala sama (0,5), kios dan rumah diperbesar 1,3 kali, kecepatan dan kamera disesuaikan dengan tokoh yang lebih kecil. Teks papan kini mengecil otomatis agar muat.
+
+---
+
+## 13. Perbaikan dari uji coba ketiga
+
+1. **Bug sewa aparat saat berjalan.** Penyebab: tombol `A` dipakai untuk dua hal (jalan ke kiri dan sewa aparat), sehingga setiap berjalan ke kiri pemain tanpa sadar menyewa aparat dan kehilangan 120 Cuan. Sewa aparat dipindah ke tombol `V`. Pengujian: menahan `A` dan `D` tidak lagi mengurangi Cuan.
+2. **Penanda misi hilang saat sampai.** Penanda kini terdiri dari balok cahaya (hanya saat jauh), cincin di tanah, dan panah melayang yang selalu terlihat, dan tidak lagi bergantung pada pencarian target yang bisa kosong (ada cadangan target terakhir).
+3. **Baju krem.** Warna jaket dibuat krem terang dengan cahaya tambahan supaya tidak tampak kecokelatan. Alur deploy kini menambahkan `?v=<commit>` pada semua berkas JS dan CSS supaya peramban tidak memakai versi lama dari cache. Ini kemungkinan alasan baju lama masih terlihat.
+4. **Petunjuk misi lebih mencolok.** Kartu misi besar dengan nomor langkah, berkedip saat berganti langkah, dan panah kompas di layar dengan jarak ke tujuan.
+5. **Petunjuk tombol lebih jelas.** Nama tombol ditampilkan sebagai keycap sesuai perangkat (ponsel: nama tombol; komputer: huruf). Tombol yang belum relevan diredupkan, tombol yang harus ditekan berkedip dengan gelembung "Ketuk ...", dan sorotan hanya muncul saat aksinya benar-benar bisa dilakukan.

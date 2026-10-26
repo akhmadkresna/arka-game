@@ -25,7 +25,7 @@ export const M = {
   kayu: new THREE.MeshLambertMaterial({ color: 0x8a6a42 }),
   sampah: new THREE.MeshLambertMaterial({ color: 0x5b4b3a }),
   kantor: new THREE.MeshLambertMaterial({ color: 0xcfc8b4 }),
-  jaket: new THREE.MeshLambertMaterial({ color: 0xe2d3ae }),
+  jaket: new THREE.MeshLambertMaterial({ color: 0xf5e9c8, emissive: 0x6a5e40 }), // krem terang
   rompi: new THREE.MeshLambertMaterial({ color: 0xe0701a }),
   kulit: new THREE.MeshLambertMaterial({ color: 0xc98f63 }),
   hitam: new THREE.MeshLambertMaterial({ color: 0x111111 }),
@@ -369,11 +369,13 @@ export function baliho(x, z, hadap, tema = 'BERKAT SAYA,\nNEGERI INI MAJU!') {
   g.position.set(x, tinggi(x, z), z); g.rotation.y = hadap;
   return g;
 }
-export function pilar() { // penanda tujuan
+export function pilar() { // penanda tujuan: balok cahaya (jauh), cincin dan panah (selalu terlihat)
   const g = new THREE.Group();
   const tabung = mesh(geo.silinder, new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.28, depthWrite: false, fog: false }), 0, 30, 0, 2.4, 60, 2.4);
-  const kerucut = mesh(geo.kerucut, new THREE.MeshBasicMaterial({ color: 0xffd23a, fog: false }), 0, 12, 0, 2.2, 3.6, 2.2); kerucut.rotation.x = Math.PI;
-  g.add(tabung, kerucut); g.userData.kerucut = kerucut;
+  const kerucut = mesh(geo.kerucut, new THREE.MeshBasicMaterial({ color: 0xffd23a, fog: false, depthTest: false }), 0, 12, 0, 2.2, 3.6, 2.2); kerucut.rotation.x = Math.PI; kerucut.renderOrder = 10;
+  const cincin = new THREE.Mesh(new THREE.RingGeometry(4.2, 5.4, 40), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.9, side: THREE.DoubleSide, fog: false, depthTest: false }));
+  cincin.rotation.x = -Math.PI / 2; cincin.position.y = 0.5; cincin.renderOrder = 10;
+  g.add(tabung, kerucut, cincin); g.userData = { tabung, kerucut, cincin };
   return g;
 }
 

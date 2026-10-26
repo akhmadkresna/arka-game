@@ -21,6 +21,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: Beri versi pada berkas (hindari cache lama di peramban)
+        run: |
+          V="${GITHUB_SHA::7}"
+          sed -i -E "s#(from '[^']+\.js)'#\1?v=$V'#g" web/js/*.js
+          sed -i -E "s#(src=\"js/main\.js)\"#\1?v=$V\"#; s#(href=\"css/game\.css)\"#\1?v=$V\"#" web/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

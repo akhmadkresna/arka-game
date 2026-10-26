@@ -49,15 +49,16 @@ export const DENDA = {
   rakyat: ['Demo besar di depan kantor', 'Rakyat turun ke jalan membawa panci. Anda "berdialog" dengan mereka, 30% Cuan hilang sebagai biaya dialog. Amarah turun ke 35.'],
 };
 
-// Panduan misi
+// Panduan misi. {x} dst. diganti nama tombol sesuai perangkat. buka = tombol yang relevan (null = semua).
+export const NAMA_TOMBOL = { x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'MBG', '2': 'Kopdes', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
 export const MISI = [
-  'Tidak punya modal? Ikuti penanda kuning ke warung terdekat, lalu tekan PALAK (tarik "pajak"). Pemilik galak bisa melawan. Sewa APARAT supaya 100% berhasil.',
-  'Sudah ada Cuan. Ikuti penanda kuning ke hutan, lalu tekan BAKAR (gratis).',
-  'Tunggu api padam, lalu TANAM sawit (40 Cuan). Dari sini Cuan mengalir sendiri.',
-  'Perbanyak kebun sawit: bakar dan tanam sampai 3 petak.',
-  'Bangun DAPUR MBG di tempat bebas (penanda kuning di bukit, jauh dari desa).',
-  'Sekarang coba bangun dekat desa. Lihat apa yang terjadi.',
-  'Bos menagih setoran tiap akhir bulan. Beli PUPUK, rekrut OKNUM, sewa APARAT. Selamat bertugas, tanpa akhir!',
+  { teks: 'Tidak punya modal? Jalan ke warung yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
+  { teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },
+  { teks: 'Tunggu api padam (sekitar 7 detik), lalu tekan {p} untuk menanam sawit (40 Cuan). Setelah ini Cuan mengalir sendiri.', buka: ['p', 'b', 't', 'x', 'v'] },
+  { teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },
+  { teks: 'Bangun dapur: jalan ke titik yang ditandai (jauh dari desa), hadapkan tokoh ke tanah kosong, lalu tekan {1}.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
+  { teks: 'Sekarang coba bangun dekat desa: hadapkan tokoh ke desa, lalu tekan {1}. Lihat apa yang terjadi.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
+  { teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Selamat bertugas, tanpa akhir!', buka: null },
 ];
 
 export const PAJAK = [
