@@ -3,6 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 import { R, DESA, SAWAH, TPA, KANTOR, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG } from './konfig.js';
 import { tinggi, lantai, buatTerrain } from './terrain.js';
 import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan } from './objek.js';
+import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL } from './teks.js';
 
 // ---------- Konstanta permainan ----------
@@ -60,21 +61,21 @@ const KIOS = UMKM.map((u, i) => {
   const h = tinggi(u.x, u.z);
   g.add(new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.4, 4.6), M.batu)); g.children[g.children.length - 1].position.set(0, -0.8, 0);
   g.position.set(u.x, h, u.z);
+  g.scale.setScalar(1.3);
   g.rotation.y = Math.atan2(SPAWN.x - u.x, SPAWN.z - u.z);
   scene.add(g);
   return { ...u, g, cd: 0, berhasil: 0, tutup: false, sisaTutup: 0, marah: 0 };
 });
 
-// Baliho awal di sekitar titik mulai
+// Baliho awal (posisi dijamin tidak menabrak benda lain, lihat tata.js)
 function pasangBaliho(x, z, hadap, tema) { const b = baliho(x, z, hadap, tema); scene.add(b); G.baliho++; return b; }
-pasangBaliho(-30, 22, 0.5); pasangBaliho(30, 26, -0.5, 'EMAS UNTUK\nSEMUA (KECUALI ANDA)');
-pasangBaliho(40, 12, Math.PI / 2, 'PAJAK ITU\nGOTONG ROYONG'); // di dekat jembatan
+BALIHO_AWAL.forEach(b => pasangBaliho(b.x, b.z, b.ry, b.tema));
 
 // Penanda tujuan
 const tujuan = pilar(); tujuan.visible = false; scene.add(tujuan);
 
 // ---------- Kamera dan masukan ----------
-let yaw = 0.0, pitch = 0.42, jarak = 16;
+let yaw = 0.0, pitch = 0.42, jarak = 11;
 const tombol = {};
 let joyX = 0, joyY = 0;
 const jari = new Map();
@@ -86,12 +87,12 @@ kanvas.addEventListener('pointermove', e => {
 });
 const lepas = e => jari.delete(e.pointerId);
 kanvas.addEventListener('pointerup', lepas); kanvas.addEventListener('pointercancel', lepas);
-kanvas.addEventListener('wheel', e => { jarak = Math.max(7, Math.min(40, jarak + e.deltaY * 0.02)); }, { passive: true });
+kanvas.addEventListener('wheel', e => { jarak = Math.max(5, Math.min(32, jarak + e.deltaY * 0.02)); }, { passive: true });
 let jarakCubit = 0;
 kanvas.addEventListener('touchmove', e => {
   if (e.touches.length !== 2) { jarakCubit = 0; return; }
   const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-  if (jarakCubit) jarak = Math.max(7, Math.min(40, jarak - (d - jarakCubit) * 0.05));
+  if (jarakCubit) jarak = Math.max(5, Math.min(32, jarak - (d - jarakCubit) * 0.04));
   jarakCubit = d;
 }, { passive: true });
 kanvas.addEventListener('touchend', () => { jarakCubit = 0; }, { passive: true });
@@ -204,6 +205,10 @@ function bangun(jenis) {
   const x = pemain.position.x + Math.sin(ry) * 9, z = pemain.position.z + Math.cos(ry) * 9;
   const l = klasifikasi(x, z);
   if (l.k === 'air') return toast('Itu air. Izin reklamasinya belum terbit.');
+  const pt = petakDi(x, z);
+  if (pt && (pt.status === 'hutan' || pt.status === 'sawit')) return toast(`Petak ini masih ditumbuhi ${pt.status === 'hutan' ? 'hutan' : 'sawit'}. Bakar atau tebang dulu, baru bangun.`);
+  if (pt && pt.status === 'api') return toast('Api sedang menyala. Tunggu padam dulu.');
+  if (!l.benar && !adaTempat(x, z, 9, 1)) return toast('Sudah ada bangunan di sini. Geser sedikit.');
   if (!bisaBayar(biaya)) return;
   if (l.benar) {
     G.cuan = Math.max(0, G.cuan - 10); G.restu = batas(G.restu - 3); G.stat.blokir++;
@@ -216,7 +221,11 @@ function bangun(jenis) {
   const fond = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 11), M.batu); fond.position.y = -1.6; g.add(fond);
   g.position.set(x, tinggi(x, z), z); g.rotation.y = ry + Math.PI; scene.add(g);
   G.bangunan.push({ jenis, umur: 0, mangkrak: false, g, x, z });
-  pasangBaliho(x + 14 * Math.cos(ry), z - 14 * Math.sin(ry), ry + Math.PI);
+  tambahJejak(x, z, 9, 'bangunan'); dunia.bersihkan(x, z, 14);
+  const rot = ry + Math.PI, depan = [Math.sin(rot), Math.cos(rot)], kanan = [Math.cos(rot), -Math.sin(rot)];
+  const calon = [[kanan[0] * 17, kanan[1] * 17], [-kanan[0] * 17, -kanan[1] * 17], [depan[0] * 18, depan[1] * 18], [-depan[0] * 18, -depan[1] * 18]];
+  const tempat = calon.map(([dx, dz]) => [x + dx, z + dz]).find(([bx, bz]) => tinggi(bx, bz) > 0.6 && !klasifikasi(bx, bz).benar && !petakDi(bx, bz) && adaTempat(bx, bz, 6, 0.5));
+  if (tempat) { pasangBaliho(tempat[0], tempat[1], rot); tambahJejak(tempat[0], tempat[1], 6, 'baliho'); dunia.bersihkan(tempat[0], tempat[1], 8); }
   toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MBG)' : 'KOPDES EMAS'} berdiri ${LOKASI[l.k]}`); monolog('bangun');
 }
 function selfie() {
@@ -246,7 +255,7 @@ function rekrutOknum() {
   if (G.oknum >= MAKS_OKNUM) return toast('Oknum sudah penuh. Kantor tidak muat lagi.');
   const b = hargaOknum(G.oknum); if (!bisaBayar(b)) return;
   G.cuan -= b; G.oknum++;
-  const f = manusia(M.rompi, false, 0.85); f.position.copy(pemain.position); scene.add(f);
+  const f = manusia(M.rompi, false); f.position.copy(pemain.position); scene.add(f);
   daftarOknum.push({ f, waktu: 2 });
   toast('Oknum direkrut: otomatis menanam dan membakar. Anda hanya bertanggung jawab atas fotonya.'); monolog('oknum');
 }
@@ -303,7 +312,7 @@ function update(dt) {
   if (joyX || joyY) { mx += fx * -joyY + rx * joyX; mz += fz * -joyY + rz * joyX; }
   const bergerak = mx || mz;
   if (bergerak) {
-    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 24 : 13) * dt;
+    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * dt;
     const nx = pemain.position.x + mx / n * v, nz = pemain.position.z + mz / n * v;
     if (lantai(nx, nz) > 0.25 && Math.hypot(nx, nz) < R - 8) { pemain.position.x = nx; pemain.position.z = nz; }
     else if (lantai(nx, pemain.position.z) > 0.25) pemain.position.x = nx;
@@ -462,15 +471,15 @@ function hud() {
   $('hargaGelar').textContent = G.gelar >= GELAR.length ? 'maks' : hargaGelar(G.gelar);
 }
 
-let pitchPakai = 0.42, jarakPakai = 16;
+let pitchPakai = 0.42, jarakPakai = 11;
 function kameraIkut() {
-  const tx = pemain.position.x, ty = pemain.position.y + 3.2, tz = pemain.position.z;
+  const tx = pemain.position.x, ty = pemain.position.y + 2.2, tz = pemain.position.z;
   // Di dalam hutan, naikkan kamera supaya tajuk pohon tidak menutupi tokoh
   const dalamHutan = petakDi(tx, tz)?.status === 'hutan';
   pitchPakai += ((dalamHutan ? Math.max(pitch, 0.95) : pitch) - pitchPakai) * 0.08;
-  jarakPakai += ((dalamHutan ? Math.max(jarak, 20) : jarak) - jarakPakai) * 0.08;
+  jarakPakai += ((dalamHutan ? Math.max(jarak, 15) : jarak) - jarakPakai) * 0.08;
   let cx = tx + Math.sin(yaw) * Math.cos(pitchPakai) * jarakPakai, cy = ty + Math.sin(pitchPakai) * jarakPakai, cz = tz + Math.cos(yaw) * Math.cos(pitchPakai) * jarakPakai;
-  cy = Math.max(cy, tinggi(cx, cz) + 2.2);
+  cy = Math.max(cy, tinggi(cx, cz) + 1.6);
   kamera.position.set(cx, cy, cz);
   kamera.lookAt(tx, ty, tz);
 }

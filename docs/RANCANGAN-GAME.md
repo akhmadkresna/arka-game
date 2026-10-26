@@ -324,3 +324,14 @@ Masukan pemain: (1) buat tanpa akhir dan lebih santai, (2) perbaiki peta, terrai
 **Peta baru:** terrain berbukit prosedural dengan warna per ketinggian, sungai berkelok dan jembatan, jalan tanah, tiga zona hutan (tajuk bulat dan kerucut, ratusan pohon dekoratif, batu), dua desa dengan tiga jenis rumah, balai desa, lumbung, palem, tiang listrik, sawah bertekstur, TPA, Kantor Dinas bertiang, 14 kios UMKM dengan label pemilik, bangunan MBG dan Kopdes yang lebih detail, awan, dan perahu. Tanah di petak berubah warna: gelap saat terbakar, cokelat saat dibuka, hijau muda saat ditanami.
 
 **Satir dan kepekaan.** Dalam mekanik palak, pemain adalah pihak yang salah dan akibatnya ditampilkan (Amarah Rakyat naik, kios gulung tikar, laporan "Kenyataan" mencatat UMKM yang bangkrut). Pemilik kios tidak diejek; yang diejek adalah nama-nama "pajak" yang absurd dan aparat sewaan. "Aparat" dibuat generik dan fiktif, tanpa lambang instansi nyata. Pungli adalah masalah terdokumentasi (lihat bagian riset: Ombudsman RI mencatat ribuan aduan pungli per tahun).
+
+---
+
+## 12. Perbaikan tampilan dari uji coba kedua
+
+Masukan: terlalu banyak tiang kosong, bangunan bertumpuk, tokoh sebaiknya berbaju krem tanpa medali besar, dan proporsi tokoh utama dengan UMKM tidak seimbang (UMKM terlalu kecil).
+
+- **Tiang kosong dihapus:** tiang listrik tanpa kabel di sepanjang jalan dan patok kecil di sudut sawah dibuang.
+- **Tidak ada tumpang tindih:** modul `web/js/tata.js` menjaga "jejak" lingkaran untuk semua benda tetap. Desa (rumah, balai, lumbung, palem) disusun otomatis dengan pengecekan tabrakan dan menjauhi jalan. Pengecekan menemukan tiga kios yang bertumpuk (dengan Kantor Dinas, dengan TPA, dan di dalam petak hutan) dan ketiganya digeser. Saat pemain membangun: lokasi yang sudah dipakai ditolak ("Geser sedikit"), petak yang masih hutan atau sawit ditolak ("Bakar atau tebang dulu, baru bangun"), pohon dan batu di sekitar bangunan disingkirkan, dan baliho dicarikan tempat kosong.
+- **Baju krem, tanpa medali:** jaket safari krem, medali emas dihapus.
+- **Proporsi:** akar masalahnya pemilik kios berskala 0,55 sedangkan tokoh utama 1,0. Semua manusia kini berskala sama (0,5), kios dan rumah diperbesar 1,3 kali, kecepatan dan kamera disesuaikan dengan tokoh yang lebih kecil. Teks papan kini mengecil otomatis agar muat.

@@ -35,17 +35,17 @@ export function jarakJalan(x, z) {
 export const PELUANG = { ramah: 0.85, biasa: 0.6, galak: 0.3 };
 export const UMKM = [
   { x: -14, z: 42, nama: 'WARUNG BU TINI', tipe: 'ramah', dasar: 30 },
-  { x: 16, z: 46, nama: 'BAKSO MAS JOKO', tipe: 'biasa', dasar: 25 },
+  { x: 30, z: 40, nama: 'BAKSO MAS JOKO', tipe: 'biasa', dasar: 25 },
   { x: -18, z: 78, nama: 'FOTOKOPI & ATK MAJU', tipe: 'biasa', dasar: 30 },
   { x: 20, z: 80, nama: 'TAMBAL BAN 24 JAM', tipe: 'galak', dasar: 45 },
   { x: -60, z: 16, nama: 'WARTEG BAHARI', tipe: 'biasa', dasar: 30 },
-  { x: -100, z: 54, nama: 'KIOS PULSA CEPAT', tipe: 'ramah', dasar: 25 },
+  { x: -82, z: 50, nama: 'KIOS PULSA CEPAT', tipe: 'ramah', dasar: 25 },
   { x: 76, z: 12, nama: 'BENGKEL PAK UDIN', tipe: 'galak', dasar: 55 },
   { x: 126, z: 26, nama: 'TOKO KELONTONG SINAR', tipe: 'biasa', dasar: 40 },
   { x: 170, z: 34, nama: 'ANGKRINGAN MALAM', tipe: 'ramah', dasar: 30 },
   { x: 172, z: -10, nama: 'SALON MBAK RINI', tipe: 'galak', dasar: 50 },
   { x: 206, z: 94, nama: 'WARUNG MAK ENDANG', tipe: 'ramah', dasar: 30 },
   { x: 176, z: 132, nama: 'BAKSO PAK WARSO', tipe: 'biasa', dasar: 28 },
-  { x: -24, z: 148, nama: 'WARUNG PEMULUNG SEJAHTERA', tipe: 'biasa', dasar: 25 },
+  { x: -8, z: 142, nama: 'WARUNG PEMULUNG SEJAHTERA', tipe: 'biasa', dasar: 25 },
   { x: -10, z: 114, nama: 'KIOS KOPI KENANGAN', tipe: 'ramah', dasar: 30 },
 ];
