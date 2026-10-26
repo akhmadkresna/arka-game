@@ -1,6 +1,6 @@
-# REPUBLIK +62: Menteri Mangkrak
+# REPUBLIK EMAS (anti stunting)
 
-Game satir bergaya *hardcore* tentang birokrasi yang salah arah. Anda menjadi menteri baru. Sistem menilai Anda dari hal yang keliru, jadi **melakukan hal yang benar justru membuat Anda gagal**.
+Game satir bergaya *hardcore* tentang menteri narsistik yang berjanji menciptakan generasi emas sambil anggarannya menguap. Anda menjadi menteri baru. Sistem menilai Anda dari hal yang keliru, jadi **melakukan hal yang benar justru membuat Anda gagal**.
 
 Semua tokoh dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik.
 

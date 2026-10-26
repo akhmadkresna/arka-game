@@ -1,4 +1,4 @@
-// Republik +62: Menteri Mangkrak. Logika game (vanilla JS, tanpa build).
+// Republik Emas (anti stunting). Logika game (vanilla JS, tanpa build).
 const BULAN_TOTAL = 12;
 const KEPUTUSAN_PER_BULAN = 2;
 const BATAS_SERAPAN = 80;
@@ -15,8 +15,8 @@ const METER = [
   { k: 'proyek', n: 'Proyek Nyata', j: 'netral' },
 ];
 const NAMA = { restu: 'Restu Bos', kpi: 'Kinerja', serapan: 'Serapan', panas: 'Panas KPK', rakyat: 'Amarah Rakyat',
-  viral: 'Viral', proyek: 'Proyek', berkas: 'Berkas', anggaran: 'Anggaran', bocor: 'Kebocoran' };
-const BURUK_JIKA_NAIK = new Set(['panas', 'rakyat', 'bocor']);
+  viral: 'Viral', proyek: 'Proyek', stunting: 'Stunting', berkas: 'Berkas', anggaran: 'Anggaran', bocor: 'Kebocoran' };
+const BURUK_JIKA_NAIK = new Set(['panas', 'rakyat', 'bocor', 'stunting']);
 
 let s;
 const $ = id => document.getElementById(id);
@@ -26,7 +26,7 @@ const batas = (n, a = 0, b = 100) => Math.max(a, Math.min(b, n));
 
 function baru() {
   s = { bulan: 1, sisa: KEPUTUSAN_PER_BULAN, restu: 50, panas: 10, rakyat: 20, viral: 10, kpi: 30, serapan: 0,
-    proyek: 0, berkas: 1, anggaran: 150, bocor: 60, bendera: {}, tunda: [], terjadi: {}, selesai: false, log: [] };
+    proyek: 0, stunting: 20, stuntingResmi: 20, berkas: 1, anggaran: 150, bocor: 60, bendera: {}, tunda: [], terjadi: {}, selesai: false, log: [] };
   render();
   modal('Selamat datang, Pak Menteri',
     `<p>Misi resmi Anda: <b>serap anggaran minimal ${BATAS_SERAPAN}%</b> dan buat Bos senang selama ${BULAN_TOTAL} bulan.</p>
@@ -42,8 +42,8 @@ function terapkan(ef, aksi) {
   if (aksi && aksi.cover && s.berkas <= 0) { ef = { ...ef, panas: (ef.panas || 0) + 20 }; tambahan = 'Tanpa berkas, jejakmu berserakan. Panas KPK naik tajam.'; }
   for (const k in ef) {
     const lama = s[k];
-    s[k] = k === 'anggaran' ? Math.max(0, lama + ef[k]) : k === 'berkas' ? Math.max(0, lama + ef[k]) : k === 'bocor' ? batas(lama + ef[k], 10, 90) : batas(lama + ef[k]);
-    if (s[k] !== lama) delta[k] = s[k] - lama;
+    s[k] = k === 'stunting' ? Math.round(batas(lama + ef[k], 5, 40) * 10) / 10 : k === 'anggaran' ? Math.max(0, lama + ef[k]) : k === 'berkas' ? Math.max(0, lama + ef[k]) : k === 'bocor' ? batas(lama + ef[k], 10, 90) : batas(lama + ef[k]);
+    if (s[k] !== lama) delta[k] = Math.round((s[k] - lama) * 10) / 10;
   }
   return { delta, tambahan };
 }
@@ -112,6 +112,8 @@ function akhirBulan() {
   const lapangan = 100 - s.bocor;
   s.proyek = batas(s.proyek + Math.round(lapangan / 100 * 4));
   s.rakyat = batas(s.rakyat + Math.round((s.bocor - 60) / 10));
+  s.stunting = Math.round(batas(s.stunting + (s.bocor - 45) / 40, 5, 40) * 10) / 10;
+  s.stuntingResmi = Math.round((20 - s.kpi / 100 * 5) * 10) / 10;
   s.panas = batas(s.panas - 2);
   s.viral = batas(s.viral - 5);
   if (s.proyek >= 100 && !s.terjadi.selesai) {
@@ -153,8 +155,8 @@ function akhir(kalah) {
   const predikat = s.kpi >= 70 ? 'SANGAT BERKINERJA' : s.kpi >= 40 ? 'Cukup' : 'Kurang';
   modal(judul, `<p>${alasan}</p>
     <div class="dua">
-      <div><b>Laporan Resmi</b><br>Kinerja: ${s.kpi}/100<br>Serapan: ${s.serapan}%<br>Predikat: <b>${predikat}</b></div>
-      <div><b>Kenyataan</b><br>Proyek nyata: ${s.proyek}%<br>Dana sampai lapangan: ${100 - s.bocor}%<br>Amarah rakyat: ${s.rakyat}/100</div>
+      <div><b>Laporan Resmi</b><br>Kinerja: ${s.kpi}/100<br>Serapan: ${s.serapan}%<br>Stunting (laporan): ${s.stuntingResmi.toFixed(1)}%<br>Predikat: <b>${predikat}</b></div>
+      <div><b>Kenyataan</b><br>Proyek nyata: ${s.proyek}%<br>Dana sampai lapangan: ${100 - s.bocor}%<br>Stunting nyata: ${s.stunting.toFixed(1)}%<br>Amarah rakyat: ${s.rakyat}/100</div>
     </div>
     <p>Semua tokoh fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik.</p>`,
     [{ t: 'Coba lagi dengan menteri baru', f: baru }]);
@@ -166,7 +168,7 @@ function render() {
   $('sisa').textContent = `(sisa ${s.sisa})`;
   $('meter').innerHTML = METER.map(m =>
     `<div class="m ${m.j}"><span>${m.n}</span><div class="bar"><i style="width:${s[m.k]}%"></i></div><span>${s[m.k]}</span></div>`).join('');
-  $('sumber').innerHTML = `<span>Anggaran sisa: <b>${s.anggaran}</b></span><span>Berkas: <b>${s.berkas}</b></span>`;
+  $('sumber').innerHTML = `<span>Anggaran sisa: <b>${s.anggaran}</b></span><span>Berkas: <b>${s.berkas}</b></span><span>Stunting nyata: <b>${s.stunting.toFixed(1)}%</b></span>`;
   // Aliran anggaran
   let sisa = 100;
   let h = '';

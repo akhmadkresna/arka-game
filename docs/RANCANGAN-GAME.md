@@ -1,4 +1,4 @@
-# REPUBLIK +62: Menteri Mangkrak — Rancangan Game
+# REPUBLIK EMAS (anti stunting) — Rancangan Game
 
 Game satir manajemen *roguelite* tingkat sulit tentang menjalankan kementerian di negara yang anggarannya menguap, proyeknya tak pernah selesai, dan satu-satunya hal yang bekerja adalah ketika sesuatu viral.
 
@@ -264,3 +264,29 @@ Bapak Presiden tetap sumber Restu Bos. Tokoh utama menjilat ke atas dan memuji d
 
 #### Batas satir
 Narsisme di sini adalah **tipe karakter** (pejabat yang haus pencitraan), bukan potret orang nyata. Nama, gelar, dan monolog sepenuhnya rekaan. Jangan memakai gelar atau ciri yang khas milik pejabat tertentu.
+
+---
+
+## 9. Judul final: REPUBLIK EMAS (anti stunting)
+
+**Keputusan:** judul game adalah **Republik Emas (anti stunting)**.
+
+### Mengapa judul ini bekerja
+- **Memuji diri sendiri.** "Republik Emas" adalah cap dagang si menteri narsistik: semua programnya ia beri embel-embel "Emas" (Gerakan Emas, Dapur Emas, Koperasi Emas). Plesetan dari jargon visi "Indonesia Emas 2045".
+- **"(anti stunting)" sebagai stiker.** Seperti tagline yang ditempel di baliho. Keterangan dalam kurung itu sendiri adalah lelucon: semakin besar tulisannya di baliho, semakin kecil dana yang sampai.
+- **Kontras judul dan kenyataan.** Tampilan emas dan megah, indikator yang disembunyikan justru angka stunting nyata.
+- **Aman secara hukum.** Tidak memakai lambang negara, semboyan, bendera, atau nama orang.
+
+### Dasar riset
+- Prevalensi stunting nasional turun dari 21,5% (2023) menjadi 19,8% (2024) menurut SSGI 2024; target 14,2% pada 2029 ([Kemenkes](https://www.badankebijakan.kemkes.go.id/en/ssgi-2024-prevalensi-stunting-nasional-turun-menjadi-198/), [Kontan](https://nasional.kontan.co.id/news/pemerintah-targetkan-prevalensi-stunting-turun-jadi-142-di-2029)). Data terbaru (SSGI 2025) belum saya cek.
+- Contoh yang dipakai Presiden Jokowi pada Juni 2023: anggaran stunting Rp10 miliar di satu daerah, hanya sekitar Rp2 miliar untuk telur, susu, dan sayuran; sisanya perjalanan dinas, rapat, dan program tidak konkret. Beberapa media melaporkan rincian yang berbeda ([Tirto](https://tirto.id/jokowi-kesal-dana-stunting-rp6-m-untuk-perjalanan-dinas-rapat-gLN7), [Bisnis](https://ekonomi.bisnis.com/read/20230816/9/1685576/puan-soroti-anggaran-stunting-rp8-miliar-habis-dipakai-dinas-dan-rapat)). Pencarian saya tidak menemukan temuan audit BPK khusus topik ini, hanya pengawasan BPKP.
+- Jangan menyimpulkan bahwa satu contoh daerah berlaku di mana-mana. Dalam game, ini pola yang disindir, bukan klaim tentang daerah tertentu.
+
+### Mekanik stunting (sudah ada di prototipe)
+- **Stunting nyata** naik jika kebocoran anggaran tinggi dan turun jika dana sampai ke lapangan. Ditampilkan sebagai persentase abstrak, tanpa gambar anak.
+- **Stunting (laporan)** selalu "turun", mengikuti Kinerja Resmi. Layar akhir menampilkan keduanya berdampingan.
+- **Aksi "Rakor Percepatan Penurunan Stunting di hotel berbintang":** Restu Bos dan Kinerja naik, stunting nyata sedikit naik.
+- **Aksi "Belikan telur dan gizi langsung ke sasaran":** stunting nyata turun, tetapi Restu Bos dan Kinerja Resmi turun. Tidak ada baliho, tidak ada foto.
+
+### Aturan kepekaan
+Stunting menyangkut anak-anak nyata. Jangan menampilkan, mengejek, atau menjadikan anak sebagai lelucon. Sasaran satir hanya **pejabat, rapat, dan cara anggaran menguap**, dan hasilnya selalu angka abstrak.
