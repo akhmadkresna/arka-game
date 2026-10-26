@@ -345,3 +345,19 @@ Masukan: terlalu banyak tiang kosong, bangunan bertumpuk, tokoh sebaiknya berbaj
 3. **Baju krem.** Warna jaket dibuat krem terang dengan cahaya tambahan supaya tidak tampak kecokelatan. Alur deploy kini menambahkan `?v=<commit>` pada semua berkas JS dan CSS supaya peramban tidak memakai versi lama dari cache. Ini kemungkinan alasan baju lama masih terlihat.
 4. **Petunjuk misi lebih mencolok.** Kartu misi besar dengan nomor langkah, berkedip saat berganti langkah, dan panah kompas di layar dengan jarak ke tujuan.
 5. **Petunjuk tombol lebih jelas.** Nama tombol ditampilkan sebagai keycap sesuai perangkat (ponsel: nama tombol; komputer: huruf). Tombol yang belum relevan diredupkan, tombol yang harus ditekan berkedip dengan gelembung "Ketuk ...", dan sorotan hanya muncul saat aksinya benar-benar bisa dilakukan.
+
+---
+
+## 14. Ojol dan "juice" pada setiap interaksi
+
+**Ojol (ojek online, generik).** Delapan pengendara bermotor hilir-mudik di jalan (lajur kiri), berjaket hijau dengan kotak pengantar. Mereka berhenti saat pemain mendekat dan bisa dipalak dengan peluang sesuai watak (ramah 85%, biasa 60%, galak 30%; 100% dengan aparat sewaan). Hasil dasar lebih kecil daripada kios (sekitar 20 Cuan). Jika dipajaki tiga kali, ojol **mogok** selama 90 detik dan tercatat di laporan "Kenyataan". Jika palak gagal, terjadi **klakson massal**: ojol di sekitar berhenti, menoleh ke pemain, dan Amarah Rakyat naik.
+
+*Kepekaan:* pemain adalah pihak yang salah, dan akibatnya terlihat (Amarah Rakyat, mogok, laporan). Teks gagal menyorot sistem dan keadaan (pendapatan yang tipis, setoran ke aplikasi), bukan mengejek pengemudi. Tidak ada rujukan pada peristiwa kekerasan nyata mana pun. Penamaan "ojol" bersifat generik dan tidak memakai merek aplikasi.
+
+**Juice.** Prinsip: setiap perubahan angka harus terlihat dan terdengar.
+- **Uang ke kantong:** koin emas dan uang kertas hijau terbang melengkung dari sumbernya (kios, ojol, bangunan, kebun sawit) ke saku tokoh dengan jeda acak, lalu penghitung Cuan membesar sesaat dan tokoh berdenyut. Saat membayar, uang terbang keluar dari saku ke tujuan (petak, Kantor Dinas, aparat).
+- **Angka melayang:** setiap perubahan Cuan, Restu, Panas KPK, Amarah, Citra, dan Berkas muncul sebagai teks berwarna di atas tokoh (hijau bagus, merah buruk, emas untuk Cuan). Ada juga angka `+N Cuan` di HUD, dan teks besar untuk momen penting (GAGAL!, DIBLOKIR, MISI SELESAI!, nama gelar).
+- **Partikel:** api dan asap saat membakar (dan asap terus keluar dari petak yang terbakar), serpihan kayu dan daun saat menebang, daun dan tanah saat menanam, debu dan konfeti saat bangunan muncul, percikan emas saat memalak.
+- **Gerak:** bangunan "melompat" muncul dengan sedikit membal, kamera bergetar saat membangun, membakar, gagal, dan kena denda, pemilik kios dan ojol mengangkat tangan saat marah.
+- **Suara sintetis** (WebAudio, tanpa berkas audio): koin, gagal, api, kayu, tanam, bangun, diblokir, selfie, klakson, misi selesai, setoran, denda. Tombol **Suara** mematikannya, dan pilihan itu diingat.
+- **Kamera aman bangunan:** bila garis pandang tertembus bangunan, kamera dirapatkan ke tokoh agar tidak berada di dalam dinding.

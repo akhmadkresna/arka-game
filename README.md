@@ -17,10 +17,12 @@ Di ponsel: joystick kiri bawah, tombol aksi kanan bawah, geser jari untuk memuta
 Di komputer: WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mouse zoom.
 
 **Tanpa modal? Mulai dari sini:**
-1. **Palak UMKM** (`X`): tarik "pajak" dari kios berpapan nama. Pemilik ramah (85%), biasa (60%), atau galak (30%) menentukan peluang berhasil. **Sewa aparat** (`A`, 120 Cuan, 60 detik) menjamin 100% berhasil, tapi 25% hasilnya untuk aparat dan Amarah Rakyat naik. Kios yang dipajaki tiga kali gulung tikar.
+1. **Palak UMKM** (`X`): tarik "pajak" dari kios berpapan nama **atau dari ojol yang hilir-mudik di jalan** (mereka berhenti saat Anda dekat; dipalak berkali-kali, mereka mogok). Pemilik ramah (85%), biasa (60%), atau galak (30%) menentukan peluang berhasil. **Sewa aparat** (`V`, 120 Cuan, 60 detik) menjamin 100% berhasil, tapi 25% hasilnya untuk aparat dan Amarah Rakyat naik. Kios yang dipajaki tiga kali gulung tikar.
 2. **Bakar hutan** (`B`, gratis) lalu **tanam sawit** (`P`, 40 Cuan). Sawit menghasilkan Cuan sendiri.
 3. **Bangun dapur MBG** (`1`) atau **Kopdes** (`2`). Dekat desa diblokir birokrasi; di tempat absurd langsung disetujui, lalu mangkrak.
 4. Belanjakan Cuan: **Pupuk** (`U`), **Oknum** otomatis (`O`), **Gelar** (`G`), berkas (`E`) dan kambing hitam (`K`) di Kantor Dinas, selfie (`F`) dan konferensi pers (`C`).
+
+Setiap interaksi punya efek visual dan suara: uang beterbangan ke kantong (atau keluar saat membayar), angka perubahan melayang, percikan api, serpihan kayu, konfeti, getar kamera. Tombol **Suara** di pojok kanan atas mematikan efek suara.
 
 Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (direshuffle, dipanggil KPK, demo besar) hanya berupa denda. Tiap 12 bulan muncul **Laporan Tahunan** yang membandingkan versi resmi dengan kenyataan (`R` untuk melihatnya kapan saja).
 

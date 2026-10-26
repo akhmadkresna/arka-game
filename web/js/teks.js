@@ -19,6 +19,9 @@ export const MONOLOG = {
   palakGagal: ['Pemilik kiosnya tidak paham konsep "pajak". Sungguh kurang edukasi.', 'Videonya viral. Pasti editan.'],
   aparat: ['Aparat sewaan: pengawal yang loyal selama bayarannya lancar.'],
   tutup: ['Kiosnya tutup? Berarti pajaknya sudah lunas. Selamanya.'],
+  ojol: ['Ojol itu mitra. Mitra wajib berkontribusi pada mitranya.', 'Jalan raya itu milik negara. Lewat, ya bayar.'],
+  klakson: ['Klakson massal itu bukan protes. Itu paduan suara yang kurang latihan.'],
+  mogok: ['Mogok? Berarti pajak jalurnya lunas dibayar dengan tenaga.'],
   tumbuh: ['Hutan tumbuh lagi sendiri? Berarti saya boleh membakarnya lagi.'],
 };
 
@@ -58,7 +61,7 @@ export const MISI = [
   { teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },
   { teks: 'Bangun dapur: jalan ke titik yang ditandai (jauh dari desa), hadapkan tokoh ke tanah kosong, lalu tekan {1}.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
   { teks: 'Sekarang coba bangun dekat desa: hadapkan tokoh ke desa, lalu tekan {1}. Lihat apa yang terjadi.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
-  { teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Selamat bertugas, tanpa akhir!', buka: null },
+  { teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Ojol di jalan juga bisa dipalak. Selamat bertugas, tanpa akhir!', buka: null },
 ];
 
 export const PAJAK = [
@@ -70,4 +73,15 @@ export const GAGAL = [
   'Pemilik kios mengancam melapor. Videonya sudah ditonton ribuan orang.',
   'Ibu pemilik kios lebih galak dari aparat mana pun. Anda mundur teratur.',
   'Pemilik kios menunjukkan struk yang membuktikan Anda yang berutang. Memalukan.',
+];
+
+export const PAJAK_OJOL = [
+  'Pajak Jalur Strategis', 'Retribusi Aspal Berkah', 'Iuran Parkir Berjalan', 'Pajak Helm Resmi',
+  'Biaya Izin Berhenti di Pinggir', 'Sumbangan Lampu Merah',
+];
+export const GAGAL_OJOL = [
+  'Abang ojol menunjukkan aplikasi: pendapatannya hari ini lebih kecil dari ongkos bensin. Anda pergi sambil malu.',
+  'Abang ojol langsung membunyikan klakson dan merekam Anda dengan ponselnya.',
+  'Abang ojol menjawab sopan bahwa ia harus kejar target, lalu tancap gas.',
+  'Abang ojol memperlihatkan bukti setoran ke aplikasi, bukan ke Anda.',
 ];

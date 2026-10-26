@@ -404,3 +404,40 @@ export function aparatSewaan() {
   g.add(mesh(geo.silinder, jaket, 0, 4.2, 0, 0.62, 0.3, 0.62));
   return g;
 }
+
+// ---------- Ojol (ojek online, generik) ----------
+const WARNA_LABEL = { ramah: '#9ad98f', biasa: '#f1d96a', galak: '#f08a80', mogok: '#a0a0a0' };
+export function labelSprite(teks, tipe) {
+  const c = document.createElement('canvas'); c.width = 320; c.height = 80;
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.scale.set(5, 1.25, 1);
+  sp.userData.set = (t, w) => {
+    const x = c.getContext('2d'); x.clearRect(0, 0, 320, 80);
+    x.fillStyle = WARNA_LABEL[w] || '#fff'; x.strokeStyle = '#4a2a06'; x.lineWidth = 5;
+    if (x.roundRect) { x.beginPath(); x.roundRect(4, 6, 312, 68, 18); x.fill(); x.stroke(); } else { x.fillRect(4, 6, 312, 68); x.strokeRect(4, 6, 312, 68); }
+    x.fillStyle = '#3a2204'; x.font = 'bold 34px sans-serif'; x.textAlign = 'center'; x.fillText(t, 160, 52);
+    tex.needsUpdate = true;
+  };
+  sp.userData.set(teks, tipe);
+  return sp;
+}
+export function ojol(indeks) {
+  const g = new THREE.Group();
+  const hijau = new THREE.MeshLambertMaterial({ color: 0x2fa04a }), motor = new THREE.MeshLambertMaterial({ color: [0x3a4a6a, 0x8a3a3a, 0x4a4a4a][indeks % 3] });
+  g.add(kotak(motor, 0, 1.0, 0, 0.8, 0.55, 2.3), kotak(motor, 0, 1.45, 0.45, 0.7, 0.35, 0.9), kotak(M.hitam, 0, 1.28, -0.25, 0.75, 0.15, 0.9));
+  g.add(kotak(M.hitam, 0, 1.2, 0.95, 0.12, 0.9, 0.12), kotak(M.hitam, 0, 1.62, 0.85, 1.3, 0.1, 0.1));
+  const roda = [];
+  [1.05, -1.0].forEach(z => {
+    const r = mesh(geo.silinder, M.hitam, 0, 0.55, z, 0.55, 0.28, 0.55); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0.0, 0, 0, 0.5, 1.05, 0.2));
+    g.add(r); roda.push(r);
+  });
+  g.add(kotak(hijau, 0, 2.05, -1.15, 1.15, 1.0, 1.0));
+  const bp = papan('OJOL', 1.0, 0.55, { latar: '#2fa04a', warna: '#ffffff' }); bp.position.set(0, 2.05, -1.66); bp.rotation.y = Math.PI; g.add(bp);
+  const pengendara = manusia(new THREE.MeshLambertMaterial({ color: 0x2fa04a }), false, 0.4);
+  pengendara.position.set(0, 1.0, -0.2); pengendara.add(mesh(geo.bola, M.putih, 0, 3.9, 0, 0.72, 0.62, 0.72));
+  g.add(pengendara);
+  g.scale.setScalar(1.15);
+  g.userData = { pemilik: pengendara, roda };
+  return g;
+}
