@@ -35,7 +35,7 @@ docs/       riset dan rancangan
 .github/    penerbitan otomatis ke GitHub Pages
 ```
 
-Game balita sebelumnya tersimpan di tag `arsip-game-balita`.
+Game balita sebelumnya tersimpan di branch `arsip-game-balita`.
 
 ## Lisensi
 
