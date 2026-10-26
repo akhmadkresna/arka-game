@@ -290,3 +290,17 @@ Narsisme di sini adalah **tipe karakter** (pejabat yang haus pencitraan), bukan 
 
 ### Aturan kepekaan
 Stunting menyangkut anak-anak nyata. Jangan menampilkan, mengejek, atau menjadikan anak sebagai lelucon. Sasaran satir hanya **pejabat, rapat, dan cara anggaran menguap**, dan hasilnya selalu angka abstrak.
+
+---
+
+## 10. Status irisan 3D (Three.js)
+
+Keputusan: **Three.js**, **peta fiksi**. Irisan vertikal pertama ada di `web/` (`index.html`, `js/main.js`, `js/teks.js`, `css/game.css`, `vendor/three.module.js`).
+
+**Sudah ada:** pulau fiksi dengan 20 petak hutan, dua desa, sungai, sawah, TPA, dan Kantor Dinas; tokoh narsistik dengan kamera orang ketiga; bakar/tebang/tanam sawit dengan api yang merambat dan kabut yang menebal; dapur MBG dan Kopdes dengan pemblokiran lokasi benar (dekat desa) dan persetujuan lokasi absurd, bangunan yang menjadi mangkrak setelah 45 detik; baliho berwajah di setiap bangunan; selfie, konferensi pers (Citra), berkas, kambing hitam, gelar kehormatan; setoran bulanan ke Bos; stunting nyata vs laporan; layar akhir "Laporan Resmi vs Kenyataan".
+
+**Hasil simulasi bot (perkiraan kasar):** bermain jujur kalah (direshuffle sekitar bulan 5); membakar tanpa berkas membuat KPK datang sekitar bulan 3; strategi campuran (berkas, selfie, konferensi pers, kambing hitam) umumnya selamat sampai bulan 12 atau jatuh karena Amarah Rakyat. Bot lebih efisien dari manusia, jadi keseimbangan sebenarnya perlu uji pemain.
+
+**Belum ada:** kendaraan (motor ojol, mobil dinas dengan sirene), kontrol sentuh untuk ponsel, suara, NPC, kunjungan Presiden, Ego dan mode Ngambek, Reshuffle, level kabur, dan ending rahasia.
+
+**Asumsi rating:** tampilan bergaya low-poly tanpa gambar korban; kebakaran hanya berupa api kerucut, kabut, dan peta yang menggelap. Rating target belum diputuskan.

@@ -6,31 +6,30 @@ Semua tokoh dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang
 
 ## Cara main
 
-Buka `web/index.html` di peramban (tanpa build, tanpa instalasi). Atau jalankan server lokal:
+Game dunia terbuka 3D (Three.js, tanpa build). Karena memakai modul ES, jalankan lewat server lokal:
 
 ```sh
 python3 -m http.server 8000 --directory web
+# buka http://localhost:8000
 ```
 
-- Masa jabatan: 12 bulan, 2 keputusan per bulan.
-- Misi resmi: serapan anggaran minimal 80% dan Restu Bos tetap terjaga.
-- Teks resmi di kartu keputusan menyesatkan. Kenyataan baru terlihat setelah memilih.
-- Kalah jika: Restu Bos habis (direshuffle), Panas KPK 100, Amarah Rakyat 100, atau kas kosong sebelum proyek jadi.
+**Kontrol:** WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mouse zoom.
+**Aksi:** `B` bakar petak hutan, `T` tebang, `P` tanam sawit, `1` dapur MBG, `2` Kopdes, `F` selfie, `C` konferensi pers, `G` beli gelar, `E`/`K` berkas dan kambing hitam di Kantor Dinas.
 
-## Mekanik utama
+- Masa jabatan 12 bulan (30 detik per bulan). Tiap akhir bulan Bos menagih **setoran** yang terus naik.
+- **Tani cuan:** bakar hutan lalu tanam sawit, atau bangun dapur MBG dan Kopdes. Membangun dekat desa **diblokir** birokrasi; membangun di tempat absurd (tepi sungai, tengah sawah, samping TPA) langsung disetujui, lalu mangkrak.
+- Berkas menurunkan Panas KPK saat membakar. Asap menaikkan Amarah Rakyat. Stunting nyata naik, laporan resmi selalu "turun".
+- Kalah jika Restu Bos habis, Panas KPK 100, atau Amarah Rakyat 100. Bermain jujur membuat Anda direshuffle sekitar bulan 5.
 
-- **Anggaran bocor:** uang melewati banyak tingkat, masing-masing mengambil potongan. Hanya sebagian yang sampai ke lapangan.
-- **Restu Bos vs kenyataan:** jujur dan hemat menurunkan Restu Bos. Boros dan "rapi" menaikkannya.
-- **Berkas:** pelanggaran yang rapi aman. Pelanggaran ceroboh menaikkan Panas KPK.
-- **Viralitas:** masalah baru ditangani ketika viral. Viral tinggi memicu konferensi pers dadakan.
-- **Tidak ada cadangan data?** Ransomware menanti.
+Versi giliran (prototipe awal) masih ada di `web/giliran/index.html`.
 
 Rancangan lengkap, riset, dan karakter ada di [`docs/RANCANGAN-GAME.md`](docs/RANCANGAN-GAME.md).
 
 ## Struktur
 
 ```
-web/        game (HTML, CSS, JS murni)
+web/        game 3D (index.html, js/, css/, vendor/three)
+web/giliran prototipe giliran (HTML murni)
 docs/       riset dan rancangan
 .github/    penerbitan otomatis ke GitHub Pages
 ```
