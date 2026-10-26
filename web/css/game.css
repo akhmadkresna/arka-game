@@ -1,7 +1,7 @@
 :root{--teks:#fff;--kartu:#1b1713e6;--garis:#ffffff30;--merah:#d6453d;--hijau:#5fb36a;--biru:#5aa0d6;--emas:#e8b83c}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:#8fd0ee;color:var(--teks);font:15px/1.4 system-ui,sans-serif}
-#dunia{position:fixed;inset:0;width:100%;height:100%;display:block}
+#dunia{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
 #hud{position:fixed;inset:0;pointer-events:none}
 #kiriAtas,#kananAtas{position:absolute;top:12px;background:var(--kartu);border:1px solid var(--garis);border-radius:10px;padding:10px 12px}
 #kiriAtas{left:12px;width:230px}
@@ -30,3 +30,21 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8fd0ee;color:var(--te
 button{font:inherit;font-weight:700;background:var(--emas);color:#2a1a06;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;margin-top:8px;min-height:44px}
 button:hover{filter:brightness(1.1)}
 @media(max-width:640px){#kiriAtas{width:170px}.baris{grid-template-columns:70px 1fr}#kananAtas{min-width:150px;font-size:.8rem}.dua{grid-template-columns:1fr}.kotak h1{font-size:1.6rem}}
+
+#sentuh{display:none}
+.sentuh #sentuh{display:block}
+.sentuh #bantuan{display:none}
+#joy{position:fixed;left:max(18px,env(safe-area-inset-left));bottom:max(18px,env(safe-area-inset-bottom));width:130px;height:130px;border-radius:50%;background:#ffffff26;border:2px solid #ffffff60;touch-action:none;z-index:3}
+#knob{position:absolute;left:35px;top:35px;width:60px;height:60px;border-radius:50%;background:#ffffffb0}
+#aksiSentuh{position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,64px);gap:6px;z-index:3}
+#aksiSentuh button{margin:0;padding:0;min-height:44px;height:48px;font-size:.78rem;background:#e8b83cdd;touch-action:none;user-select:none;-webkit-user-select:none}
+.sentuh #prompt{bottom:200px;font-size:.85rem}
+.sentuh #monolog{bottom:260px}
+.sentuh #toast{top:110px}
+@media(max-height:480px){
+  .sentuh #kiriAtas{width:170px;padding:6px 8px}.sentuh .baris{margin:1px 0;font-size:.7rem;grid-template-columns:76px 1fr}
+  .sentuh #kananAtas{font-size:.72rem;padding:6px 8px;min-width:0}
+  .sentuh #joy{width:110px;height:110px}.sentuh #knob{left:28px;top:28px;width:54px;height:54px}
+  #aksiSentuh{grid-template-columns:repeat(5,58px)}#aksiSentuh button{height:42px;min-height:42px}
+  .sentuh #prompt{bottom:110px}.sentuh #monolog{bottom:160px}.sentuh #toast{top:70px}
+}

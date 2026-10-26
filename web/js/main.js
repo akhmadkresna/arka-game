@@ -207,12 +207,30 @@ scene.add(pemain);
 baliho(-14, 8, 0.3); baliho(16, 4, -0.4, 'EMAS UNTUK\nSEMUA (KECUALI ANDA)');
 
 // ---------- Kamera dan masukan ----------
-let yaw = 0.0, pitch = 0.42, jarak = 16, seret = false;
+let yaw = 0.0, pitch = 0.42, jarak = 16;
 const tombol = {};
-kanvas.addEventListener('pointerdown', () => { seret = true; });
-addEventListener('pointerup', () => { seret = false; });
-addEventListener('pointermove', e => { if (seret) { yaw -= e.movementX * 0.005; pitch = Math.max(0.12, Math.min(1.3, pitch + e.movementY * 0.004)); } });
+let joyX = 0, joyY = 0;
+// Putar kamera: mouse (seret) atau satu jari di area layar (selain joystick dan tombol)
+const jari = new Map();
+kanvas.addEventListener('pointerdown', e => { jari.set(e.pointerId, { x: e.clientX, y: e.clientY }); kanvas.setPointerCapture?.(e.pointerId); });
+kanvas.addEventListener('pointermove', e => {
+  const j = jari.get(e.pointerId); if (!j) return;
+  yaw -= (e.clientX - j.x) * 0.006; pitch = Math.max(0.12, Math.min(1.3, pitch + (e.clientY - j.y) * 0.005));
+  j.x = e.clientX; j.y = e.clientY;
+});
+const lepas = e => jari.delete(e.pointerId);
+kanvas.addEventListener('pointerup', lepas); kanvas.addEventListener('pointercancel', lepas);
 kanvas.addEventListener('wheel', e => { jarak = Math.max(7, Math.min(34, jarak + e.deltaY * 0.02)); }, { passive: true });
+// Cubit dua jari untuk zoom
+let jarakCubit = 0;
+kanvas.addEventListener('touchmove', e => {
+  if (e.touches.length !== 2) { jarakCubit = 0; return; }
+  const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+  if (jarakCubit) jarak = Math.max(7, Math.min(34, jarak - (d - jarakCubit) * 0.05));
+  jarakCubit = d;
+}, { passive: true });
+kanvas.addEventListener('touchend', () => { jarakCubit = 0; }, { passive: true });
+
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   tombol[k] = true;
@@ -346,9 +364,10 @@ function update(dt) {
   if (tombol.s || tombol.arrowdown) { mx -= fx; mz -= fz; }
   if (tombol.d || tombol.arrowright) { mx += rx; mz += rz; }
   if (tombol.a || tombol.arrowleft) { mx -= rx; mz -= rz; }
+  if (joyX || joyY) { mx += fx * -joyY + rx * joyX; mz += fz * -joyY + rz * joyX; }
   const bergerak = mx || mz;
   if (bergerak) {
-    const n = Math.hypot(mx, mz), v = (tombol.shift ? 22 : 12) * dt;
+    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 22 : 12) * dt;
     pemain.position.x += mx / n * v; pemain.position.z += mz / n * v;
     pemain.rotation.y = Math.atan2(mx, mz);
     const r = Math.hypot(pemain.position.x, pemain.position.z);
@@ -471,3 +490,22 @@ $('ulang').onclick = () => location.reload();
 // Kait untuk pengujian otomatis
 window.__g = { G, PETAK, pemain, update, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; } };
+
+// ---------- Kontrol sentuh ----------
+const joy = $('joy'), knob = $('knob');
+let joyId = null;
+function joyGerak(e) {
+  const r = joy.getBoundingClientRect(), R = r.width / 2;
+  let dx = e.clientX - (r.left + R), dy = e.clientY - (r.top + R);
+  const d = Math.hypot(dx, dy); if (d > R) { dx *= R / d; dy *= R / d; }
+  joyX = dx / R; joyY = dy / R;
+  knob.style.transform = `translate(${dx}px, ${dy}px)`;
+}
+joy.addEventListener('pointerdown', e => { joyId = e.pointerId; joy.setPointerCapture(e.pointerId); joyGerak(e); e.preventDefault(); });
+joy.addEventListener('pointermove', e => { if (e.pointerId === joyId) joyGerak(e); });
+const joyLepas = e => { if (e.pointerId !== joyId) return; joyId = null; joyX = joyY = 0; knob.style.transform = 'translate(0,0)'; };
+joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel', joyLepas);
+document.querySelectorAll('#aksiSentuh button').forEach(b => {
+  b.addEventListener('pointerdown', e => { e.preventDefault(); aksiTombol(b.dataset.k); });
+});
+if (matchMedia('(pointer: coarse)').matches) document.body.classList.add('sentuh');
