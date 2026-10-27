@@ -214,6 +214,42 @@ export function buatNPC(d) {
     }
   }
 
+  // ---------- Kopdes: bendahara membawa kabur kas ----------
+  const KABUR = [
+    'Bendahara Kopdes pamit "ambil nota" dan belum kembali. Kas ikut mengambil nota.',
+    'Laporan Kopdes: kas aman. Posisi kas: tidak diketahui. Posisi bendahara: sama.',
+    'Pengurus Kopdes menyatakan kasnya "sedang dititipkan di masa depan".',
+    'Juru bicara: "Bendahara bukan kabur, melainkan studi banding. Tanpa tiket pulang."',
+  ];
+  const PENGURUS = [];
+  function picuKasRaib(b) {
+    const rugi = Math.min(Math.floor(G.cuan), Math.floor(rand(25, 55)));
+    b.sampai = G.t + 40; G.kasRaib = (G.kasRaib || 0) + 1;
+    G.cuan -= rugi; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3); G.citra = Math.max(0, G.citra - 2);
+    E.teks(V(b.x, b.z, 7), rugi > 0 ? `KAS RAIB -${rugi}` : 'KAS RAIB', 'besar buruk'); E.getar(0.15); bunyi.gagal();
+    toast(KABUR[Math.floor(Math.random() * KABUR.length)]);
+    const g = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x7a4a2a }), M.hitam, 0.5);
+    const karung = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), new THREE.MeshLambertMaterial({ color: 0xd9b66a }));
+    karung.position.set(0, 3.2, -0.9); g.add(karung); grup.add(g);
+    const a = rand(0, 6.28), tujuan = { x: b.x + Math.cos(a) * 70, z: b.z + Math.sin(a) * 70 };
+    PENGURUS.push({ g, x: b.x, z: b.z, ry: 0, rute: rute({ x: b.x, z: b.z }, tujuan), idx: 0, fase: 0 });
+  }
+  function perbaruiPengurus(dt) {
+    for (let i = PENGURUS.length - 1; i >= 0; i--) {
+      const w = PENGURUS[i];
+      if (ikuti(w, dt, 13)) { grup.remove(w.g); PENGURUS.splice(i, 1); continue; }
+      w.fase += dt * 14; taruh(w, dt);
+      const u = w.g.userData; u.lenganK.rotation.x = Math.sin(w.fase) * 1.1; u.lenganN.rotation.x = -Math.sin(w.fase) * 1.1;
+    }
+  }
+  function perbaruiKopdes(dt) {
+    for (const b of G.bangunan) {
+      if (b.jenis !== 'kopdes' || b.mangkrak || b.pop < 1 || G.t < (b.sampai || 0)) continue;
+      b.cek = (b.cek ?? 12) - dt;
+      if (b.cek <= 0) { b.cek = 12; if (b.umur > 12 && Math.random() < 0.4) picuKasRaib(b); }
+    }
+  }
+
   // ---------- Kejadian keracunan ----------
   function picuInsiden(b) {
     const n = Math.floor(rand(8, 31));
@@ -248,8 +284,8 @@ export function buatNPC(d) {
 
   function update(dt) {
     waktu += dt;
-    perbaruiSekolah(dt); perbaruiAmbulans(dt); perbaruiPengantar(dt); perbaruiWartawan(dt);
-    if (G.jalan) perbaruiDapur(dt);
+    perbaruiSekolah(dt); perbaruiAmbulans(dt); perbaruiPengantar(dt); perbaruiWartawan(dt); perbaruiPengurus(dt);
+    if (G.jalan) { perbaruiDapur(dt); perbaruiKopdes(dt); }
   }
   return { update, dapurBaru, labelDapur, picuInsiden, kirimAmbulans, AMBULANS, SEKOLAH, PENGANTAR, WARTAWAN };
 }

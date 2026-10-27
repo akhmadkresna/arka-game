@@ -27,7 +27,7 @@ const COOLDOWN_UMKM = 25, TUTUP_SETELAH = 3, LAMA_TUTUP = 120, DURASI_APARAT = 6
 const G = {
   t: 0, bulan: 1, jalan: false, jeda: false,
   cuan: 20, restu: 60, panas: 5, rakyat: 5, kabut: 0, citra: 0, berkas: 1,
-  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, korban: 0, insiden: 0, naik: null, balihoList: [],
+  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, korban: 0, insiden: 0, kasRaib: 0, naik: null, balihoList: [],
   bangunan: [], baliho: 0, selfie: 0, kabutPuncak: 0, gulungTikar: 0, misi: 0,
   stat: { bakar: 0, tanam: 0, bangun: 0, blokir: 0, palak: 0, panen: 0, naik: 0, lompat: 0 },
   penghasilan: 0,
@@ -456,13 +456,15 @@ function perbaruiMisi() {
 }
 
 // Tombol sentuh: sorot yang harus ditekan, redupkan yang belum perlu, dan taruh gelembung "Ketuk" di atasnya
-function perbaruiTombol(s) {
+function perbaruiTombol(s, rel = new Set()) {
   const buka = MISI[G.misi].buka;
-  const sig = s + '|' + G.misi;
+  if (s) rel.add(s);
+  const sig = s + '|' + G.misi + '|' + [...rel].join('');
   if (sig !== sigTombol) {
     sigTombol = sig;
-    document.querySelectorAll('#aksiSentuh button').forEach(b => {
+    document.querySelectorAll('#aksiSentuh button[data-k]').forEach(b => {
       b.classList.toggle('sorot', b.dataset.k === s);
+      b.classList.toggle('relevan', rel.has(b.dataset.k));
       b.classList.toggle('redup', !!buka && !buka.includes(b.dataset.k) && b.dataset.k !== s);
     });
   }
@@ -734,7 +736,13 @@ function update(dt) {
   else if (p && p.status === 'lahan' && G.misi >= 2 && G.cuan >= HARGA.tanam) s = 'p';
   else if ((G.misi === 4 || G.misi === 5) && dekatTarget && !p) s = '1';
   if (G.misi === 6 && !G.naik && kd) s = 'n';
-  perbaruiTombol(s);
+  const rel = new Set(['j']);
+  if (G.naik) { rel.add('n'); rel.add('h'); } else if (kd) rel.add('n');
+  if (u && !u.tutup) { rel.add('x'); rel.add('v'); }
+  if (p && p.status === 'hutan') { rel.add('b'); rel.add('t'); } else if (p && p.status === 'lahan') rel.add('p'); else if (p && p.status === 'sawit') rel.add('t');
+  if (dekatKantor()) { rel.add('e'); rel.add('k'); }
+  if (!G.naik && !u && !dekatKantor() && !(p && p.status !== 'lahan')) { rel.add('1'); rel.add('2'); }
+  perbaruiTombol(s, rel);
 }
 
 function akhirBulan() {
@@ -770,7 +778,7 @@ function laporan(tahunan) {
   $('laporanJudul').textContent = tahunan ? `Laporan Tahunan ke-${tahun}` : 'Laporan Kinerja (sementara)';
   $('laporanAlasan').textContent = tahunan ? 'Setahun berlalu. Bos meminta laporan. Anda menyiapkan dua versi.' : 'Dua versi laporan, satu kenyataan.';
   $('laporanResmi').innerHTML = `Serapan anggaran: <b>100%</b><br>Bangunan diresmikan: <b>${G.bangunan.length}</b><br>Baliho terpasang: <b>${G.baliho}</b><br>Penerimaan pajak daerah: <b>naik ${60 + G.stat.palak * 3}%</b><br>Kasus keracunan MBG: <b>0 (hanya "reaksi tubuh")</b><br>Stunting (laporan): <b>${stuntingResmi.toFixed(1)}%</b><br>Predikat: <b>SANGAT BERKINERJA</b>`;
-  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>UMKM gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Stunting nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
+  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>UMKM gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kas Kopdes raib: <b>${G.kasRaib || 0} kali</b><br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Stunting nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
   G.jeda = true; $('laporan').hidden = false;
 }
 $('lanjut').onclick = () => { $('laporan').hidden = true; G.jeda = false; };
@@ -838,7 +846,7 @@ const KUNCI = 'republikEmas.simpan.v1';
 let simpanGagal = false, jedaSimpan = 0, wInfoSimpan = 0;
 function infoSimpan(teks) { $('simpanInfo').textContent = teks; $('simpanInfo').style.opacity = 1; wInfoSimpan = 2.2; }
 function kumpul() {
-  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'misi', 'selfie'];
+  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'misi', 'selfie'];
   const g = {}; KUNCI_G.forEach(k => { g[k] = G[k]; }); g.stat = { ...G.stat };
   return {
     v: 1, waktuSimpan: Date.now(), G: g,
@@ -866,7 +874,7 @@ function baca() {
   try { const s = localStorage.getItem(KUNCI); if (!s) return null; const d = JSON.parse(s); return d && d.v === 1 && d.G ? d : null; } catch (e) { return null; }
 }
 function muat(d) {
-  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'misi', 'selfie']
+  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'misi', 'selfie']
     .forEach(k => { if (typeof d.G[k] === 'number' && isFinite(d.G[k])) G[k] = d.G[k]; });
   Object.assign(G.stat, d.G.stat || {});
   (d.petak || []).forEach((s, i) => { const p = PETAK[i]; if (!p) return; p.siklus = s[1] || 0; p.umurLahan = s[2] || 0; p.api = s[3] || 0; ubahStatus(p, s[0]); });
@@ -940,7 +948,7 @@ joy.addEventListener('pointerdown', e => { joyId = e.pointerId; joy.setPointerCa
 joy.addEventListener('pointermove', e => { if (e.pointerId === joyId) joyGerak(e); });
 const joyLepas = e => { if (e.pointerId !== joyId) return; joyId = null; joyX = joyY = 0; knob.style.transform = 'translate(0,0)'; };
 joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel', joyLepas);
-document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); aksiTombol(b.dataset.k); }));
+document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); if (b.id === 'btnSemua') { const a = $('aksiSentuh'); a.classList.toggle('semua'); b.textContent = a.classList.contains('semua') ? 'Tutup' : '⋯ Lainnya'; return; } aksiTombol(b.dataset.k); }));
 if (sentuh) document.body.classList.add('sentuh');
 
 // HP portrait: panel misi tepat di bawah meter/status; prompt, toast, dan monolog bertumpuk di bawah misi (tidak menutupi tokoh)

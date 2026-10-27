@@ -136,6 +136,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 }
 
 #btnRinci{display:none}
+#btnSemua{display:none}
+@media(max-aspect-ratio:1/1){.sentuh #btnSemua{display:block}}
 /* ===== HP portrait (layar tegak): HUD ringkas, rincian di balik tombol ☰ ===== */
 @media(max-aspect-ratio:1/1){
   .sentuh #kiriAtas{top:max(6px,env(safe-area-inset-top));left:6px;width:40vw;padding:5px 8px}
@@ -159,6 +161,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
   .sentuh #aksiSentuh{right:6px;bottom:max(8px,env(safe-area-inset-bottom));gap:4px;grid-template-columns:repeat(5,calc((100vw - 6px - 10px - 100px - 16px - 8px)/5))}
   .sentuh #aksiSentuh{direction:rtl}.sentuh #aksiSentuh button{direction:ltr;height:38px;min-height:38px;font-size:.64rem;line-height:1.05;background:#e8b83ccc}
   .sentuh #aksiSentuh button.redup{display:none}
+  .sentuh #aksiSentuh:not(.semua) button:not(.relevan):not(#btnSemua){display:none}
+  .sentuh #aksiSentuh #btnSemua{background:#ffffff30;color:#fff}
   .sentuh #prompt{left:6px;right:6px;transform:none;max-width:none;bottom:auto;top:130px;font-size:.76rem;padding:4px 10px}
   .sentuh #toast{bottom:auto;left:6px;right:6px;transform:none;max-width:none;font-size:.78rem;padding:5px 10px}
   .sentuh #monolog{left:12px;right:12px;transform:none;max-width:none;bottom:auto;font-size:.8rem}
