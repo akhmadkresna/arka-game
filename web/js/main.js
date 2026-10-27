@@ -156,7 +156,8 @@ function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warn
 const tb = k => `<kbd>${sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
 const isiTombol = teks => teks.replace(/\{(\w)\}/g, (_, k) => tb(k));
 let promptLama = '';
-function setPrompt(h) { if (h !== promptLama) { $('prompt').innerHTML = h; $('prompt').style.visibility = h ? 'visible' : 'hidden'; promptLama = h; } }
+let aturTumpukan = () => {};
+function setPrompt(h) { if (h !== promptLama) { $('prompt').innerHTML = h; $('prompt').style.visibility = h ? 'visible' : 'hidden'; promptLama = h; aturTumpukan(); } }
 function kartu(judul, teks, tombolTeks = 'Lanjut') {
   G.jeda = true;
   $('kartuJudul').textContent = judul; $('kartuTeks').textContent = teks; $('kartuLanjut').textContent = tombolTeks;
@@ -430,7 +431,7 @@ function perbaruiMisi() {
   if (misiTampil !== G.misi) {
     misiTampil = G.misi;
     $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`;
-    $('misiTeks').innerHTML = isiTombol(MISI[G.misi].teks);
+    $('misiTeks').innerHTML = isiTombol(sentuh && MISI[G.misi].ringkas ? MISI[G.misi].ringkas : MISI[G.misi].teks);
   }
   $('misi').classList.toggle('baru', wMisiBaru > 0);
   // Panah kompas di layar menunjuk ke tujuan
@@ -933,17 +934,28 @@ joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel
 document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); aksiTombol(b.dataset.k); }));
 if (sentuh) document.body.classList.add('sentuh');
 
-// HP portrait: letakkan panel misi tepat di bawah panel meter/status agar tidak menimpa
+// HP portrait: panel misi tepat di bawah meter/status; prompt, toast, dan monolog bertumpuk di bawah misi (tidak menutupi tokoh)
 (() => {
   const potret = matchMedia('(max-aspect-ratio: 1/1)');
+  const tumpukan = () => {
+    const p = $('prompt'), t = $('toast'), n = $('monolog'), m = $('misi');
+    if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = ''; return; }
+    let y = m.getBoundingClientRect().bottom + 6;
+    p.style.top = y + 'px';
+    if (p.style.visibility === 'visible') y += p.offsetHeight + 4;
+    t.style.top = y + 'px';
+    y += t.offsetHeight + 4;
+    n.style.top = y + 'px';
+  };
   const atur = () => {
     const m = $('misi');
-    if (!sentuh || !potret.matches) { m.style.top = ''; $('monolog').style.top = ''; return; }
+    if (!sentuh || !potret.matches) { m.style.top = ''; tumpukan(); return; }
     const a = $('kiriAtas').getBoundingClientRect(), b = $('kananAtas').getBoundingClientRect();
     m.style.top = (Math.max(a.bottom, b.bottom) + 6) + 'px';
-    $('monolog').style.top = (Math.max(a.bottom, b.bottom) + 6 + m.offsetHeight + 8) + 'px';
+    tumpukan();
   };
-  if (window.ResizeObserver) { const ro = new ResizeObserver(atur); ro.observe($('kiriAtas')); ro.observe($('kananAtas')); ro.observe($('misi')); }
+  aturTumpukan = tumpukan;
+  if (window.ResizeObserver) { const ro = new ResizeObserver(atur); ro.observe($('kiriAtas')); ro.observe($('kananAtas')); ro.observe($('misi')); ro.observe($('toast')); }
   addEventListener('resize', atur); atur();
 })();
 
