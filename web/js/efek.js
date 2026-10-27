@@ -10,6 +10,8 @@ const TIPE = {
   daun:   { warna: [0x4a9a3e, 0x7ab648, 0x2f7a3a], naik: [3, 6], sebar: 3, grav: 7, hidup: [1.0, 1.4], ukuran: [0.2, 0.36] },
   debu:   { warna: [0xd9c9a4, 0xb59b7a, 0xe6dcc0], naik: [1, 3], sebar: 5, grav: 2, hidup: [0.8, 1.2], ukuran: [0.25, 0.5] },
   konfeti:{ warna: [0xffd23a, 0xd6453d, 0x5aa0d6, 0x5fb36a, 0xffffff], naik: [7, 12], sebar: 5, grav: 12, hidup: [1.2, 1.7], ukuran: [0.16, 0.28] },
+  asapTebal: { warna: [0x4a4642, 0x625d57, 0x7a746c], naik: [3, 5], sebar: 1.6, grav: -0.3, hidup: [3.2, 5], ukuran: [1.0, 2.0], tumbuh: true },
+  bara:   { warna: [0xff7a1a, 0xffd23a, 0xff5a1a], naik: [10, 16], sebar: 6, grav: 9, hidup: [1.2, 1.8], ukuran: [0.2, 0.36] },
   asap:   { warna: [0x6a6560, 0x8a847c], naik: [2, 3.5], sebar: 0.8, grav: -0.4, hidup: [1.6, 2.4], ukuran: [0.4, 0.8], tumbuh: true },
 };
 const acakDi = (a, b) => a + Math.random() * (b - a);
@@ -42,7 +44,7 @@ export function buatEfek(scene, kamera, pemain, wadahTeks, elCuan) {
   const koinKeluar = (ke, n = 5) => { if (n > 0) bunyi.uangKeluar(); terbang(kantong(), ke, n, 'keluar'); };
 
   // ----- Percikan (slot tetap) -----
-  const MB = 360;
+  const MB = 520;
   const bm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false }), MB);
   bm.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MB * 3), 3);
   bm.frustumCulled = false; scene.add(bm);

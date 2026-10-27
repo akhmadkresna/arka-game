@@ -25,6 +25,7 @@ export const PRESTASI = [
   { id: 'selfie', nama: 'Wajah Rakyat', ket: '5 kali berswafoto. Rakyat di latar belakang.', ok: g => g.selfie >= 5 },
   { id: 'panas', nama: 'Panas Tapi Santai', ket: 'Panas KPK di atas 70, masih tersenyum.', ok: g => g.panas >= 70 },
   { id: 'tugas', nama: 'Anak Emas Bos', ket: 'Menuntaskan 3 penugasan Bos.', ok: g => (g.tugasOk || 0) >= 3 },
+  { id: 'ispa', nama: 'Pelopor Udara Pekat', ket: '100 kasus ISPA. Pemerintah: "Itu angka pembulatan."', ok: g => (g.ispa || 0) >= 100 },
   { id: 'tahun', nama: 'Bertahan Setahun', ket: 'Melewati satu tahun jabatan tanpa dipecat.', ok: g => g.bulan > 12 },
 ];
 
@@ -45,6 +46,7 @@ const UMUM = [
 export function pilihBerita(g, k) {
   const p = [];
   if (g.stunting >= 25) p.push('Angka stunting naik. Juru bicara: "Itu bukan naik, itu pertumbuhan tinggi yang tertunda."');
+  if (g.kabut >= 40) p.push('Juru bicara: "' + DENIAL[Math.floor(Math.random() * DENIAL.length)] + '"');
   if (g.kabut >= 50) p.push('Kabut asap pekat. Menteri: "Itu bukan asap, itu awan pencitraan."', 'Sekolah libur karena kabut. Menteri: "Libur adalah solusi pendidikan paling hemat."');
   if (k.hutanPersen <= 60) p.push('Hutan menyusut. Pemerintah: "Kami menyebutnya penghijauan versi kuning."');
   if (g.stat.palak >= 5) p.push('Pungutan UMKM disebut "Program Gotong Royong Digital". Sistem digitalnya: kantong Menteri.');
@@ -96,4 +98,20 @@ export const SAMBUTAN = [
   'Proyek ini selesai tepat waktu. Waktunya kami tentukan sendiri.',
   'Mohon tepuk tangan. Yang tidak bertepuk tangan akan kami catat sebagai kritik yang membangun.',
   'Saya tidak akan berlama-lama. Hanya akan bicara empat puluh menit.',
+];
+
+// ---------- Penyangkalan resmi saat asap dan ISPA naik ----------
+export const DENIAL = [
+  'Itu bukan asap kebakaran. Itu kabut pagi yang sedang bekerja lembur.',
+  'ISPA bukan karena asap. Warga hanya terlalu banyak bernapas.',
+  'Titik api hanya tiga. Sisanya titik cahaya.',
+  'Kualitas udara baik. Alat ukurnya yang sedang bersedih.',
+  'Kebakaran terkendali. Hanya saja apinya belum diberi tahu.',
+  'Warga disarankan tidak bernapas dalam-dalam. Hemat oksigen nasional.',
+  'Itu bukan pembakaran, itu pencahayaan alami hutan.',
+  'Penyebabnya puntung rokok. Puntungnya seluas 40 hektare.',
+  'Jarak pandang 20 meter itu bagus. Rakyat jadi fokus pada yang dekat-dekat saja.',
+  'ISPA adalah bentuk kedekatan warga dengan alam.',
+  'Masker bisa didapat di Kopdes. Kopdesnya sedang tutup untuk evaluasi.',
+  'Kami tidak menyangkal asapnya. Kami menyangkal bahwa itu ada.',
 ];

@@ -51,6 +51,7 @@ export const bunyi = {
   koin() { const n = performance.now(); if (n - terakhirKoin < 55) return; terakhirKoin = n; const f = 1100 + Math.random() * 500; nada(f, 0.09, 'square', 0.045); nada(f * 1.5, 0.15, 'square', 0.045, null, 0.06); },
   uangKeluar() { nada(720, 0.16, 'triangle', 0.08, 300); },
   gagal() { nada(170, 0.4, 'sawtooth', 0.1, 70); },
+  batuk() { [0, 0.16, 0.34].forEach(t => { derau(0.08, 0.2, 900, t, 300); nada(180, 0.08, 'sawtooth', 0.05, 120, t); }); },
   api() { derau(0.55, 0.2, 1400); nada(120, 0.45, 'sawtooth', 0.04, 60); },
   kayu() { derau(0.12, 0.28, 800); nada(190, 0.1, 'triangle', 0.1, 90); },
   tanam() { nada(380, 0.12, 'sine', 0.12, 760); nada(760, 0.1, 'sine', 0.08, null, 0.08); },
