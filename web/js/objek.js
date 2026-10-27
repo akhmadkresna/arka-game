@@ -406,7 +406,7 @@ export function aparatSewaan() {
 }
 
 // ---------- Ojol (ojek online, generik) ----------
-const WARNA_LABEL = { ramah: '#9ad98f', biasa: '#f1d96a', galak: '#f08a80', mogok: '#a0a0a0' };
+const WARNA_LABEL = { ramah: '#9ad98f', biasa: '#f1d96a', galak: '#f08a80', mogok: '#a0a0a0', darurat: '#ff7a6a', ada: '#9ad98f', proses: '#f1d96a', tutup: '#ff7a6a' };
 export function labelSprite(teks, tipe) {
   const c = document.createElement('canvas'); c.width = 320; c.height = 80;
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
@@ -473,5 +473,47 @@ export function mobilDinas() {
   });
   const pl = papan('MOBIL DINAS', 2.4, 0.6, { latar: '#e8b83c' }); pl.position.set(0, 1.9, 3.1); g.add(pl);
   g.userData = { roda, lampuM, lampuB };
+  return g;
+}
+
+
+// ---------- Sekolah, puskesmas, ambulans, dan manusia mini ----------
+export function bangunanSekolah(nama) {
+  const g = new THREE.Group();
+  g.add(kotak(M.krem, 0, 2.6, 0, 20, 5.2, 7), mesh(prisma(21.5, 2.8, 8.4), M.atapMerah, 0, 5.2, 0), kotak(M.putih, 0, 0.35, 4.6, 20, 0.7, 2));
+  for (let i = 0; i < 5; i++) { g.add(kotak(M.kaca, -8 + i * 4, 3.4, 3.55, 2.2, 1.6, 0.1), kotak(M.kayu, -8 + i * 4, 1.5, 3.55, 1.2, 2.6, 0.1)); }
+  const pn = papan(nama, 13, 2.4); pn.position.set(0, 6.4, 4.3); g.add(pn);
+  const halaman = mesh(new THREE.PlaneGeometry(26, 16), new THREE.MeshLambertMaterial({ color: 0xa8b090 }), 0, 0.1, 15);
+  halaman.rotation.x = -Math.PI / 2; g.add(halaman);
+  return g;
+}
+export function bangunanPuskesmas() {
+  const g = new THREE.Group(), merah = new THREE.MeshLambertMaterial({ color: 0xd6302a });
+  g.add(kotak(M.putih, 0, 2.6, 0, 14, 5.2, 8), kotak(M.atapAbu, 0, 5.4, 0, 15, 0.5, 9), kotak(M.kaca, -4, 2.8, 4.05, 3, 1.8, 0.1), kotak(M.kaca, 4, 2.8, 4.05, 3, 1.8, 0.1), kotak(M.kayu, 0, 1.5, 4.05, 1.6, 3, 0.1));
+  g.add(kotak(merah, 0, 7.0, 4.0, 3.2, 0.9, 0.3), kotak(merah, 0, 7.0, 4.0, 0.9, 3.2, 0.3));
+  const pn = papan('PUSKESMAS MAKMUR\nBuka 08.00-12.00', 9, 2.6); pn.position.set(0, 4.6, 4.3); g.add(pn);
+  g.add(kotak(M.atapAbu, 9.5, 3.4, 0, 6, 0.3, 6.5)); [[-2.7, -3], [-2.7, 3], [2.7, -3], [2.7, 3]].forEach(([x, z]) => g.add(tiang(M.putih, 9.5 + x, 1.7, z, 0.2, 3.4)));
+  return g;
+}
+export function ambulans() {
+  const g = new THREE.Group(), merah = new THREE.MeshLambertMaterial({ color: 0xd6302a });
+  const lampuM = kotak(new THREE.MeshBasicMaterial({ color: 0xff2a2a }), -0.55, 3.0, 0.2, 0.9, 0.25, 0.5), lampuB = kotak(new THREE.MeshBasicMaterial({ color: 0x2a6aff }), 0.55, 3.0, 0.2, 0.9, 0.25, 0.5);
+  g.add(kotak(M.putih, 0, 1.7, -0.6, 2.7, 2.2, 4.2), kotak(M.putih, 0, 1.2, 2.5, 2.7, 1.3, 1.8), kotak(M.kaca, 0, 2.1, 3.0, 2.3, 0.7, 0.1), lampuM, lampuB);
+  [-1, 1].forEach(s => g.add(kotak(merah, s * 1.37, 1.7, -0.6, 0.06, 0.4, 4.2), kotak(merah, s * 1.38, 2.2, -0.6, 0.06, 1.2, 0.35), kotak(merah, s * 1.38, 2.2, -0.6, 0.06, 0.35, 1.2)));
+  const roda = [];
+  [[-1.3, 2.2], [1.3, 2.2], [-1.3, -1.9], [1.3, -1.9]].forEach(([x, z]) => { const r = mesh(geo.silinder, M.hitam, x, 0.65, z, 0.66, 0.3, 0.66); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0, 0, 0, 0.45, 1.05, 0.2)); g.add(r); roda.push(r); });
+  g.scale.setScalar(1.1);
+  g.userData = { roda, lampuM, lampuB };
+  return g;
+}
+export function manusiaMini(baju, celana = M.hitam, skala = 0.5, topi = null) {
+  const g = new THREE.Group(), lenganK = new THREE.Group(), lenganN = new THREE.Group();
+  g.add(mesh(geo.box, baju, 0, 2.3, 0, 1.4, 1.8, 0.8), mesh(geo.bola, M.kulit, 0, 3.7, 0, 0.62, 0.62, 0.62), mesh(geo.box, celana, 0, 0.75, 0, 1.0, 1.5, 0.6));
+  lenganK.add(mesh(geo.box, baju, 0, -0.7, 0, 0.45, 1.5, 0.45)); lenganK.position.set(-0.95, 3.0, 0);
+  lenganN.add(mesh(geo.box, baju, 0, -0.7, 0, 0.45, 1.5, 0.45)); lenganN.position.set(0.95, 3.0, 0);
+  g.add(lenganK, lenganN);
+  if (topi) g.add(mesh(geo.silinder, topi, 0, 4.2, 0, 0.62, 0.4, 0.62));
+  g.scale.setScalar(skala);
+  g.userData = { lenganK, lenganN };
   return g;
 }

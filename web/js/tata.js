@@ -29,6 +29,15 @@ DESA.forEach((d, di) => {
   const t = { rumah: [], palem: [] };
   t.balai = { x: d.x, z: d.z - 30 }; tambahJejak(t.balai.x, t.balai.z, 9, 'balai' + di);
   t.lumbung = { x: d.x - 26, z: d.z - 24 }; tambahJejak(t.lumbung.x, t.lumbung.z, 4.5, 'lumbung' + di);
+  const cariPos = (r, dMin, dMax) => {
+    for (let k = 0; k < 500; k++) {
+      const a = acak() * 6.283, rad = dMin + acak() * (dMax - dMin), x = d.x + Math.cos(a) * rad, z = d.z + Math.sin(a) * rad;
+      if (!bentrok(x, z, r, 3) && jarakJalan(x, z) > r + 2 && tinggi(x, z) > 1) return { x, z, ry: Math.atan2(d.x - x, d.z - z) };
+    }
+    return null;
+  };
+  t.sekolah = cariPos(14, 24, 38); if (t.sekolah) tambahJejak(t.sekolah.x, t.sekolah.z, 14, 'sekolah' + di);
+  if (di === 0) { t.puskesmas = cariPos(11, 24, 38); if (t.puskesmas) tambahJejak(t.puskesmas.x, t.puskesmas.z, 11, 'puskesmas'); }
   t.papan = { x: d.x - 46, z: d.z + 4 };
   for (let k = 0; k < 900 && t.rumah.length < 9; k++) {
     const a = acak() * 6.283, rad = 12 + acak() * 28, x = d.x + Math.cos(a) * rad, z = d.z + Math.sin(a) * rad;

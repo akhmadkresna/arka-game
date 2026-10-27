@@ -397,3 +397,27 @@ Semua aksi tetap bisa dilakukan dari atas kendaraan, termasuk memalak (satir: "r
 - **Pengujian luring** (`ujiMusik`): merender 20 detik ke penyangga dan memeriksa puncak (0,33 pada volume uji, tidak pecah), tidak ada nilai rusak, dan sekitar 22% jeda antar nada. Saya belum mendengarnya langsung, jadi volume, tempo, dan selera melodi perlu dinilai pemain.
 
 **Berkas milik sendiri.** Letakkan berkas di `web/audio/` dan isi `web/audio/bgm.json` (`"berkas": "namaberkas.mp3"`, `"volume": 0.5`). Game akan memutarnya berulang sebagai pengganti musik bawaan. Pengujian dengan berkas contoh berhasil. Tanggung jawab lisensi ada pada pemilik berkas.
+
+---
+
+## 17. NPC sekolah, dapur MBG, dan ambulans
+
+**Permintaan:** lebih banyak NPC di dapur MBG dan sekolah, serta ambulans yang hilir-mudik membawa siswa yang keracunan MBG.
+
+**Dasar riset.** Analisis Lancet mencatat 177 kejadian keracunan dan lebih dari 20.000 siswa sampai akhir 2025 ([Lancet Regional Health](https://www.thelancet.com/journals/lansea/article/PIIS2772-3682(26)00019-3/fulltext)). BGN menangguhkan 1.780 dapur pada April 2026 karena IPAL dan SLHS belum memenuhi syarat dan menetapkan batas SLHS 10 Agustus 2026 ([Bisnis](https://ekonomi.bisnis.com/read/20260423/12/1968832/bgn-suspend-1780-dapur-mbg-per-april-2026-ini-biang-keroknya), [Bisnis](https://ekonomi.bisnis.com/read/20260806/12/1994117/bgn-dapur-mbg-tanpa-slhs-per-10-agustus-ditutup-permanen)). Lokasi dapur absurd tetap premis satir game, bukan klaim fakta.
+
+**Keputusan kepekaan.** Korban adalah anak-anak nyata, dan sejak awal sasaran satir adalah pejabat dan sistemnya. Maka:
+- **Tidak ditampilkan:** anak yang muntah atau pucat, siswa di dalam ambulans, atau lelucon pada penderitaan anak. Ambulans hanya berlabel jumlah ("RUJUK 15 SISWA"), dan murid di sekolah selalu tampil sehat dan bermain.
+- **Konsekuensi tetap terasa:** sirene, ambulans, wartawan "LIVE!", dapur ditutup, penghitung "Siswa dirujuk" di HUD, Amarah Rakyat dan Restu Bos terpengaruh, dan laporan akhir menampilkan angka nyata berdampingan dengan klaim resmi "0 kasus, hanya reaksi tubuh".
+- **Lelucon menyasar pejabat:** jawaban juru bicara ("SLHS sedang diproses sejak 2024", "kasus terisolasi", "reaksi tubuh terhadap gizi yang meningkat") dan monolog tokoh narsistik yang menyalahkan dapur. Tidak ada kalimat yang menyalahkan anak-anak.
+
+**NPC dan sistem baru** (`web/js/npc.js`):
+- **Sekolah** (satu per desa, "SD NEGERI HARAPAN"): 8 murid berseragam putih-merah berjalan acak di halaman, guru berjaga di depan. Saat pengantar makan siang tiba, murid berkerumun dan guru melambai.
+- **Puskesmas** ("Buka 08.00-12.00") di desa pertama, dengan tempat parkir ambulans.
+- **Dapur MBG:** dua juru masak (bertopi, mengaduk) per dapur, label SLHS di atap ("ADA (DI KERTAS)" atau "PROSES (SEJAK 2024)"), dan pengantar makan siang bermotor yang berangkat tiap 30-45 detik ke sekolah terdekat, menunggu, lalu pulang.
+- **Ambulans (3):** dua berpatroli hilir-mudik di jalan, satu parkir di puskesmas. Saat kejadian, dua ambulans terdekat meluncur ke dapur dengan sirene dan lampu berkedip (lewat jembatan bila perlu), memuat siswa, mengantar ke puskesmas, lalu kembali ke patroli.
+- **Wartawan:** datang berjalan kaki setelah kejadian, meliput 22 detik (Citra turun), lalu pergi.
+- **Kejadian:** dapur MBG beroperasi 140 detik sebelum mangkrak (Kopdes tetap 45 detik). Tiap 18 detik ada peluang kejadian: 38% tanpa SLHS, 8% dengan "SLHS di atas kertas" (1 berkas), dikali 1,5 di dekat sungai dan 2 di dekat TPA. Akibatnya: 8-30 siswa dirujuk, dapur ditutup 60 detik tanpa pendapatan pasif, Amarah Rakyat +8, Restu Bos -4, Panas KPK +3, Citra -6.
+- **Simpan-muat** menyimpan status SLHS, lokasi, dan sisa waktu penutupan dapur, serta jumlah siswa dirujuk dan kejadian.
+
+**Keterbatasan.** NPC tidak punya tabrakan dan tidak ikut disimpan posisinya (dibuat ulang saat memuat). Ambulans bergerak lurus bila keluar jalan dan hanya mengenal satu sungai (lewat jembatan). Keseimbangan peluang kejadian baru diuji dengan bot, belum oleh pemain.

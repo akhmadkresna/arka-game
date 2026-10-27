@@ -22,6 +22,7 @@ export const MONOLOG = {
   ojol: ['Ojol itu mitra. Mitra wajib berkontribusi pada mitranya.', 'Jalan raya itu milik negara. Lewat, ya bayar.'],
   klakson: ['Klakson massal itu bukan protes. Itu paduan suara yang kurang latihan.'],
   mogok: ['Mogok? Berarti pajak jalurnya lunas dibayar dengan tenaga.'],
+  keracunan: ['Ini bukan salah saya. Dapurnya yang belum memahami visi saya.', 'Saya sudah meresmikannya. Mengurus isinya itu tugas orang lain.'],
   tumbuh: ['Hutan tumbuh lagi sendiri? Berarti saya boleh membakarnya lagi.'],
 };
 

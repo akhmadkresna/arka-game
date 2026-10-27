@@ -32,6 +32,8 @@ Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (diresh
 
 **Musik latar** orisinal, disintesis di peramban (gaya dangdut-koplo: kendang, bass, gong, saron, melodi suling) tanpa berkas audio. Tempo naik saat mengendarai kendaraan dan warna bunyi menjadi pengap saat kabut tebal. Untuk memakai berkas musik milik sendiri, letakkan di `web/audio/` dan isi `web/audio/bgm.json` (lihat berkas itu). Pastikan Anda berhak menyebarkannya karena situs ini publik.
 
+**Dapur MBG dan kejadian keracunan:** dapur MBG kini berstaf (juru masak), punya label SLHS (sertifikat higiene), dan mengirim pengantar makan siang bermotor ke sekolah terdekat. Dapur tanpa berkas "SLHS di atas kertas" (1 berkas terpakai saat membangun) lebih rawan, apalagi di dekat sungai atau TPA. Jika terjadi kejadian, ambulans bersirene meluncur ke dapur, mengangkut siswa ke puskesmas, dan wartawan datang. Dapur ditutup sementara dan jumlah siswa yang dirujuk tercatat. Di dunia ada dua sekolah (murid bermain, guru berjaga), puskesmas, dan tiga ambulans.
+
 Versi giliran (prototipe awal) masih ada di `web/giliran/index.html`.
 
 Rancangan lengkap, riset, dan karakter ada di [`docs/RANCANGAN-GAME.md`](docs/RANCANGAN-GAME.md).

@@ -66,5 +66,6 @@ export const bunyi = {
   mendarat() { derau(0.1, 0.18, 600); nada(120, 0.1, 'sine', 0.1, 70); },
   tabrak() { derau(0.25, 0.3, 500); nada(90, 0.25, 'sawtooth', 0.12, 40); },
   simpan() { nada(660, 0.08, 'triangle', 0.07); nada(880, 0.1, 'triangle', 0.07, null, 0.08); },
+  sirene() { nada(650, 0.45, 'sawtooth', 0.045, 920); nada(920, 0.45, 'sawtooth', 0.045, 650, 0.45); },
   pop() { nada(300, 0.1, 'sine', 0.1, 900); },
 };
