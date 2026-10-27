@@ -1,0 +1,4 @@
+{
+  "keterangan": "Gambar latar layar awal. Letakkan gambar di folder ini (disarankan 2560x1080, JPG/WebP di bawah 500 KB) lalu isi 'berkas' dengan namanya, misalnya \"menu.jpg\". Isi null untuk tampilan polos. Lihat docs/panduan-seni/PROMPT-GAMBAR.md.",
+  "berkas": null
+}

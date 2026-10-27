@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<rect width="1080" height="1920" fill="#2b2622"/>
+<line x1="360.0" y1="0" x2="360.0" y2="1920" stroke="#ffffff" stroke-opacity="0.25" stroke-width="3" />
+<line x1="720.0" y1="0" x2="720.0" y2="1920" stroke="#ffffff" stroke-opacity="0.25" stroke-width="3" />
+<line x1="0" y1="640.0" x2="1080" y2="640.0" stroke="#ffffff" stroke-opacity="0.25" stroke-width="3" />
+<line x1="0" y1="1280.0" x2="1080" y2="1280.0" stroke="#ffffff" stroke-opacity="0.25" stroke-width="3" />
+<rect x="60" y="80" width="960" height="340" fill="#5aa0d6" fill-opacity="0.18" stroke="#5aa0d6" stroke-width="4" stroke-dasharray="14 10"/><text x="78" y="120" fill="#fff" font-size="30" font-weight="700" font-family="sans-serif">ZONA LOGO</text><text x="78" y="156" fill="#ddd" font-size="22" font-family="sans-serif">Langit / ruang kosong</text>
+<rect x="180" y="470" width="720" height="900" fill="#5fb36a" fill-opacity="0.18" stroke="#5fb36a" stroke-width="4" stroke-dasharray="14 10"/><text x="198" y="510" fill="#fff" font-size="30" font-weight="700" font-family="sans-serif">ZONA TOKOH UTAMA</text><text x="198" y="546" fill="#ddd" font-size="22" font-family="sans-serif">Kepala ≈ y 560, kaki ≈ y 1330</text>
+<rect x="0" y="1400" width="1080" height="520" fill="#d6453d" fill-opacity="0.22" stroke="#d6453d" stroke-width="4" stroke-dasharray="14 10"/><text x="18" y="1440" fill="#fff" font-size="30" font-weight="700" font-family="sans-serif">ZONA MENU (UI)</text><text x="18" y="1476" fill="#ddd" font-size="22" font-family="sans-serif">Tenang & agak gelap. Tombol di sini</text>
+<line x1="0" y1="1180" x2="1080" y2="1180" stroke="#ffd23a" stroke-opacity="0.8" stroke-width="3" stroke-dasharray="20 12"/>
+<text x="30" y="1168" fill="#ffd23a" font-size="26" font-family="sans-serif">CAKRAWALA ≈ y 1180</text>
+<rect x="3" y="3" width="1074" height="1914" fill="none" stroke="#fff" stroke-width="6"/>
+<text x="540.0" y="60" fill="#fff" font-size="28" font-weight="700" font-family="sans-serif" text-anchor="middle">BINGKAI POTRET · 1080×1920</text>
+</svg>

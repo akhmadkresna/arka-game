@@ -891,6 +891,14 @@ $('btnSimpan').onclick = () => simpan(true);
 addEventListener('visibilitychange', () => { if (document.hidden) simpan(); });
 addEventListener('pagehide', () => simpan());
 siapkanJudul();
+// Gambar latar layar awal (opsional): atur di img/menu.json
+(async () => {
+  try {
+    const r = await fetch('img/menu.json'); if (!r.ok) return;
+    const j = await r.json();
+    if (j && j.berkas) { $('latarMenu').style.backgroundImage = `url("img/${j.berkas}")`; $('judul').classList.add('berseni'); }
+  } catch (e) { /* abaikan */ }
+})();
 addEventListener('pointerdown', aktifkan, { once: true });
 addEventListener('keydown', aktifkan, { once: true });
 const labelSuara = () => { $('btnSuara').textContent = bisuSekarang() ? 'Suara: mati' : 'Suara: hidup'; $('btnMusik').textContent = musikBisu() ? 'Musik: mati' : 'Musik: hidup'; };
