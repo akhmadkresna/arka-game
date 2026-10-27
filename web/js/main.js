@@ -29,7 +29,7 @@ const COOLDOWN_UMKM = 25, TUTUP_SETELAH = 3, LAMA_TUTUP = 120, DURASI_APARAT = 6
 const G = {
   t: 0, bulan: 1, jalan: false, jeda: false,
   cuan: 20, restu: 60, panas: 5, rakyat: 5, kabut: 0, citra: 0, berkas: 1,
-  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, korban: 0, insiden: 0, kasRaib: 0, prestasi: [], pangkat: 0, naik: null, balihoList: [],
+  stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, korban: 0, insiden: 0, kasRaib: 0, tugasOk: 0, prestasi: [], pangkat: 0, naik: null, balihoList: [],
   bangunan: [], baliho: 0, selfie: 0, kabutPuncak: 0, gulungTikar: 0, misi: 0,
   stat: { bakar: 0, tanam: 0, bangun: 0, blokir: 0, palak: 0, panen: 0, naik: 0, lompat: 0 },
   penghasilan: 0,
@@ -428,7 +428,7 @@ function perbaruiMisi() {
     E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 40); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'MISI SELESAI!', 'besar emas'); bunyi.misi();
   }
   const d = MISI_DEF[G.misi];
-  const t = d.target() || targetTerakhir; // jangan sampai penanda hilang
+  const t = (TUGAS ? TUGAS.target() : d.target()) || targetTerakhir; // jangan sampai penanda hilang
   targetTerakhir = t;
   const tx = t ? (t.cx ?? t.x) : null, tz = t ? (t.cz ?? t.z) : null;
   const px = pemain.position.x, pz = pemain.position.z;
@@ -441,11 +441,13 @@ function perbaruiMisi() {
     const s = 1 + 0.12 * Math.sin(waktu * 5); u.cincin.scale.set(s, s, s);
   } else tujuan.visible = false;
   // Teks misi (diperbarui hanya saat berganti langkah atau perangkat berubah)
-  if (misiTampil !== G.misi) {
-    misiTampil = G.misi;
-    $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`;
-    $('misiTeks').innerHTML = isiTombol(sentuh && MISI[G.misi].ringkas ? MISI[G.misi].ringkas : MISI[G.misi].teks);
+  const kunciTampil = TUGAS ? 'T' + TUGAS.id : G.misi;
+  if (misiTampil !== kunciTampil) {
+    misiTampil = kunciTampil;
+    if (TUGAS) $('misiTeks').innerHTML = isiTombol(sentuh ? TUGAS.ringkas : TUGAS.teks);
+    else { $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`; $('misiTeks').innerHTML = isiTombol(sentuh && MISI[G.misi].ringkas ? MISI[G.misi].ringkas : MISI[G.misi].teks); }
   }
+  if (TUGAS) $('misiNo').textContent = `PENUGASAN BOS · ${Math.ceil(TUGAS.sisa)} dtk`;
   $('misi').classList.toggle('baru', wMisiBaru > 0);
   // Panah kompas di layar menunjuk ke tujuan
   const kp = $('panah');
@@ -464,7 +466,7 @@ function perbaruiMisi() {
     }
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
-  return d.sorot;
+  return TUGAS ? null : d.sorot;
 }
 
 // Tombol sentuh: sorot yang harus ditekan, redupkan yang belum perlu, dan taruh gelembung "Ketuk" di atasnya
@@ -489,10 +491,59 @@ function perbaruiTombol(s, rel = new Set()) {
 }
 
 
+
+// ---------- Penugasan Bos: tugas bertenggat setelah tutorial (inspeksi mendadak, target pajak, penghijauan) ----------
+let TUGAS = null, wTugas = 45, idTugas = 0;
+const namaBangunan = b => (b.jenis === 'mbg' ? 'Dapur MBG' : 'Kopdes');
+const KEGAGALAN_BOS = [
+  'Bos kecewa: "Saya kira Anda bisa dipercaya. Ternyata hanya bisa dipercaya untuk lupa."',
+  'Bos: "Saya tidak marah. Saya hanya mencatat. Dengan pulpen merah."',
+  'Bos mengembuskan napas panjang. Itu lebih menakutkan daripada teriakan.',
+];
+function mulaiTugas() {
+  const id = ++idTugas, daftar = G.bangunan.length ? ['kunjungan', 'pajak', 'hijau'] : ['pajak', 'hijau'];
+  const jenis = daftar[Math.floor(Math.random() * daftar.length)];
+  if (jenis === 'kunjungan') {
+    const b = G.bangunan[Math.floor(Math.random() * G.bangunan.length)], selfie0 = G.selfie;
+    TUGAS = { id, jenis, sisa: 70, target: () => b,
+      teks: `Bos datang mendadak ke ${namaBangunan(b)}! Segera ke sana dan ketuk {f} (swafoto) sebelum waktu habis.`, ringkas: `Bos mau tinjau ${namaBangunan(b)}! Ke sana, ketuk {f}.`,
+      sorotTombol: () => (jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18 ? 'f' : null),
+      selesai: () => G.selfie > selfie0 && jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18,
+      hadiah: () => { if (b.mangkrak) { G.cuan += 15; G.restu = batas(G.restu + 3); toast('Spanduk raksasa menutupi bagian yang rusak. Bos puas dari jarak 20 meter. Cuan +15.'); } else { G.cuan += 40; G.restu = batas(G.restu + 8); G.citra += 5; toast('Bos puas: "Inilah wajah pembangunan." Cuan +40, Restu +8, Citra +5.'); } } };
+  } else if (jenis === 'pajak') {
+    const p0 = G.stat.palak;
+    TUGAS = { id, jenis, sisa: 100, target: () => terdekatDari(KIOS.concat(OJOL).filter(u => !u.tutup && u.cd <= 0)),
+      teks: 'Bos minta setoran pajak daerah: palak 3 kali (warung atau ojol) sebelum waktu habis. Tekan {x}.', ringkas: 'Bos minta target pajak: palak 3 kali. Ketuk {x}.',
+      sorotTombol: () => { const u = kiosDekat(); return u && !u.tutup && u.cd <= 0 ? 'x' : null; },
+      selesai: () => G.stat.palak - p0 >= 3,
+      hadiah: () => { G.cuan += 60; G.restu = batas(G.restu + 6); toast('Target pajak tercapai. Bos: "Besok targetnya naik. Seperti biasa." Cuan +60, Restu +6.'); } };
+  } else {
+    const t0 = G.stat.tanam;
+    TUGAS = { id, jenis, sisa: 130, target: () => terdekat('lahan') || terdekat('api') || terdekat('hutan'),
+      teks: 'Bos minta program penghijauan: tanam sawit 2 petak sebelum waktu habis. Bakar dulu hutannya, lalu tekan {p}.', ringkas: 'Bos minta penghijauan: tanam sawit 2 petak. {b} lalu {p}.',
+      selesai: () => G.stat.tanam - t0 >= 2,
+      hadiah: () => { G.cuan += 50; G.restu = batas(G.restu + 6); toast('Penghijauan selesai: hijaunya sawit. Bos: "Hijau tetap hijau." Cuan +50, Restu +6.'); } };
+  }
+  wMisiBaru = 5; misiTampil = -1; toast('PENUGASAN BOS! Lihat panah kuning.'); bunyi.misi(); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'PENUGASAN BOS!', 'besar emas');
+}
+function tugasTick(dt) {
+  if (G.misi < MISI_DEF.length - 1) return;
+  if (!TUGAS) { if ((wTugas -= dt) <= 0) mulaiTugas(); return; }
+  TUGAS.sisa -= dt;
+  if (TUGAS.selesai()) {
+    TUGAS.hadiah(); G.tugasOk++; E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 40); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS SELESAI!', 'besar emas'); bunyi.misi();
+    TUGAS = null; wTugas = 70 + Math.random() * 30; misiTampil = -1;
+  } else if (TUGAS.sisa <= 0) {
+    G.restu = batas(G.restu - 8); G.panas = batas(G.panas + 2); toast(KEGAGALAN_BOS[Math.floor(Math.random() * KEGAGALAN_BOS.length)] + ' Restu -8.'); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS GAGAL', 'besar buruk'); bunyi.gagal();
+    TUGAS = null; wTugas = 60 + Math.random() * 30; misiTampil = -1;
+  }
+}
+
 // ---------- Satir: pangkat, prestasi, berita ----------
 let wSatir = 0, wBerita = 25;
 function satirTick(dt) {
   if (!G.jalan || G.jeda) return;
+  tugasTick(dt);
   if (wBerita > 0 && (wBerita -= dt) <= 0) {
     wBerita = 38 + Math.random() * 20;
     const hutan = Math.round(PETAK.filter(p => p.status === 'hutan').length / PETAK.length * 100);
@@ -780,6 +831,7 @@ function update(dt) {
   else if (p && p.status === 'lahan' && G.misi >= 2 && G.cuan >= HARGA.tanam) s = 'p';
   else if ((G.misi === 4 || G.misi === 5) && dekatTarget && !p) s = '1';
   if (G.misi === 6 && !G.naik && kd) s = 'n';
+  if (TUGAS && TUGAS.sorotTombol) s = TUGAS.sorotTombol() || s;
   const rel = new Set(['j']);
   if (G.naik) { rel.add('n'); rel.add('h'); } else if (kd) rel.add('n');
   if (u && !u.tutup) { rel.add('x'); rel.add('v'); }
@@ -822,7 +874,7 @@ function laporan(tahunan) {
   $('laporanJudul').textContent = tahunan ? `Laporan Tahunan ke-${tahun}` : 'Laporan Kinerja (sementara)';
   $('laporanAlasan').textContent = tahunan ? 'Setahun berlalu. Bos meminta laporan. Anda menyiapkan dua versi.' : 'Dua versi laporan, satu kenyataan.';
   $('laporanResmi').innerHTML = `Serapan anggaran: <b>100%</b><br>Bangunan diresmikan: <b>${G.bangunan.length}</b><br>Baliho terpasang: <b>${G.baliho}</b><br>Penerimaan pajak daerah: <b>naik ${60 + G.stat.palak * 3}%</b><br>Kasus keracunan MBG: <b>0 (hanya "reaksi tubuh")</b><br>Stunting (laporan): <b>${stuntingResmi.toFixed(1)}%</b><br>Predikat: <b>SANGAT BERKINERJA</b>`;
-  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>UMKM gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kas Kopdes masuk kantong Menteri: <b>${G.kasRaib || 0} kali</b><br>Pangkat: <b>${PANGKAT[G.pangkat][1]}</b><br>Prestasi: <b>${G.prestasi.length}/${PRESTASI.length}</b> ${G.prestasi.map(id => PRESTASI.find(x => x.id === id).nama).join(', ')}<br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Stunting nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
+  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>UMKM gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kas Kopdes masuk kantong Menteri: <b>${G.kasRaib || 0} kali</b><br>Penugasan Bos tuntas: <b>${G.tugasOk || 0}</b><br>Pangkat: <b>${PANGKAT[G.pangkat][1]}</b><br>Prestasi: <b>${G.prestasi.length}/${PRESTASI.length}</b> ${G.prestasi.map(id => PRESTASI.find(x => x.id === id).nama).join(', ')}<br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Stunting nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
   G.jeda = true; $('laporan').hidden = false;
 }
 $('lanjut').onclick = () => { $('laporan').hidden = true; G.jeda = false; };
@@ -890,7 +942,7 @@ const KUNCI = 'republikEmas.simpan.v1';
 let simpanGagal = false, jedaSimpan = 0, wInfoSimpan = 0;
 function infoSimpan(teks) { $('simpanInfo').textContent = teks; $('simpanInfo').style.opacity = 1; wInfoSimpan = 2.2; }
 function kumpul() {
-  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'misi', 'selfie'];
+  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'misi', 'selfie'];
   const g = {}; KUNCI_G.forEach(k => { g[k] = G[k]; }); g.stat = { ...G.stat }; g.prestasi = G.prestasi.slice(); g.pangkat = G.pangkat;
   return {
     v: 1, waktuSimpan: Date.now(), G: g,
@@ -918,7 +970,7 @@ function baca() {
   try { const s = localStorage.getItem(KUNCI); if (!s) return null; const d = JSON.parse(s); return d && d.v === 1 && d.G ? d : null; } catch (e) { return null; }
 }
 function muat(d) {
-  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'misi', 'selfie']
+  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'misi', 'selfie']
     .forEach(k => { if (typeof d.G[k] === 'number' && isFinite(d.G[k])) G[k] = d.G[k]; });
   Object.assign(G.stat, d.G.stat || {});
   G.prestasi = Array.isArray(d.G.prestasi) ? d.G.prestasi.slice() : []; G.pangkat = typeof d.G.pangkat === 'number' ? d.G.pangkat : pangkatDari(G.citra);

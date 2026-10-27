@@ -24,6 +24,7 @@ export const PRESTASI = [
   { id: 'juta', nama: 'Seribu Pertama', ket: 'Memegang 1.000 Cuan. Asal-usul: rahasia.', ok: g => g.cuan >= 1000 },
   { id: 'selfie', nama: 'Wajah Rakyat', ket: '5 kali berswafoto. Rakyat di latar belakang.', ok: g => g.selfie >= 5 },
   { id: 'panas', nama: 'Panas Tapi Santai', ket: 'Panas KPK di atas 70, masih tersenyum.', ok: g => g.panas >= 70 },
+  { id: 'tugas', nama: 'Anak Emas Bos', ket: 'Menuntaskan 3 penugasan Bos.', ok: g => (g.tugasOk || 0) >= 3 },
   { id: 'tahun', nama: 'Bertahan Setahun', ket: 'Melewati satu tahun jabatan tanpa dipecat.', ok: g => g.bulan > 12 },
 ];
 
