@@ -130,8 +130,9 @@ kanvas.addEventListener('pointerup', lepas); kanvas.addEventListener('pointercan
 kanvas.addEventListener('wheel', e => { jarak = Math.max(5, Math.min(32, jarak + e.deltaY * 0.02)); }, { passive: true });
 let jarakCubit = 0;
 kanvas.addEventListener('touchmove', e => {
-  if (e.touches.length !== 2) { jarakCubit = 0; return; }
-  const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+  // targetTouches: hanya jari yang mulai di kanvas. e.touches ikut menghitung jari di joystick, sehingga memutar kamera sambil berjalan salah terbaca cubitan (zoom acak)
+  if (e.targetTouches.length !== 2) { jarakCubit = 0; return; }
+  const d = Math.hypot(e.targetTouches[0].clientX - e.targetTouches[1].clientX, e.targetTouches[0].clientY - e.targetTouches[1].clientY);
   if (jarakCubit) jarak = Math.max(5, Math.min(32, jarak - (d - jarakCubit) * 0.04));
   jarakCubit = d;
 }, { passive: true });
@@ -932,13 +933,14 @@ function hud() {
 let pitchPakai = 0.42, jarakPakai = 11;
 const getarTmp = new THREE.Vector3();
 let kameraBebas = null; // hanya untuk pengambilan gambar promosi: { pos: [x,y,z], tgt: [x,y,z] }
+let frPakai = 1;
 function kameraIkut() {
   if (kameraBebas) { kamera.position.set(...kameraBebas.pos); kamera.lookAt(...kameraBebas.tgt); return; }
   const tx = pemain.position.x, ty = pemain.position.y + 2.2, tz = pemain.position.z;
   // Di dalam hutan, naikkan kamera supaya tajuk pohon tidak menutupi tokoh
   const dalamHutan = petakDi(tx, tz)?.status === 'hutan';
-  pitchPakai += ((dalamHutan ? Math.max(pitch, 0.95) : pitch) - pitchPakai) * 0.08;
-  jarakPakai += ((dalamHutan ? Math.max(jarak, 15) : jarak) - jarakPakai) * 0.08;
+  pitchPakai += ((dalamHutan ? Math.max(pitch, 0.8) : pitch) - pitchPakai) * 0.04;
+  jarakPakai += ((dalamHutan ? Math.max(jarak, 13) : jarak) - jarakPakai) * 0.04;
   let cx = tx + Math.sin(yaw) * Math.cos(pitchPakai) * jarakPakai, cy = ty + Math.sin(pitchPakai) * jarakPakai, cz = tz + Math.cos(yaw) * Math.cos(pitchPakai) * jarakPakai;
   cy = Math.max(cy, tinggi(cx, cz) + 1.6);
   // Kamera tidak boleh masuk ke dalam bangunan: dekatkan ke tokoh bila garis pandang tertembus
@@ -946,11 +948,13 @@ function kameraIkut() {
   for (let i = 1; i <= 14 && fr === 1; i++) {
     const f = i / 14, sx = tx + (cx - tx) * f, sy = cy + 0 * f - (cy - ty) * (1 - f), sz = tz + (cz - tz) * f;
     for (const o of FOOT) {
-      if (o.r < 3 || jarakDua(tx, tz, o.x, o.z) < o.r * 0.8) continue;
-      if (jarakDua(sx, sz, o.x, o.z) < o.r * 0.8 && sy - tinggi(o.x, o.z) < 10) { fr = Math.max(0.22, (i - 1) / 14); break; }
+      if (o.r < 6.4 || o.n === 'jembatan' || jarakDua(tx, tz, o.x, o.z) < o.r * 0.8) continue; // hanya bangunan besar; kios, baliho, dan jembatan tidak menarik kamera
+      if (jarakDua(sx, sz, o.x, o.z) < o.r * 0.8 && sy - tinggi(o.x, o.z) < 10) { fr = Math.max(0.4, (i - 1) / 14); break; }
     }
   }
-  if (fr < 1) { cx = tx + (cx - tx) * fr; cy = ty + (cy - ty) * fr + (1 - fr) * 1.5; cz = tz + (cz - tz) * fr; }
+  // Haluskan: mendekat cepat saat terhalang, menjauh pelan agar tidak terasa melompat
+  frPakai += (fr - frPakai) * (fr < frPakai ? 0.25 : 0.04); fr = frPakai;
+  if (fr < 0.995) { cx = tx + (cx - tx) * fr; cy = ty + (cy - ty) * fr + (1 - fr) * 1.5; cz = tz + (cz - tz) * fr; }
   const g = E.ofsetKamera(getarTmp);
   kamera.position.set(cx + g.x, cy + g.y, cz + g.z);
   kamera.lookAt(tx, ty, tz);
