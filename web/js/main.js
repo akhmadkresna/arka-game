@@ -215,11 +215,18 @@ function sasaranPalak() {
   return terbaik ? terbaik.u : null;
 }
 let wUcap = 0, uSapa = null;
+// Berita menutupi kartu meter (kiri) dan ucapan warga menutupi kartu status (kanan) sebentar saja
+function selaraskan() {
+  for (const [ov, kartu] of [['berita', 'kiriAtas'], ['ucapan', 'kananAtas']]) {
+    const r = $(kartu).getBoundingClientRect(), s = $(ov).style;
+    s.left = r.left + 'px'; s.top = r.top + 'px'; s.width = r.width + 'px'; s.height = r.height + 'px';
+  }
+}
 function ucap(u, jenis) { const c = ucapan(u, jenis); if (c) ucapTeks(c.nama, c.teks); }
 function ucapTeks(nama, teks) {
   const c = { nama, teks };
   const e = $('ucapan'); e.innerHTML = '<b></b><span></span>'; e.firstChild.textContent = c.nama; e.lastChild.textContent = '“' + c.teks + '”';
-  e.style.opacity = 1; wUcap = 5;
+  selaraskan(); e.style.opacity = 1; wUcap = 5;
   if (sentuh) { $('monolog').style.opacity = 0; wMono = 0; } // layar kecil: satu suara dalam satu waktu
 }
 function palak() {
@@ -553,8 +560,8 @@ function satirTick(dt) {
   if (wBerita > 0 && (wBerita -= dt) <= 0) {
     wBerita = 38 + Math.random() * 20;
     const hutan = Math.round(PETAK.filter(p => p.status === 'hutan').length / PETAK.length * 100);
-    $('berita').innerHTML = '<b>BERITA</b> ' + pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length });
-    $('berita').style.opacity = 1; wBeritaTampil = 7; bunyi.pop();
+    $('berita').innerHTML = '<b>BERITA</b><span></span>'; $('berita').lastChild.textContent = pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length });
+    selaraskan(); $('berita').style.opacity = 1; wBeritaTampil = 6; bunyi.pop();
   }
   if (wUcap > 0 && (wUcap -= dt) <= 0) $('ucapan').style.opacity = 0;
   if (wBeritaTampil > 0 && (wBeritaTampil -= dt) <= 0) $('berita').style.opacity = 0;
@@ -1076,17 +1083,13 @@ if (sentuh) document.body.classList.add('sentuh');
   const potret = matchMedia('(max-aspect-ratio: 1/1)');
   const tumpukan = () => {
     const p = $('prompt'), t = $('toast'), n = $('monolog'), m = $('misi');
-    if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = $('berita').style.top = $('ucapan').style.top = ''; return; }
+    if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = ''; return; }
     let y = m.getBoundingClientRect().bottom + 6;
     p.style.top = y + 'px';
     if (p.style.visibility === 'visible') y += p.offsetHeight + 4;
     t.style.top = y + 'px';
     y += t.offsetHeight + 4;
     n.style.top = y + 'px';
-    y += n.offsetHeight + 4;
-    $('berita').style.top = y + 'px';
-    y += $('berita').offsetHeight + 4;
-    $('ucapan').style.top = y + 'px';
   };
   const atur = () => {
     const m = $('misi');
