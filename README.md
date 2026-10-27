@@ -22,13 +22,15 @@ Di komputer: WASD/panah jalan, Shift lari, seret mouse memutar kamera, roda mous
 3. **Bangun dapur MBG** (`1`) atau **Kopdes** (`2`). Dekat desa diblokir birokrasi; di tempat absurd langsung disetujui, lalu mangkrak.
 4. Belanjakan Cuan: **Pupuk** (`U`), **Oknum** otomatis (`O`), **Gelar** (`G`), berkas (`E`) dan kambing hitam (`K`) di Kantor Dinas, selfie (`F`) dan konferensi pers (`C`).
 
-Setiap interaksi punya efek visual dan suara: uang beterbangan ke kantong (atau keluar saat membayar), angka perubahan melayang, percikan api, serpihan kayu, konfeti, getar kamera. Tombol **Suara** di pojok kanan atas mematikan efek suara.
+Setiap interaksi punya efek visual dan suara: uang beterbangan ke kantong (atau keluar saat membayar), angka perubahan melayang, percikan api, serpihan kayu, konfeti, getar kamera. Tombol **Suara** dan **Musik** di pojok kanan atas mematikan efek suara dan musik latar secara terpisah.
 
 **Kendaraan:** motor ada dekat titik mulai, mobil dinas (bersirene) dekat Kantor Dinas. Naik dengan `N`, kemudikan dengan W/A/S/D atau joystick. Kendaraan menabrak bangunan dan baliho, berhenti di tepi air, dan motor bisa melompat.
 
 **Simpan:** progres tersimpan otomatis di peramban (tiap 20 detik dan saat tab ditutup), plus tombol **Simpan**. Di layar judul pilih **Lanjutkan** atau **Mulai baru**. Simpanan hanya ada di peramban dan perangkat yang sama.
 
 Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (direshuffle, dipanggil KPK, demo besar) hanya berupa denda. Tiap 12 bulan muncul **Laporan Tahunan** yang membandingkan versi resmi dengan kenyataan (`R` untuk melihatnya kapan saja).
+
+**Musik latar** orisinal, disintesis di peramban (gaya dangdut-koplo: kendang, bass, gong, saron, melodi suling) tanpa berkas audio. Tempo naik saat mengendarai kendaraan dan warna bunyi menjadi pengap saat kabut tebal. Untuk memakai berkas musik milik sendiri, letakkan di `web/audio/` dan isi `web/audio/bgm.json` (lihat berkas itu). Pastikan Anda berhak menyebarkannya karena situs ini publik.
 
 Versi giliran (prototipe awal) masih ada di `web/giliran/index.html`.
 

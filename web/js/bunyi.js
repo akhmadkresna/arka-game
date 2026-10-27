@@ -3,6 +3,7 @@ let ctx = null, bisu = false, bufDerau = null, terakhirKoin = 0;
 try { bisu = localStorage.getItem('republikEmasBisu') === '1'; } catch (e) { /* abaikan */ }
 
 export const bisuSekarang = () => bisu;
+export const konteks = () => ctx;
 export function setBisu(v) { bisu = v; try { localStorage.setItem('republikEmasBisu', v ? '1' : '0'); } catch (e) { /* abaikan */ } }
 export function aktifkan() {
   try {

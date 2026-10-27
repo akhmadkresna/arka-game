@@ -1,0 +1,5 @@
+{
+  "keterangan": "Opsional. Untuk memakai berkas musik sendiri, letakkan berkasnya di folder ini (misalnya audio/musikku.mp3) lalu isi 'berkas' dengan namanya. Pastikan Anda berhak memakai dan menyebarkan berkas itu, karena situs ini publik. Biarkan null untuk memakai musik orisinal bawaan.",
+  "berkas": null,
+  "volume": 0.5
+}

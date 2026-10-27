@@ -5,6 +5,7 @@ import { tinggi, lantai, buatTerrain } from './terrain.js';
 import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite, motorPemain, mobilDinas } from './objek.js';
 import { buatEfek } from './efek.js';
 import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
+import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik } from './musik.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_OJOL, GAGAL_OJOL } from './teks.js';
 
@@ -801,10 +802,12 @@ function kameraIkut() {
   kamera.lookAt(tx, ty, tz);
 }
 
-let terakhir = performance.now();
+let terakhir = performance.now(), suasanaTick = 0;
 renderer.setAnimationLoop(now => {
   const dt = Math.min(0.1, (now - terakhir) / 1000); terakhir = now;
   update(dt); hud(); kameraIkut();
+  suasanaTick += dt;
+  if (suasanaTick > 0.5) { suasanaTick = 0; suasanaMusik({ naik: !!G.naik, kabut: G.kabut, tegang: G.panas > 70 || G.rakyat > 70 }); }
   if (G.jalan) { jedaSimpan += dt; if (jedaSimpan > 20) { jedaSimpan = 0; simpan(); } }
   if (wInfoSimpan > 0 && (wInfoSimpan -= dt) <= 0) $('simpanInfo').style.opacity = 0;
   renderer.render(scene, kamera);
@@ -865,7 +868,7 @@ function siapkanJudul() {
   $('infoSimpan').textContent = 'Simpanan terakhir: ' + new Date(d.waktuSimpan).toLocaleString('id-ID');
   $('mulai').textContent = 'Mulai baru (hapus simpanan)';
 }
-function mulaiGame() { aktifkan(); bunyi.klik(); $('judul').hidden = true; G.jalan = true; monolog('mulai'); }
+function mulaiGame() { aktifkan(); bunyi.klik(); mulaiMusik(); $('judul').hidden = true; G.jalan = true; monolog('mulai'); }
 let konfirmasiBaru = false;
 $('mulai').onclick = () => {
   if (baca() && !konfirmasiBaru) { konfirmasiBaru = true; $('mulai').textContent = 'Yakin? Klik lagi untuk menghapus simpanan'; return; }
@@ -883,7 +886,8 @@ addEventListener('pagehide', () => simpan());
 siapkanJudul();
 addEventListener('pointerdown', aktifkan, { once: true });
 addEventListener('keydown', aktifkan, { once: true });
-const labelSuara = () => { $('btnSuara').textContent = bisuSekarang() ? 'Suara: mati' : 'Suara: hidup'; };
+const labelSuara = () => { $('btnSuara').textContent = bisuSekarang() ? 'Suara: mati' : 'Suara: hidup'; $('btnMusik').textContent = musikBisu() ? 'Musik: mati' : 'Musik: hidup'; };
+$('btnMusik').onclick = () => { setMusikBisu(!musikBisu()); labelSuara(); aktifkan(); bunyi.klik(); };
 $('btnSuara').onclick = () => { setBisu(!bisuSekarang()); labelSuara(); aktifkan(); bunyi.klik(); };
 labelSuara();
 $('btnLaporan').onclick = () => aksiTombol('r');
@@ -906,5 +910,5 @@ document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener(
 if (sentuh) document.body.classList.add('sentuh');
 
 // Kait untuk pengujian otomatis
-window.__g = { simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
+window.__g = { infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };

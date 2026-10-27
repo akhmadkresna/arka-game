@@ -377,3 +377,23 @@ Masukan: terlalu banyak tiang kosong, bangunan bertumpuk, tokoh sebaiknya berbaj
 Semua aksi tetap bisa dilakukan dari atas kendaraan, termasuk memalak (satir: "razia dari mobil dinas"). Misi 7 mengajarkan naik kendaraan.
 
 **Simpan.** `localStorage` peramban, kunci `republikEmas.simpan.v1`, sekitar 2,5 KB. Disimpan otomatis tiap 20 detik, saat tab disembunyikan atau ditutup, dan lewat tombol **Simpan**. Yang disimpan: semua indikator dan statistik, bulan dan waktu, misi, status tiap petak (hutan, api, lahan, sawit, termasuk pewaktu), semua bangunan (termasuk yang mangkrak), baliho, kios yang gulung tikar, ojol (posisi di jalur dan status mogok), posisi dan arah kendaraan, jumlah oknum, serta posisi tokoh dan kamera, termasuk bila sedang mengendarai. Layar judul menawarkan **Lanjutkan** dan **Mulai baru** (meminta konfirmasi sebelum menghapus). Pengujian: kondisi sebelum dan sesudah memuat ulang halaman identik. Keterbatasan: simpanan terikat pada satu peramban dan satu perangkat; mode privat dapat menolak penyimpanan (pemain diberi tahu); versi simpanan (`v`) disiapkan untuk migrasi di masa depan.
+
+---
+
+## 16. Musik latar (BGM)
+
+**Permintaan:** menambahkan BGM dan mencari lagu "Prabowo Presidenku", lagu bertema Jokowi, atau "Mas Bahlil Ganteng".
+
+**Hasil pencarian dan keputusan.**
+- "Prabowo Presidenku" tidak ditemukan dalam pemberitaan yang saya telusuri.
+- "Mas Bahlil Ganteng" adalah lagu viral Mei 2026 yang dibuat dengan bantuan AI dari komentar warganet oleh kreator TikTok @vokaliz_netizen. Pencipta dan pemegang hak sulit dipastikan dari sumber yang ada ([RCTI+](https://www.rctiplus.com/news/detail/berita-utama/5394517/bahlil-penasaran-pencipta-lagu-viral-mbg-mas-bahlil-ganteng--mau-ajak-makan-bareng), [Warta Ekonomi](https://wartaekonomi.co.id/read614310/lagu-ai-mas-bahlil-ganteng-viral-bahlil-lahadalia-penasaran-cari-penciptanya), [CNN Indonesia](https://cnnindonesia.com/nasional/20260530165020-20-1363725/jokowi-ikut-ramaikan-tren-lagu-mas-bahlil-ganteng-little-bolu-ketan)).
+- **Keputusan:** lagu-lagu itu tidak disertakan. Statusnya tidak jelas, audio tidak bisa diambil secara sah dari TikTok/YouTube, dan repo ini publik sehingga melampirkan audio berhak cipta berarti mendistribusikannya. Selain itu, game ini menyindir sistem lewat tokoh arketipe; memakai lagu yang membawa nama pejabat nyata akan mengikat game pada orang tertentu.
+
+**Yang dibuat:** musik orisinal yang disintesis dengan WebAudio (`web/js/musik.js`), tanpa berkas audio.
+- Tangga nada hijaz di A dan urutan akor Am - Dm - E - Am yang khas dangdut.
+- Lapisan: kendang (dung, tak, tung), hi-hat tipis, bass, gong di awal tiap empat birama, saron berpartial lonceng, pad akor, melodi suling dengan getaran halus, naik satu oktaf pada putaran ganjil.
+- Dinamis: tempo 112 BPM, naik ke 128 saat mengendarai kendaraan dan +8 saat Panas KPK atau Amarah Rakyat tinggi; saat kabut tebal, filter meredam bunyi dan muncul dengung rendah.
+- Tombol **Musik** terpisah dari **Suara** dan pilihannya diingat. Musik berhenti sementara saat tab disembunyikan.
+- **Pengujian luring** (`ujiMusik`): merender 20 detik ke penyangga dan memeriksa puncak (0,33 pada volume uji, tidak pecah), tidak ada nilai rusak, dan sekitar 22% jeda antar nada. Saya belum mendengarnya langsung, jadi volume, tempo, dan selera melodi perlu dinilai pemain.
+
+**Berkas milik sendiri.** Letakkan berkas di `web/audio/` dan isi `web/audio/bgm.json` (`"berkas": "namaberkas.mp3"`, `"volume": 0.5`). Game akan memutarnya berulang sebagai pengganti musik bawaan. Pengujian dengan berkas contoh berhasil. Tanggung jawab lisensi ada pada pemilik berkas.
