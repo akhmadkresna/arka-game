@@ -216,17 +216,17 @@ export function buatNPC(d) {
 
   // ---------- Kopdes: bendahara membawa kabur kas ----------
   const KABUR = [
-    'Bendahara Kopdes pamit "ambil nota" dan belum kembali. Kas ikut mengambil nota.',
-    'Laporan Kopdes: kas aman. Posisi kas: tidak diketahui. Posisi bendahara: sama.',
-    'Pengurus Kopdes menyatakan kasnya "sedang dititipkan di masa depan".',
-    'Juru bicara: "Bendahara bukan kabur, melainkan studi banding. Tanpa tiket pulang."',
+    'Bendahara Kopdes menyetor "uang terima kasih" ke kantong Bapak Menteri. Pembukuan: tidak pernah ada.',
+    'Kas Kopdes "diamankan" ke kantong Menteri. Anggota koperasi dijanjikan sisa-sisanya.',
+    'Laporan Kopdes: kas aman. Posisi kas: di saku jas Menteri. Sangat aman.',
+    'Juru bicara: "Dana itu bukan hilang, melainkan dipindahkan ke pihak yang lebih berjasa."',
   ];
   const PENGURUS = [];
   function picuKasRaib(b) {
-    const rugi = Math.min(Math.floor(G.cuan), Math.floor(rand(25, 55)));
+    const untung = Math.floor(rand(25, 55));
     b.sampai = G.t + 40; G.kasRaib = (G.kasRaib || 0) + 1;
-    G.cuan -= rugi; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3); G.citra = Math.max(0, G.citra - 2);
-    E.teks(V(b.x, b.z, 7), rugi > 0 ? `KAS RAIB -${rugi}` : 'KAS RAIB', 'besar buruk'); E.getar(0.15); bunyi.gagal();
+    G.cuan += untung; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3);
+    E.teks(V(b.x, b.z, 7), `KAS KOPDES MASUK KANTONG +${untung}`, 'besar emas');
     toast(KABUR[Math.floor(Math.random() * KABUR.length)]);
     const g = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x7a4a2a }), M.hitam, 0.5);
     const karung = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), new THREE.MeshLambertMaterial({ color: 0xd9b66a }));
