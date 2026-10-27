@@ -7,9 +7,9 @@
 <rect x="70" y="200" width="560" height="170" fill="#5aa0d6" fill-opacity="0.35" stroke="#5aa0d6" stroke-width="5"/>
 <text x="350" y="300" fill="#fff" font-size="40" font-weight="700" font-family="sans-serif" text-anchor="middle">LOGO SPACE</text>
 <text x="350" y="342" fill="#fff" font-size="26" font-family="sans-serif" text-anchor="middle">(empty hazy sky)</text>
-<rect x="380" y="300" width="420" height="540" fill="#5fb36a" fill-opacity="0.35" stroke="#5fb36a" stroke-width="5"/>
-<text x="590" y="560" fill="#fff" font-size="40" font-weight="700" font-family="sans-serif" text-anchor="middle">CHARACTER</text>
-<text x="590" y="602" fill="#fff" font-size="26" font-family="sans-serif" text-anchor="middle">(head ~ top, feet ~ bottom)</text>
+<rect x="380" y="400" width="420" height="440" fill="#5fb36a" fill-opacity="0.35" stroke="#5fb36a" stroke-width="5"/>
+<text x="590" y="600" fill="#fff" font-size="40" font-weight="700" font-family="sans-serif" text-anchor="middle">CHARACTER</text>
+<text x="590" y="642" fill="#fff" font-size="26" font-family="sans-serif" text-anchor="middle">(head ~ top, feet ~ bottom)</text>
 <rect x="1010" y="158" width="520" height="708" fill="#d6453d" fill-opacity="0.3" stroke="#d6453d" stroke-width="5"/>
 <text x="1270" y="500" fill="#fff" font-size="40" font-weight="700" font-family="sans-serif" text-anchor="middle">CALM + DARK</text>
 <text x="1270" y="542" fill="#fff" font-size="26" font-family="sans-serif" text-anchor="middle">(menu buttons go here)</text>
