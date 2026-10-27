@@ -86,3 +86,13 @@ export function ucapan(u, jenis) {
   if (!d || !d[jenis] || !d[jenis].length) return null;
   return { nama: d.n, teks: d[jenis][Math.floor(Math.random() * d[jenis].length)] };
 }
+
+// ---------- Sambutan peresmian ----------
+export const SAMBUTAN = [
+  'Dengan mengucap bismillah, proyek ini saya resmikan. Yang mengerjakannya nanti kami cari.',
+  'Gedung ini berdiri berkat kerja keras kita semua. Terutama foto kita.',
+  'Hari ini sejarah tercipta. Sejarahnya akan ditulis ulang setelah audit.',
+  'Proyek ini selesai tepat waktu. Waktunya kami tentukan sendiri.',
+  'Mohon tepuk tangan. Yang tidak bertepuk tangan akan kami catat sebagai kritik yang membangun.',
+  'Saya tidak akan berlama-lama. Hanya akan bicara empat puluh menit.',
+];

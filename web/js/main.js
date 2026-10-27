@@ -8,7 +8,8 @@ import { buatNPC } from './npc.js';
 import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
 import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik } from './musik.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
-import { PRESTASI, PANGKAT, pangkatDari, pilihBerita, ucapan } from './satir.js';
+import { buatPeresmian } from './peresmian.js';
+import { PRESTASI, PANGKAT, pangkatDari, pilihBerita, ucapan, SAMBUTAN } from './satir.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_OJOL, GAGAL_OJOL } from './teks.js';
 
 // ---------- Konstanta permainan ----------
@@ -171,6 +172,7 @@ const E = buatEfek(scene, kamera, pemain, $('melayang'), $('cuan'));
 const V = (x, z, y = 0) => new THREE.Vector3(x, tinggi(x, z) + y, z);
 const depanPemain = (jarakD = 6, y = 1.5) => new THREE.Vector3(pemain.position.x + Math.sin(pemain.rotation.y) * jarakD, pemain.position.y + y, pemain.position.z + Math.cos(pemain.rotation.y) * jarakD);
 const NPC = buatNPC({ scene, G, tinggi, lantai, E, bunyi, toast, monolog, pemain, V, batas });
+const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
 let fxSumber = null, fxTujuan = null;
 const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas KPK'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
 const SIFAT = { cuan: true, restu: true, panas: false, rakyat: false, citra: true, berkas: true };
@@ -213,8 +215,9 @@ function sasaranPalak() {
   return terbaik ? terbaik.u : null;
 }
 let wUcap = 0, uSapa = null;
-function ucap(u, jenis) {
-  const c = ucapan(u, jenis); if (!c) return;
+function ucap(u, jenis) { const c = ucapan(u, jenis); if (c) ucapTeks(c.nama, c.teks); }
+function ucapTeks(nama, teks) {
+  const c = { nama, teks };
   const e = $('ucapan'); e.innerHTML = '<b></b><span></span>'; e.firstChild.textContent = c.nama; e.lastChild.textContent = '“' + c.teks + '”';
   e.style.opacity = 1; wUcap = 5;
   if (sentuh) { $('monolog').style.opacity = 0; wMono = 0; } // layar kecil: satu suara dalam satu waktu
@@ -346,6 +349,7 @@ function bangun(jenis) {
   const pusat = V(x, z, 2);
   fxSumber = pusat; E.semburan(pusat, 'debu', 34); E.semburan(V(x, z, 6), 'konfeti', 36); E.getar(0.5); bunyi.bangun();
   E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPDES EMAS!', 'besar emas');
+  PERESMIAN.mulai(x, z, rot, () => { G.cuan += 12; G.citra += 2; G.panas = batas(G.panas + 1); ucapTeks('Sambutan Menteri', SAMBUTAN[Math.floor(Math.random() * SAMBUTAN.length)]); toast('Amplop tamu undangan +12 Cuan. Citra +2.'); });
   toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MBG)' : 'KOPDES EMAS'} berdiri ${LOKASI[l.k]}${jenis === 'mbg' ? (slhs ? ' SLHS: lengkap, di atas kertas (1 berkas terpakai).' : ' SLHS: sedang diproses (sejak 2024).') : ''}`); monolog('bangun');
 }
 function selfie() {
@@ -649,7 +653,7 @@ function update(dt) {
   E.update(dt);
   if (wToast > 0 && (wToast -= dt) <= 0) $('toast').style.opacity = 0;
   if (wMono > 0 && (wMono -= dt) <= 0) $('monolog').style.opacity = 0;
-  satirTick(dt);
+  satirTick(dt); PERESMIAN.update(dt);
   if (wMisiBaru > 0) wMisiBaru -= dt;
   if (!G.jalan || G.jeda) return;
 
