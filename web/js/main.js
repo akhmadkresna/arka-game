@@ -786,7 +786,9 @@ function hud() {
 
 let pitchPakai = 0.42, jarakPakai = 11;
 const getarTmp = new THREE.Vector3();
+let kameraBebas = null; // hanya untuk pengambilan gambar promosi: { pos: [x,y,z], tgt: [x,y,z] }
 function kameraIkut() {
+  if (kameraBebas) { kamera.position.set(...kameraBebas.pos); kamera.lookAt(...kameraBebas.tgt); return; }
   const tx = pemain.position.x, ty = pemain.position.y + 2.2, tz = pemain.position.z;
   // Di dalam hutan, naikkan kamera supaya tajuk pohon tidak menutupi tokoh
   const dalamHutan = petakDi(tx, tz)?.status === 'hutan';
@@ -896,7 +898,12 @@ siapkanJudul();
   try {
     const r = await fetch('img/menu.json'); if (!r.ok) return;
     const j = await r.json();
-    if (j && j.berkas) { $('latarMenu').style.backgroundImage = `url("img/${j.berkas}")`; $('judul').classList.add('berseni'); }
+    if (!j || !j.berkas) return;
+    const potret = matchMedia('(max-aspect-ratio: 1/1)');
+    const pasang = () => { const f = (potret.matches && j.berkasPotret) ? j.berkasPotret : j.berkas; $('latarMenu').style.backgroundImage = `url("img/${f}")`; };
+    pasang();
+    if (potret.addEventListener) potret.addEventListener('change', pasang);
+    $('judul').classList.add('berseni');
   } catch (e) { /* abaikan */ }
 })();
 addEventListener('pointerdown', aktifkan, { once: true });
@@ -925,5 +932,5 @@ document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener(
 if (sentuh) document.body.classList.add('sentuh');
 
 // Kait untuk pengujian otomatis
-window.__g = { setKamera(y, p, j) { yaw = y; pitch = p; jarak = j; }, NPC, infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
+window.__g = { setKameraBebas(pos, tgt) { kameraBebas = pos ? { pos, tgt } : null; }, setKamera(y, p, j) { yaw = y; pitch = p; jarak = j; }, NPC, infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };

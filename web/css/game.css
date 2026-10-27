@@ -114,10 +114,11 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 #judul{overflow:hidden}
 #judul .kotak{position:relative;z-index:1}
 #latarMenu{position:absolute;inset:0;pointer-events:none;background-size:cover;background-position:center;opacity:0;transition:opacity .8s}
-#judul.berseni{background:#0a0806;justify-content:flex-end;padding-right:max(20px,5vw)}
+#judul.berseni{background:#0a0806;justify-content:center;align-items:flex-end;padding:0 16px 3vh}
 #judul.berseni #latarMenu{opacity:1}
-#judul.berseni::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0000 50%,#000a 100%);pointer-events:none}
-#judul.berseni .kotak{max-width:440px;background:#14110fdb;backdrop-filter:blur(6px)}
+#judul.berseni::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0000 50%,#000c 100%);pointer-events:none}
+#judul.berseni .kotak{max-width:min(560px,94vw);padding:14px 20px 16px;background:#14110fe6;backdrop-filter:blur(6px)}
+#judul.berseni .kotak p:not([class]):not([id]){display:none}
 @media(max-aspect-ratio:1/1){#judul.berseni{justify-content:center;align-items:flex-end;padding:0 12px 16px}#judul.berseni::after{background:linear-gradient(180deg,#0000 40%,#000b 100%)}}
 @media(max-height:480px){#judul.berseni .kotak{max-width:min(380px,48vw);padding:14px}#judul.berseni .kotak p{font-size:.8rem;margin:6px 0}#judul.berseni .kotak h1{font-size:1.5rem}}
 
