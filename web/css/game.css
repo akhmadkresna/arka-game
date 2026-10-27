@@ -136,8 +136,6 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 }
 
 #btnRinci{display:none}
-#btnSemua{display:none}
-@media(max-aspect-ratio:1/1){.sentuh #btnSemua{display:block}}
 /* ===== HP portrait (layar tegak): HUD ringkas, rincian di balik tombol ☰ ===== */
 @media(max-aspect-ratio:1/1){
   .sentuh #kiriAtas{top:max(6px,env(safe-area-inset-top));left:6px;width:40vw;padding:5px 8px}
@@ -178,3 +176,30 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 #berita span,#ucapan span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden}
 @media(max-aspect-ratio:1/1){.sentuh #berita,.sentuh #ucapan{padding:4px 8px;font-size:.6rem;line-height:1.2}.sentuh #berita b,.sentuh #ucapan b{font-size:.56rem}.sentuh #ucapan{font-size:.64rem}}
 @media(max-height:480px){.sentuh #berita,.sentuh #ucapan{padding:4px 8px;font-size:.62rem}}
+
+/* Aksi sentuh: tombol utama besar + chip + lembar semua aksi */
+#aksiBaru{display:none}
+.sentuh #aksiSentuh{display:none}
+.sentuh #aksiBaru{display:flex;flex-direction:column;align-items:flex-end;gap:8px;position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:3}
+#chipAksi{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+#chipAksi .chip{margin:0;min-height:44px;padding:6px 16px;border-radius:22px;font-size:.85rem;background:#e8b83cee;touch-action:none;line-height:1.05;white-space:nowrap}
+#barisUtama{display:flex;align-items:flex-end;gap:8px}
+#aksiUtama{margin:0;width:96px;height:96px;min-height:96px;padding:0;border-radius:50%;font-size:1.02rem;line-height:1.05;background:#e8b83c;border:3px solid #fff8;box-shadow:0 4px 14px #0008;touch-action:none;user-select:none;-webkit-user-select:none}
+#aksiUtama small,#chipAksi small{display:block;font-size:.62rem;font-weight:400;opacity:.8}
+#aksiUtama.sorot,#chipAksi .sorot{animation:denyut .6s infinite;background:#fff1a8;box-shadow:0 0 0 4px #fff,0 0 18px 6px #ffd23a}
+.bulat{margin:0;width:54px;height:54px;min-height:54px;padding:0;border-radius:50%;font-size:.72rem;background:#ffffff30;color:#fff;border:2px solid #ffffff60;touch-action:none}
+#btnLompat{background:#e8b83cbb;color:#2a1a06;border-color:#fff8}
+#lembar{position:fixed;inset:0;z-index:6;background:#0007;display:flex;align-items:flex-end;justify-content:center}
+#lembar[hidden]{display:none}
+#lembar .isi{width:min(560px,100%);max-height:70vh;overflow:auto;background:#1b1713;border-radius:18px 18px 0 0;padding:12px 12px max(16px,env(safe-area-inset-bottom));border-top:2px solid var(--emas)}
+#lembar .atas{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#lembar .atas button{margin:0;padding:0;width:44px;min-height:44px;background:#ffffff22;color:#fff;border-radius:50%}
+#lembarGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#lembarGrid button{margin:0;min-height:54px;padding:6px;font-size:.85rem;line-height:1.05;background:#e8b83cee}
+#lembarGrid small{display:block;font-size:.62rem;font-weight:400;opacity:.8}
+@media(max-height:480px){#aksiUtama{width:78px;height:78px;min-height:78px;font-size:.9rem}.bulat{width:46px;height:46px;min-height:46px}#chipAksi .chip{min-height:38px;padding:4px 12px;font-size:.78rem}.sentuh #aksiBaru{gap:5px}}
+
+/* Kartu kanan ringkas dan gelembung dialog di dunia (bukan menutupi kartu) */
+#ucapan{position:fixed;left:0;top:0;width:max-content;max-width:min(240px,64vw);height:auto;transform:translate(-50%,-100%);border-radius:14px;padding:7px 12px;font-size:.82rem;pointer-events:none}
+#ucapan::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:#fffaf0}
+@media(max-aspect-ratio:1/1){.sentuh #ucapan{padding:5px 9px;font-size:.7rem;max-width:min(210px,60vw)}.sentuh #ucapan b{font-size:.56rem}}

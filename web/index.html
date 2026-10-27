@@ -22,7 +22,7 @@
   </div>
   <div id="gelembung">Ketuk</div>
   <div id="kananAtas">
-    <div id="bulan">Bulan 1</div>
+    <div id="bulan" class="rinci">Bulan 1</div>
     <div class="angka">Cuan <b id="cuan">0</b> <small id="penghasilan">+0/dtk</small></div>
     <div class="angka">Setoran <b id="kuota">0</b> dalam <b id="sisaBulan">30 dtk</b></div>
     <div class="angka rinci">Pangkat: <b id="pangkat"></b></div>
@@ -52,8 +52,14 @@
     <button data-k="x">Palak</button><button data-k="v">Aparat<small id="hargaAparat"></small></button><button data-k="b">Bakar</button><button data-k="t">Tebang</button><button data-k="p">Tanam</button>
     <button data-k="1">MBG</button><button data-k="2">Kopdes</button><button data-k="f">Selfie</button><button data-k="c">Pers</button><button data-k="e">Berkas</button>
     <button data-k="k">Kambing</button><button data-k="u">Pupuk<small id="hargaPupuk"></small></button><button data-k="o">Oknum<small id="hargaOknum"></small></button><button data-k="g">Gelar<small id="hargaGelar"></small></button>
-    <button data-k="j">Lompat</button><button data-k="n">Naik</button><button data-k="h">Klakson</button><button id="btnSemua">⋯ Lainnya</button>
+    <button data-k="j">Lompat</button><button data-k="n">Naik</button><button data-k="h">Klakson</button>
   </div>
+</div>
+  <div id="aksiBaru">
+    <div id="chipAksi"></div>
+    <div id="barisUtama"><button id="btnSemua" class="bulat" aria-label="Semua aksi">⋯</button><button id="btnLompat" class="bulat" data-k="j">Lompat</button><button id="aksiUtama"></button></div>
+  </div>
+  <div id="lembar" hidden><div class="isi"><div class="atas"><b>Semua aksi</b><button id="tutupLembar">✕</button></div><div id="lembarGrid"></div></div></div>
 </div>
 <div id="melayang"></div>
 <div id="kilat"></div>

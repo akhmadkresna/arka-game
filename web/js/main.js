@@ -153,7 +153,7 @@ const acak = a => a[Math.floor(Math.random() * a.length)];
 const batas = (n, a = 0, b = 100) => Math.max(a, Math.min(b, n));
 let wToast = 0, wMono = 0;
 function toast(teks) { $('toast').textContent = teks; $('toast').style.opacity = 1; wToast = 3.6; }
-function monolog(kunci) { $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
+function monolog(kunci) { if (sentuh && (wToast > 0 || wUcap > 0)) return; $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
 function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warna; f.style.transition = 'none'; f.style.opacity = 0.85; requestAnimationFrame(() => { f.style.transition = 'opacity .6s'; f.style.opacity = 0; }); }
 // Nama tombol sesuai perangkat: ponsel menampilkan nama tombol, komputer menampilkan hurufnya
 const tb = k => `<kbd>${sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
@@ -218,16 +218,32 @@ function sasaranPalak() {
 let wUcap = 0, uSapa = null;
 // Berita menutupi kartu meter (kiri) dan ucapan warga menutupi kartu status (kanan) sebentar saja
 function selaraskan() {
-  for (const [ov, kartu] of [['berita', 'kiriAtas'], ['ucapan', 'kananAtas']]) {
+  for (const [ov, kartu] of [['berita', 'kiriAtas']]) {
     const r = $(kartu).getBoundingClientRect(), s = $(ov).style;
     s.left = r.left + 'px'; s.top = r.top + 'px'; s.width = r.width + 'px'; s.height = r.height + 'px';
   }
 }
-function ucap(u, jenis) { const c = ucapan(u, jenis); if (c) ucapTeks(c.nama, c.teks); }
-function ucapTeks(nama, teks) {
+const vUcap = new THREE.Vector3();
+function posisiUcap() {
+  const e = $('ucapan'); if (wUcap <= 0) return;
+  vUcap.copy(ucapPos || pemain.position); if (!ucapPos) vUcap.y += 6.2;
+  vUcap.project(kamera);
+  if (vUcap.z > 1) { e.style.opacity = 0; return; }
+  let atas = $('misi').getBoundingClientRect().bottom;
+  for (const id of ['prompt', 'toast']) { const el = $(id); if (el.style.visibility === 'visible' || +el.style.opacity > 0) atas = Math.max(atas, el.getBoundingClientRect().bottom); }
+  atas += 8;
+  const w = e.offsetWidth, h = e.offsetHeight;
+  const x = Math.max(w / 2 + 6, Math.min(innerWidth - w / 2 - 6, (vUcap.x * 0.5 + 0.5) * innerWidth));
+  const y = Math.max(atas + h, Math.min(innerHeight - 140, (-vUcap.y * 0.5 + 0.5) * innerHeight - 6));
+  e.style.left = x + 'px'; e.style.top = y + 'px'; e.style.opacity = 1;
+}
+function ucap(u, jenis) { const c = ucapan(u, jenis); if (c) ucapTeks(c.nama, c.teks, new THREE.Vector3(u.x, tinggi(u.x, u.z) + 7.5, u.z)); }
+let ucapPos = null;
+function ucapTeks(nama, teks, pos) {
   const c = { nama, teks };
+  ucapPos = pos || null;
   const e = $('ucapan'); e.innerHTML = '<b></b><span></span>'; e.firstChild.textContent = c.nama; e.lastChild.textContent = '“' + c.teks + '”';
-  selaraskan(); e.style.opacity = 1; wUcap = 5;
+  e.style.opacity = 1; wUcap = 5; posisiUcap();
   if (sentuh) { $('monolog').style.opacity = 0; wMono = 0; } // layar kecil: satu suara dalam satu waktu
 }
 function palak() {
@@ -477,25 +493,38 @@ function perbaruiMisi() {
   return TUGAS ? null : d.sorot;
 }
 
-// Tombol sentuh: sorot yang harus ditekan, redupkan yang belum perlu, dan taruh gelembung "Ketuk" di atasnya
+// Tombol sentuh: satu tombol utama besar sesuai konteks, chip untuk aksi kedua, dan lembar "semua aksi"
+const PRIORITAS = ['x', 'b', 'p', 'v', 'e', 'n', '1', 't', 'k', '2', 'h', 'f'];
+let sigAksi = '';
+const hargaTombol = k => document.querySelector(`#aksiSentuh button[data-k="${k}"] small`)?.textContent || '';
+const labelTombol = k => { const hg = hargaTombol(k); return NAMA_TOMBOL[k] + (hg ? `<small>${hg}</small>` : ''); };
+let aksiBoleh = () => true;
 function perbaruiTombol(s, rel = new Set()) {
   const buka = MISI[G.misi].buka;
   if (s) rel.add(s);
-  const sig = s + '|' + G.misi + '|' + [...rel].join('');
-  if (sig !== sigTombol) {
-    sigTombol = sig;
-    document.querySelectorAll('#aksiSentuh button[data-k]').forEach(b => {
-      b.classList.toggle('sorot', b.dataset.k === s);
-      b.classList.toggle('relevan', rel.has(b.dataset.k));
-      b.classList.toggle('redup', !!buka && !buka.includes(b.dataset.k) && b.dataset.k !== s);
-    });
+  aksiBoleh = k => !buka || buka.includes(k) || k === s;
+  const daftar = PRIORITAS.filter(k => rel.has(k) && aksiBoleh(k));
+  if (s && daftar.includes(s)) { daftar.splice(daftar.indexOf(s), 1); daftar.unshift(s); }
+  const utama = daftar[0] || null, chip = daftar.slice(1, 3);
+  const sig = [utama, chip.join(''), s].join('|');
+  if (sig !== sigAksi) {
+    sigAksi = sig;
+    const u = $('aksiUtama');
+    u.dataset.k = utama || 'j'; u.innerHTML = utama ? labelTombol(utama) : 'Lompat'; u.classList.toggle('sorot', !!utama && utama === s);
+    $('btnLompat').style.display = utama ? '' : 'none';
+    $('chipAksi').innerHTML = chip.map(k => `<button class="chip${k === s ? ' sorot' : ''}" data-k="${k}">${labelTombol(k)}</button>`).join('');
   }
   const gl = $('gelembung');
   if (sentuh && s) {
-    const bt = document.querySelector(`#aksiSentuh button[data-k="${s}"]`);
-    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = (r.left + r.width / 2) + 'px'; gl.style.top = (r.top - 30) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
+    const bt = document.querySelector(`#aksiBaru [data-k="${s}"]`);
+    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = Math.min(innerWidth - 60, r.left + r.width / 2) + 'px'; gl.style.top = (r.top - 30) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
   }
   gl.style.visibility = 'hidden';
+}
+function bukaLembar() {
+  const g = $('lembarGrid');
+  g.innerHTML = [...document.querySelectorAll('#aksiSentuh button[data-k]')].map(b => b.dataset.k).filter(k => k !== 'j' && aksiBoleh(k)).map(k => `<button data-k="${k}">${labelTombol(k)}</button>`).join('');
+  $('lembar').hidden = false;
 }
 
 
@@ -558,13 +587,13 @@ function satirTick(dt) {
     ispaBatas = batasIspa; ucapTeks('Juru Bicara Kementerian', DENIAL[Math.floor(Math.random() * DENIAL.length)]);
     toast(`Kasus ISPA warga: ${Math.floor(G.ispa)}. Pemerintah: "Angka ini masih dalam batas keyakinan."`); E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'ISPA NAIK', 'besar buruk');
   }
-  if (wBerita > 0 && (wBerita -= dt) <= 0) {
+  if (wBerita > 0 && (wBerita -= dt) <= 0 && !(wToast > 0 || wUcap > 0 ? (wBerita = 3, true) : false)) { // pesan penting didahulukan
     wBerita = 38 + Math.random() * 20;
     const hutan = Math.round(PETAK.filter(p => p.status === 'hutan').length / PETAK.length * 100);
     $('berita').innerHTML = '<b>BERITA</b><span></span>'; $('berita').lastChild.textContent = pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length });
     selaraskan(); $('berita').style.opacity = 1; wBeritaTampil = 6; bunyi.pop();
   }
-  if (wUcap > 0 && (wUcap -= dt) <= 0) $('ucapan').style.opacity = 0;
+  if (wUcap > 0) { if ((wUcap -= dt) <= 0) $('ucapan').style.opacity = 0; else posisiUcap(); }
   if (wBeritaTampil > 0 && (wBeritaTampil -= dt) <= 0) $('berita').style.opacity = 0;
   if ((wSatir -= dt) > 0) return;
   wSatir = 1;
@@ -1079,7 +1108,15 @@ joy.addEventListener('pointerdown', e => { joyId = e.pointerId; joy.setPointerCa
 joy.addEventListener('pointermove', e => { if (e.pointerId === joyId) joyGerak(e); });
 const joyLepas = e => { if (e.pointerId !== joyId) return; joyId = null; joyX = joyY = 0; knob.style.transform = 'translate(0,0)'; };
 joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel', joyLepas);
-document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); if (b.id === 'btnSemua') { const a = $('aksiSentuh'); a.classList.toggle('semua'); b.textContent = a.classList.contains('semua') ? 'Tutup' : '⋯ Lainnya'; return; } aksiTombol(b.dataset.k); }));
+document.addEventListener('pointerdown', e => {
+  const t = e.target.closest('#aksiBaru [data-k], #lembar [data-k], #btnSemua, #tutupLembar'); if (!t) return;
+  e.preventDefault();
+  if (t.id === 'btnSemua') return bukaLembar();
+  if (t.id === 'tutupLembar') { $('lembar').hidden = true; return; }
+  if (t.closest('#lembar')) $('lembar').hidden = true;
+  aksiTombol(t.dataset.k);
+});
+$('lembar').addEventListener('pointerdown', e => { if (e.target === $('lembar')) $('lembar').hidden = true; });
 if (sentuh) document.body.classList.add('sentuh');
 
 // HP portrait: panel misi tepat di bawah meter/status; prompt, toast, dan monolog bertumpuk di bawah misi (tidak menutupi tokoh)
