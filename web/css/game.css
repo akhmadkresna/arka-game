@@ -135,6 +135,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
   #judul.berseni .kotak{max-width:min(320px,40vw);padding:12px}#judul.berseni .kotak p{font-size:.7rem;line-height:1.3}#judul.berseni .kotak button{padding:8px 14px}
 }
 
+#berita{position:absolute;bottom:270px;left:50%;transform:translateX(-50%);width:min(560px,90vw);background:#12263aee;border:1px solid #5fa3d6;border-radius:10px;padding:6px 12px;font-size:.85rem;opacity:0;transition:opacity .5s;text-align:left}
+#berita b{color:#7cc4ff;letter-spacing:.1em;font-size:.7rem;margin-right:6px}
 #btnRinci{display:none}
 #btnSemua{display:none}
 @media(max-aspect-ratio:1/1){.sentuh #btnSemua{display:block}}
@@ -165,5 +167,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
   .sentuh #aksiSentuh #btnSemua{background:#ffffff30;color:#fff}
   .sentuh #prompt{left:6px;right:6px;transform:none;max-width:none;bottom:auto;top:130px;font-size:.76rem;padding:4px 10px}
   .sentuh #toast{bottom:auto;left:6px;right:6px;transform:none;max-width:none;font-size:.78rem;padding:5px 10px}
+  .sentuh #berita{bottom:auto;left:6px;right:6px;transform:none;width:auto;font-size:.74rem;padding:5px 9px}
   .sentuh #monolog{left:12px;right:12px;transform:none;max-width:none;bottom:auto;font-size:.8rem}
 }
+
+@media(max-height:480px){.sentuh #berita{bottom:150px;left:150px;right:300px;transform:none;width:auto;font-size:.7rem;padding:4px 8px}}
