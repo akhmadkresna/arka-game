@@ -708,7 +708,7 @@ function update(dt) {
   else if (u) {
     const peluang = G.aparat > 0 ? 100 : Math.round(PELUANG[u.tipe] * 100);
     const oj = u.jenis === 'ojol';
-    h = u.tutup ? `${u.nama}: ${oj ? 'sedang mogok.' : 'gulung tikar.'}` : `${u.nama} · ${oj ? 'pengendara' : 'pemilik'} ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${HARGA.aparat})`}`;
+    h = u.tutup ? `${u.nama}: ${oj ? 'sedang mogok.' : 'gulung tikar.'}` : sentuh ? `${u.nama} · ${u.tipe.toUpperCase()} · peluang ${peluang}%${G.aparat > 0 ? ' (aparat aktif)' : ''}` : `${u.nama} · ${oj ? 'pengendara' : 'pemilik'} ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${HARGA.aparat})`}`;
   } else if (p) {
     if (p.status === 'hutan') h = `Petak hutan: ${tb('b')} Bakar (gratis) · ${tb('t')} Tebang (${HARGA.tebang})`;
     else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${HARGA.tanam})`;
@@ -779,6 +779,7 @@ function hud() {
   $('stunting').textContent = G.stunting.toFixed(1) + '%';
   $('korban').textContent = G.korban;
   $('aparat').textContent = G.aparat > 0 ? `Aparat aktif ${Math.ceil(G.aparat)} dtk` : '';
+  $('hargaAparat').textContent = HARGA.aparat;
   $('hargaPupuk').textContent = G.pupuk >= MAKS_PUPUK ? 'maks' : hargaPupuk(G.pupuk);
   $('hargaOknum').textContent = G.oknum >= MAKS_OKNUM ? 'maks' : hargaOknum(G.oknum);
   $('hargaGelar').textContent = G.gelar >= GELAR.length ? 'maks' : hargaGelar(G.gelar);
@@ -889,6 +890,7 @@ $('lanjutkan').onclick = () => {
   if (d) { try { muat(d); } catch (e) { console.error(e); } }
   mulaiGame();
 };
+$('btnRinci').onclick = () => $('kananAtas').classList.toggle('buka');
 $('btnSimpan').onclick = () => simpan(true);
 addEventListener('visibilitychange', () => { if (document.hidden) simpan(); });
 addEventListener('pagehide', () => simpan());
@@ -936,11 +938,12 @@ if (sentuh) document.body.classList.add('sentuh');
   const potret = matchMedia('(max-aspect-ratio: 1/1)');
   const atur = () => {
     const m = $('misi');
-    if (!sentuh || !potret.matches) { m.style.top = ''; return; }
+    if (!sentuh || !potret.matches) { m.style.top = ''; $('monolog').style.top = ''; return; }
     const a = $('kiriAtas').getBoundingClientRect(), b = $('kananAtas').getBoundingClientRect();
     m.style.top = (Math.max(a.bottom, b.bottom) + 6) + 'px';
+    $('monolog').style.top = (Math.max(a.bottom, b.bottom) + 6 + m.offsetHeight + 8) + 'px';
   };
-  if (window.ResizeObserver) { const ro = new ResizeObserver(atur); ro.observe($('kiriAtas')); ro.observe($('kananAtas')); }
+  if (window.ResizeObserver) { const ro = new ResizeObserver(atur); ro.observe($('kiriAtas')); ro.observe($('kananAtas')); ro.observe($('misi')); }
   addEventListener('resize', atur); atur();
 })();
 

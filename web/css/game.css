@@ -135,24 +135,31 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
   #judul.berseni .kotak{max-width:min(320px,40vw);padding:12px}#judul.berseni .kotak p{font-size:.7rem;line-height:1.3}#judul.berseni .kotak button{padding:8px 14px}
 }
 
-/* ===== HP portrait (layar tegak): tata letak HUD sendiri supaya tidak saling menimpa ===== */
+#btnRinci{display:none}
+/* ===== HP portrait (layar tegak): HUD ringkas, rincian di balik tombol ☰ ===== */
 @media(max-aspect-ratio:1/1){
-  .sentuh #kiriAtas{top:max(8px,env(safe-area-inset-top));left:8px;width:43vw;padding:6px 8px}
-  .sentuh .baris{grid-template-columns:78px 1fr;font-size:.62rem;margin:2px 0}
+  .sentuh #kiriAtas{top:max(6px,env(safe-area-inset-top));left:6px;width:40vw;padding:5px 8px}
+  .sentuh .baris{grid-template-columns:70px 1fr;font-size:.6rem;margin:1px 0}
   .sentuh .baris span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .sentuh #kananAtas{top:max(8px,env(safe-area-inset-top));right:8px;left:calc(43vw + 14px);min-width:0;font-size:.66rem;padding:6px 8px;line-height:1.3}
-  .sentuh #kananAtas .angka{font-size:.68rem}
-  .sentuh #kananAtas #bulan{font-size:.8rem}
-  .sentuh #kananAtas button{padding:3px 6px;font-size:.6rem;margin:2px 0 0 2px;border-radius:6px}
-  .sentuh #simpanInfo{display:none}
-  .sentuh #misi{left:8px;right:8px;width:auto;transform:none;top:170px;gap:10px;padding:8px 10px}
-  .sentuh #misiTeks{font-size:.9rem;line-height:1.3}
-  .sentuh #panahIkon{width:42px;height:42px;line-height:42px;font-size:1.5rem}
-  .sentuh #panah{min-width:48px}
-  .sentuh #joy{width:110px;height:110px;left:12px}.sentuh #knob{left:28px;top:28px;width:54px;height:54px}
-  .sentuh #aksiSentuh{right:8px;gap:5px;grid-template-columns:repeat(4,calc((100vw - 8px - 12px - 110px - 15px - 8px)/4))}
-  .sentuh #aksiSentuh button{height:44px;min-height:44px;font-size:.7rem;line-height:1.05}
-  .sentuh #prompt{left:8px;right:8px;transform:none;max-width:none;bottom:284px;font-size:.8rem;padding:6px 10px}
-  .sentuh #toast{top:auto;bottom:350px;left:8px;right:8px;transform:none;max-width:none;font-size:.8rem}
-  .sentuh #monolog{left:12px;right:12px;transform:none;max-width:none;bottom:400px;font-size:.85rem}
+  .sentuh #kananAtas{top:max(6px,env(safe-area-inset-top));right:6px;left:calc(40vw + 12px);min-width:0;font-size:.66rem;padding:5px 34px 5px 8px;line-height:1.3}
+  .sentuh #kananAtas .angka{font-size:.7rem}
+  .sentuh #kananAtas #bulan{font-size:.78rem}
+  .sentuh #kananAtas button{padding:3px 6px;font-size:.6rem;margin:2px 0 0 2px;border-radius:6px;min-height:0}
+  .sentuh .rinci{display:none}
+  .sentuh #kananAtas.buka .rinci{display:block}
+  .sentuh #btnRinci{display:block;position:absolute;top:4px;right:4px;width:28px;height:28px;min-height:0;padding:0;margin:0;border-radius:8px;font-size:1rem;line-height:1;pointer-events:auto;background:#ffffff22;color:#fff}
+  .sentuh #kananAtas{pointer-events:none}.sentuh #kananAtas button{pointer-events:auto}
+  .sentuh #misi{left:6px;right:6px;width:auto;transform:none;top:90px;gap:8px;padding:6px 9px;border-width:2px}
+  .sentuh #misiNo{font-size:.64rem;margin:0}
+  .sentuh #misiTeks{font-size:.8rem;line-height:1.3}
+  .sentuh #panahIkon{width:34px;height:34px;line-height:34px;font-size:1.2rem}
+  .sentuh #panah{min-width:40px}.sentuh #panahJarak{font-size:.72rem;margin-top:1px}
+  .sentuh #misiTeks kbd{padding:0 4px;border-bottom-width:2px}
+  .sentuh #joy{width:100px;height:100px;left:10px}.sentuh #knob{left:23px;top:23px;width:54px;height:54px}
+  .sentuh #aksiSentuh{right:6px;bottom:max(8px,env(safe-area-inset-bottom));gap:4px;grid-template-columns:repeat(4,calc((100vw - 6px - 10px - 100px - 12px - 8px)/4))}
+  .sentuh #aksiSentuh button{height:40px;min-height:40px;font-size:.68rem;line-height:1.05;background:#e8b83ccc}
+  .sentuh #aksiSentuh button.redup{opacity:.2}
+  .sentuh #prompt{left:6px;right:6px;transform:none;max-width:none;bottom:266px;font-size:.76rem;padding:4px 10px}
+  .sentuh #toast{top:auto;bottom:312px;left:6px;right:6px;transform:none;max-width:none;font-size:.78rem}
+  .sentuh #monolog{left:12px;right:12px;transform:none;max-width:none;bottom:auto;top:188px;font-size:.82rem}
 }
