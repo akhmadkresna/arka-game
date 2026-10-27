@@ -931,6 +931,19 @@ joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel
 document.querySelectorAll('#aksiSentuh button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); aksiTombol(b.dataset.k); }));
 if (sentuh) document.body.classList.add('sentuh');
 
+// HP portrait: letakkan panel misi tepat di bawah panel meter/status agar tidak menimpa
+(() => {
+  const potret = matchMedia('(max-aspect-ratio: 1/1)');
+  const atur = () => {
+    const m = $('misi');
+    if (!sentuh || !potret.matches) { m.style.top = ''; return; }
+    const a = $('kiriAtas').getBoundingClientRect(), b = $('kananAtas').getBoundingClientRect();
+    m.style.top = (Math.max(a.bottom, b.bottom) + 6) + 'px';
+  };
+  if (window.ResizeObserver) { const ro = new ResizeObserver(atur); ro.observe($('kiriAtas')); ro.observe($('kananAtas')); }
+  addEventListener('resize', atur); atur();
+})();
+
 // Kait untuk pengujian otomatis
 window.__g = { setKameraBebas(pos, tgt) { kameraBebas = pos ? { pos, tgt } : null; }, setKamera(y, p, j) { yaw = y; pitch = p; jarak = j; }, NPC, infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };
