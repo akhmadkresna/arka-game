@@ -137,6 +137,8 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 
 #berita{position:absolute;bottom:270px;left:50%;transform:translateX(-50%);width:min(560px,90vw);background:#12263aee;border:1px solid #5fa3d6;border-radius:10px;padding:6px 12px;font-size:.85rem;opacity:0;transition:opacity .5s;text-align:left}
 #berita b{color:#7cc4ff;letter-spacing:.1em;font-size:.7rem;margin-right:6px}
+#ucapan{position:absolute;bottom:330px;left:50%;transform:translateX(-50%);width:min(520px,90vw);background:#fffaf0;color:#2a1a06;border-radius:14px 14px 14px 3px;padding:7px 12px;font-size:.88rem;line-height:1.3;opacity:0;transition:opacity .35s;box-shadow:0 3px 10px #0007}
+#ucapan b{display:block;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:#a35a14;margin-bottom:1px}
 #btnRinci{display:none}
 #btnSemua{display:none}
 @media(max-aspect-ratio:1/1){.sentuh #btnSemua{display:block}}
@@ -168,7 +170,9 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
   .sentuh #prompt{left:6px;right:6px;transform:none;max-width:none;bottom:auto;top:130px;font-size:.76rem;padding:4px 10px}
   .sentuh #toast{bottom:auto;left:6px;right:6px;transform:none;max-width:none;font-size:.78rem;padding:5px 10px}
   .sentuh #berita{bottom:auto;left:6px;right:6px;transform:none;width:auto;font-size:.74rem;padding:5px 9px}
+  .sentuh #ucapan{bottom:auto;left:6px;right:6px;transform:none;width:auto;font-size:.8rem;padding:5px 10px}
   .sentuh #monolog{left:12px;right:12px;transform:none;max-width:none;bottom:auto;font-size:.8rem}
 }
 
 @media(max-height:480px){.sentuh #berita{bottom:150px;left:150px;right:300px;transform:none;width:auto;font-size:.7rem;padding:4px 8px}}
+@media(max-height:480px){.sentuh #ucapan{bottom:190px;left:150px;right:300px;transform:none;width:auto;font-size:.72rem;padding:4px 8px}}

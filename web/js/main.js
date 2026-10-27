@@ -8,7 +8,7 @@ import { buatNPC } from './npc.js';
 import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
 import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik } from './musik.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
-import { PRESTASI, PANGKAT, pangkatDari, pilihBerita } from './satir.js';
+import { PRESTASI, PANGKAT, pangkatDari, pilihBerita, ucapan } from './satir.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_OJOL, GAGAL_OJOL } from './teks.js';
 
 // ---------- Konstanta permainan ----------
@@ -212,6 +212,13 @@ function sasaranPalak() {
   for (const u of KIOS.concat(OJOL)) { const d = jarakDua(pemain.position.x, pemain.position.z, u.x, u.z); if (d < 9 && (!terbaik || d < terbaik.d)) terbaik = { u, d }; }
   return terbaik ? terbaik.u : null;
 }
+let wUcap = 0, uSapa = null;
+function ucap(u, jenis) {
+  const c = ucapan(u, jenis); if (!c) return;
+  const e = $('ucapan'); e.innerHTML = '<b></b><span></span>'; e.firstChild.textContent = c.nama; e.lastChild.textContent = '“' + c.teks + '”';
+  e.style.opacity = 1; wUcap = 5;
+  if (sentuh) { $('monolog').style.opacity = 0; wMono = 0; } // layar kecil: satu suara dalam satu waktu
+}
 function palak() {
   const u = sasaranPalak();
   if (!u) return toast('Tidak ada UMKM atau ojol di dekat Anda. Cari kios berpapan nama, atau ojol di jalan.');
@@ -229,14 +236,14 @@ function palak() {
     fxSumber = pos; E.semburan(pos, 'percik', 12); bunyi.koin();
     toast(`"${acak(oj ? PAJAK_OJOL : PAJAK)}" berhasil: +${bersih} Cuan${pakaiAparat ? ' (25% untuk uang lelah aparat)' : ''}.`);
     monolog(oj ? 'ojol' : 'palak');
-    if (u.berhasil >= TUTUP_SETELAH) tutupkan(u);
+    if (u.berhasil >= TUTUP_SETELAH) { tutupkan(u); if (!oj) ucap(u, 't'); } else ucap(u, 'ok');
   } else {
     const rugi = Math.min(G.cuan, 15);
     G.cuan -= rugi; G.rakyat = batas(G.rakyat + 5); G.restu = batas(G.restu - 3); G.citra = Math.max(0, G.citra - 5);
     u.marah = 1.6; fxTujuan = pos;
     E.teks(pos, 'GAGAL!', 'besar buruk'); E.getar(0.35); bunyi.gagal(); kilat('#d6453d');
     toast(`GAGAL: ${acak(oj ? GAGAL_OJOL : GAGAL)} (Cuan -${Math.round(rugi)}, Citra -5)`);
-    monolog('palakGagal');
+    monolog('palakGagal'); ucap(u, 'g');
     if (oj) klaksonMassal(u);
   }
 }
@@ -488,6 +495,7 @@ function satirTick(dt) {
     $('berita').innerHTML = '<b>BERITA</b> ' + pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length });
     $('berita').style.opacity = 1; wBeritaTampil = 7; bunyi.pop();
   }
+  if (wUcap > 0 && (wUcap -= dt) <= 0) $('ucapan').style.opacity = 0;
   if (wBeritaTampil > 0 && (wBeritaTampil -= dt) <= 0) $('berita').style.opacity = 0;
   if ((wSatir -= dt) > 0) return;
   wSatir = 1;
@@ -758,6 +766,8 @@ function update(dt) {
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
   } else if (dekatKantor()) h = `Kantor Dinas: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
   setPrompt(h);
+  if (u && !u.tutup && u !== uSapa && G.t > (u.sapaLagi || 0)) { ucap(u, 's'); u.sapaLagi = G.t + 60; }
+  uSapa = u || null;
   // Sorot tombol hanya saat aksinya benar-benar bisa dilakukan sekarang
   let s = null;
   const tt = targetTerakhir, dekatTarget = tt && jarakDua(pemain.position.x, pemain.position.z, tt.cx ?? tt.x, tt.cz ?? tt.z) < 20;
@@ -987,7 +997,7 @@ if (sentuh) document.body.classList.add('sentuh');
   const potret = matchMedia('(max-aspect-ratio: 1/1)');
   const tumpukan = () => {
     const p = $('prompt'), t = $('toast'), n = $('monolog'), m = $('misi');
-    if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = $('berita').style.top = ''; return; }
+    if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = $('berita').style.top = $('ucapan').style.top = ''; return; }
     let y = m.getBoundingClientRect().bottom + 6;
     p.style.top = y + 'px';
     if (p.style.visibility === 'visible') y += p.offsetHeight + 4;
@@ -996,6 +1006,8 @@ if (sentuh) document.body.classList.add('sentuh');
     n.style.top = y + 'px';
     y += n.offsetHeight + 4;
     $('berita').style.top = y + 'px';
+    y += $('berita').offsetHeight + 4;
+    $('ucapan').style.top = y + 'px';
   };
   const atur = () => {
     const m = $('misi');
