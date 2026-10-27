@@ -2,7 +2,7 @@
 // Catatan kepekaan: korban keracunan tidak digambarkan. Ambulans hanya berlabel jumlah siswa yang dirujuk,
 // dan sasaran satirnya adalah jawaban pejabat serta pembiaran, bukan anak-anak.
 import * as THREE from '../vendor/three.module.js';
-import { M, bangunanSekolah, bangunanPuskesmas, ambulans, manusiaMini, ojol, labelSprite } from './objek.js';
+import { M, papan, bangunanSekolah, bangunanPuskesmas, ambulans, manusiaMini, ojol, labelSprite } from './objek.js';
 import { JALAN, sungaiX, JEMBATAN } from './konfig.js';
 import { TATA } from './tata.js';
 
@@ -61,12 +61,24 @@ export function buatNPC(d) {
     }
     const guru = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x9a7a4a }), new THREE.MeshLambertMaterial({ color: 0x3a2a1a }), 0.5); grup.add(guru);
     s.guru = { g: guru, x: sk.x + f[0] * 8.5 + r[0] * 5, z: sk.z + f[1] * 8.5 + r[1] * 5, ry: sk.ry };
+    const pl = papan('KEGIATAN BELAJAR LIBUR\nSiswa sedang dirawat', 9, 2.6, { latar: '#f2b8a8', warna: '#5a1208' });
+    pl.position.set(0, 3.4, 9.4); pl.visible = false; g.add(pl);
+    for (const sx of [-4.2, 4.2]) { const tiang = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, 0.3), M.kayu); tiang.position.set(sx, 1.7, 9.4); tiang.visible = false; g.add(tiang); (s.tiang = s.tiang || []).push(tiang); }
+    s.papan = pl; s.absen = 0; s.kejadian = 0; s.libur = false; s.pulihSisa = 0; s.nama = 'SD Negeri Harapan ' + String(di + 1).padStart(2, '0');
     SEKOLAH.push(s);
   });
+  function setLibur(s, v) { s.libur = v; s.papan.visible = v; s.tiang.forEach(t => { t.visible = v; }); }
   function perbaruiSekolah(dt) {
     for (const s of SEKOLAH) {
       if (s.kumpul && (s.kumpul.sisa -= dt) <= 0) s.kumpul = null;
+      if (s.pulihSisa > 0 && (s.pulihSisa -= dt) <= 0) { // anak-anak pulih: sekolah dibuka kembali
+        s.kejadian = 0; if (s.libur) { setLibur(s, false); toast(s.nama + ' kembali buka. Kegiatan belajar dilanjutkan, tepat setelah sesi foto.'); }
+      }
+      if (s.pulihSisa <= 0 && s.absen > 0 && (s.balik = (s.balik || 0) - dt) <= 0) { s.absen--; s.balik = 4; }
+      for (let i = 0; i < s.anak.length; i++) s.anak[i].g.visible = i < s.anak.length - s.absen;
+      s.guru.g.visible = !s.libur;
       for (const a of s.anak) {
+        if (!a.g.visible) continue;
         let bergerak = false;
         if (s.kumpul) { // makan siang tiba: berkerumun di dekat pengantar
           if (dist(a.x, a.z, a.tx, a.tz) < 0.5) { a.tx = s.kumpul.x + rand(-3.5, 3.5); a.tz = s.kumpul.z + rand(-3.5, 3.5); }
@@ -184,7 +196,7 @@ export function buatNPC(d) {
   function perbaruiPengantar(dt) {
     for (let i = PENGANTAR.length - 1; i >= 0; i--) {
       const p = PENGANTAR[i];
-      if (p.fase === 'pergi') { if (ikuti(p, dt, 11)) { p.fase = 'tunggu'; p.timer = 5; p.sekolah.kumpul = { x: p.x, z: p.z, sisa: 5 }; } }
+      if (p.fase === 'pergi') { if (ikuti(p, dt, 11)) { p.fase = 'tunggu'; p.timer = 5; if (!p.sekolah.libur) p.sekolah.kumpul = { x: p.x, z: p.z, sisa: 5 }; } }
       else if (p.fase === 'tunggu') { if ((p.timer -= dt) <= 0) { p.fase = 'pulang'; p.rute = rute(p, p.dapur); p.idx = 0; } }
       else if (ikuti(p, dt, 11)) { scene.remove(p.g); PENGANTAR.splice(i, 1); continue; }
       taruh(p, dt); p.g.userData.roda.forEach(r => { r.rotation.x += (p.fase === 'tunggu' ? 0 : 11) * dt * 1.6; });
@@ -255,6 +267,11 @@ export function buatNPC(d) {
     const n = Math.floor(rand(8, 31));
     b.sampai = G.t + 60; G.insiden++;
     const kirim = kirimAmbulans(b, n);
+    const sk = SEKOLAH.slice().sort((p, q) => dist(p.x, p.z, b.x, b.z) - dist(q.x, q.z, b.x, b.z))[0];
+    if (sk) {
+      sk.kejadian++; sk.absen = Math.min(sk.anak.length, sk.absen + Math.ceil(n / 6)); sk.pulihSisa = 110; sk.balik = 4;
+      if (!sk.libur && (sk.kejadian >= 2 || sk.absen >= sk.anak.length - 1)) { setLibur(sk, true); sk.absen = sk.anak.length; setTimeout(() => toast(sk.nama + ': KEGIATAN BELAJAR LIBUR. Siswa dirawat. Menteri: "Libur adalah solusi pendidikan paling hemat."'), 4200); }
+    }
     G.rakyat = batas(G.rakyat + 8); G.restu = batas(G.restu - 4); G.panas = batas(G.panas + 3); G.citra = Math.max(0, G.citra - 6);
     const pos = V(b.x, b.z, 7);
     E.teks(pos, 'KEJADIAN LUAR BIASA', 'besar buruk'); E.getar(0.3); bunyi.sirene(); bunyi.gagal();
