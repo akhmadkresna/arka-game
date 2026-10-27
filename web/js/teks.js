@@ -56,7 +56,7 @@ export const DENDA = {
 // Panduan misi. {x} dst. diganti nama tombol sesuai perangkat. buka = tombol yang relevan (null = semua).
 export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'MBG', '2': 'Kopdes', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
 export const MISI = [
-  { ringkas: 'Ke warung bertanda panah, ketuk {x}. {v} = pasti berhasil.', teks: 'Tidak punya modal? Jalan ke warung yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
+  { ringkas: 'Ke warung/ojol terdekat bertanda panah, ketuk {x}. {v} = pasti berhasil.', teks: 'Tidak punya modal? Jalan ke warung atau ojol terdekat yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
   { ringkas: 'Ke hutan bertanda panah, ketuk {b} (gratis).', teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },
   { ringkas: 'Tunggu api padam ±7 dtk, ketuk {p} untuk tanam sawit (40).', teks: 'Tunggu api padam (sekitar 7 detik), lalu tekan {p} untuk menanam sawit (40 Cuan). Setelah ini Cuan mengalir sendiri.', buka: ['p', 'b', 't', 'x', 'v'] },
   { ringkas: 'Ulangi {b} lalu {p} sampai 3 petak sawit. Kehabisan Cuan? {x}.', teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },

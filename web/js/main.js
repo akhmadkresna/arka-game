@@ -396,13 +396,14 @@ function aksiTombol(k) {
 
 // ---------- Misi ----------
 const terdekat = (status) => PETAK.filter(p => p.status === status).sort((a, b) => jarakDua(pemain.position.x, pemain.position.z, a.cx, a.cz) - jarakDua(pemain.position.x, pemain.position.z, b.cx, b.cz))[0];
+const terdekatDari = (daftar) => daftar.slice().sort((a, b) => jarakDua(pemain.position.x, pemain.position.z, a.cx ?? a.x, a.cz ?? a.z) - jarakDua(pemain.position.x, pemain.position.z, b.cx ?? b.x, b.cz ?? b.z))[0];
 const MISI_DEF = [
-  { selesai: () => G.stat.palak >= 1, target: () => KIOS.find(u => !u.tutup && u.cd <= 0) || KIOS[0], sorot: 'x' },
+  { selesai: () => G.stat.palak >= 1, target: () => terdekatDari(KIOS.concat(OJOL).filter(u => !u.tutup && u.cd <= 0)) || KIOS[0], sorot: 'x' },
   { selesai: () => G.stat.bakar >= 1, target: () => terdekat('hutan'), sorot: 'b' },
   { selesai: () => G.stat.tanam >= 1, target: () => terdekat('lahan') || terdekat('api') || terdekat('hutan'), sorot: 'p' },
   { selesai: () => PETAK.filter(p => p.status === 'sawit').length >= 3, target: () => terdekat('lahan') || terdekat('hutan'), sorot: 'p' },
   { selesai: () => G.stat.bangun >= 1, target: () => TITIK_BEBAS, sorot: '1' },
-  { selesai: () => G.stat.blokir >= 1, target: () => DESA[0], sorot: '1' },
+  { selesai: () => G.stat.blokir >= 1, target: () => terdekatDari(DESA), sorot: '1' },
   { selesai: () => G.stat.naik >= 1, target: () => KENDARAAN[0], sorot: 'n' },
   { selesai: () => false, target: () => null, sorot: null },
 ];
@@ -436,11 +437,19 @@ function perbaruiMisi() {
   $('misi').classList.toggle('baru', wMisiBaru > 0);
   // Panah kompas di layar menunjuk ke tujuan
   const kp = $('panah');
-  if (t && jarakT > 6) {
-    const dx = tx - px, dz = tz - pz;
-    const kanan = dx * Math.cos(yaw) + dz * -Math.sin(yaw), depan = dx * -Math.sin(yaw) + dz * -Math.cos(yaw);
-    $('panahIkon').style.transform = `rotate(${Math.atan2(kanan, depan)}rad)`;
-    $('panahJarak').textContent = Math.round(jarakT) + ' m';
+  if (t) {
+    const ikon = $('panahIkon');
+    if (jarakT > 6) {
+      const dx = tx - px, dz = tz - pz;
+      const kanan = dx * Math.cos(yaw) + dz * -Math.sin(yaw), depan = dx * -Math.sin(yaw) + dz * -Math.cos(yaw);
+      if (ikon.textContent !== '➤') ikon.textContent = '➤';
+      ikon.style.transform = `rotate(${Math.atan2(kanan, depan)}rad)`;
+      $('panahJarak').textContent = Math.round(jarakT) + ' m';
+    } else {
+      if (ikon.textContent !== '✔') ikon.textContent = '✔';
+      ikon.style.transform = 'none';
+      $('panahJarak').textContent = 'Sampai!';
+    }
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
   return d.sorot;
