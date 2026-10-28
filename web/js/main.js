@@ -116,14 +116,14 @@ KENDARAAN.forEach(k => { k.v = 0; k.y = lantai(k.x, k.z); k.vy = 0; k.tanah = tr
 const tujuan = pilar(); tujuan.visible = false; scene.add(tujuan);
 
 // ---------- Kamera dan masukan ----------
-let yaw = 0.0, pitch = 0.42, jarak = 11;
+let yaw = 0.0, pitch = 0.42, jarak = 11, idleKamera = 9;
 const tombol = {};
 let joyX = 0, joyY = 0;
 const jari = new Map();
 kanvas.addEventListener('pointerdown', e => { jari.set(e.pointerId, { x: e.clientX, y: e.clientY }); kanvas.setPointerCapture?.(e.pointerId); });
 kanvas.addEventListener('pointermove', e => {
   const j = jari.get(e.pointerId); if (!j) return;
-  yaw -= (e.clientX - j.x) * 0.006; pitch = Math.max(0.12, Math.min(1.3, pitch + (e.clientY - j.y) * 0.005));
+  idleKamera = 0; yaw -= (e.clientX - j.x) * 0.006; pitch = Math.max(0.12, Math.min(1.3, pitch + (e.clientY - j.y) * 0.005));
   j.x = e.clientX; j.y = e.clientY;
 });
 const lepas = e => jari.delete(e.pointerId);
@@ -617,17 +617,23 @@ function jalanKaki(dt) {
   let mx = 0, mz = 0;
   if (tombol.w || tombol.arrowup) { mx += fx; mz += fz; }
   if (tombol.s || tombol.arrowdown) { mx -= fx; mz -= fz; }
-  if (tombol.d || tombol.arrowright) { mx += rx; mz += rz; }
-  if (tombol.a || tombol.arrowleft) { mx -= rx; mz -= rz; }
-  if (joyX || joyY) { mx += fx * -joyY + rx * joyX; mz += fz * -joyY + rz * joyX; }
+  // Kamera mengikuti dari belakang: kiri/kanan memutar arah hadap (kamera ikut berputar), geser samping hanya sedikit
+  const GESER = 0.35;
+  if (tombol.d || tombol.arrowright) { mx += rx * GESER; mz += rz * GESER; }
+  if (tombol.a || tombol.arrowleft) { mx -= rx * GESER; mz -= rz * GESER; }
+  if (joyX || joyY) { mx += fx * -joyY + rx * joyX * GESER; mz += fz * -joyY + rz * joyX * GESER; }
+  const lat = Math.max(-1, Math.min(1, ((tombol.d || tombol.arrowright) ? 1 : 0) - ((tombol.a || tombol.arrowleft) ? 1 : 0) + joyX));
+  if (lat && jari.size === 0) yaw -= lat * 1.7 * dt;
   const bergerak = mx || mz;
   if (bergerak) {
-    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * dt;
+    const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * Math.min(1, n * 1.5) * dt;
     const nx = pemain.position.x + mx / n * v, nz = pemain.position.z + mz / n * v;
     if (lantai(nx, nz) > 0.25 && Math.hypot(nx, nz) < R - 8) { pemain.position.x = nx; pemain.position.z = nz; }
     else if (lantai(nx, pemain.position.z) > 0.25) pemain.position.x = nx;
     else if (lantai(pemain.position.x, nz) > 0.25) pemain.position.z = nz;
-    pemain.rotation.y = Math.atan2(mx, mz);
+    // Hanya belok (tanpa maju): tokoh menghadap searah kamera supaya kamera tetap di punggungnya
+    const maju = ((tombol.w || tombol.arrowup) ? 1 : 0) - ((tombol.s || tombol.arrowdown) ? 1 : 0) - joyY;
+    pemain.rotation.y = (Math.abs(maju) < 0.15 && lat) ? yaw + Math.PI : Math.atan2(mx, mz);
   }
   const ayun = (bergerak && fis.tanah) ? Math.sin(waktu * 12) * 0.7 : 0;
   lenganK.rotation.x = ayun; lenganN.rotation.x = -ayun; kakiK.rotation.x = -ayun; kakiN.rotation.x = ayun;
@@ -988,10 +994,18 @@ function kameraIkut() {
   kamera.lookAt(tx, ty, tz);
 }
 
+// Naik kendaraan: kamera pelan-pelan berputar ke belakang kendaraan (kecuali baru saja diputar manual)
+function autoKamera(dt) {
+  idleKamera += dt;
+  if (!G.naik || jari.size > 0 || idleKamera < 1.2) return;
+  const sasaran = G.naik.ry + Math.PI;
+  const selisih = ((sasaran - yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+  yaw += selisih * Math.min(1, dt * 2.2);
+}
 let terakhir = performance.now(), suasanaTick = 0;
 renderer.setAnimationLoop(now => {
   const dt = Math.min(0.1, (now - terakhir) / 1000); terakhir = now;
-  update(dt); hud(); kameraIkut();
+  update(dt); autoKamera(dt); hud(); kameraIkut();
   suasanaTick += dt;
   if (suasanaTick > 0.5) { suasanaTick = 0; suasanaMusik({ naik: !!G.naik, kabut: G.kabut, tegang: G.panas > 70 || G.rakyat > 70 }); }
   if (G.jalan) { jedaSimpan += dt; if (jedaSimpan > 20) { jedaSimpan = 0; simpan(); } }
