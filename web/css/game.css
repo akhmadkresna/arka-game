@@ -206,3 +206,17 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 #panahIkon{transform:none!important;font-size:1.5rem}
 #misi{pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #misiHint{margin-top:3px;font-size:.7rem;color:#ffd23a;opacity:.9;font-weight:600}
+
+/* Kartu kiri dan kanan bisa dilipat di semua mode */
+.lipat{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:36px;height:18px;min-height:0;padding:0;margin:0;border-radius:9px;font-size:.62rem;line-height:16px;background:#2a2622;color:#fff;border:1px solid var(--garis);pointer-events:auto;touch-action:manipulation;z-index:2}
+.lipat::before{content:"";position:absolute;inset:-12px -8px}
+#kiriAtas,#kananAtas{pointer-events:none}
+#miniMeter{display:none;gap:4px;align-items:center;padding:2px 0 1px}
+#miniMeter i{display:block;width:20px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--w) var(--v,0%),#ffffff25 var(--v,0%))}
+#miniMeter .baik{--w:#5fb36a}#miniMeter .bahaya{--w:#d6453d}#miniMeter .netral{--w:#5aa0d6}
+#kiriAtas.terlipat .baris{display:none}
+#kiriAtas.terlipat #miniMeter{display:flex}
+#kiriAtas.terlipat{width:auto!important;padding:6px 10px!important}
+#kananAtas.terlipat>*:not(.tetap):not(.lipat){display:none!important}
+#kananAtas.terlipat{left:auto!important;min-width:0!important;width:auto!important;padding:6px 12px!important}
+#kananAtas.terlipat .tetap{margin:0}

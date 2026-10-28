@@ -222,7 +222,7 @@ let wUcap = 0, uSapa = null;
 function selaraskan() {
   for (const [ov, kartu] of [['berita', 'kiriAtas']]) {
     const r = $(kartu).getBoundingClientRect(), s = $(ov).style;
-    s.left = r.left + 'px'; s.top = r.top + 'px'; s.width = r.width + 'px'; s.height = r.height + 'px';
+    s.left = r.left + 'px'; s.top = r.top + 'px'; s.width = Math.max(r.width, 170) + 'px'; s.height = Math.max(r.height, 76) + 'px'; // kartu terlipat tetap memberi ruang bagi berita
   }
 }
 const vUcap = new THREE.Vector3();
@@ -518,7 +518,7 @@ function perbaruiTombol(s, rel = new Set()) {
   const gl = $('gelembung');
   if (sentuh && s) {
     const bt = document.querySelector(`#aksiBaru [data-k="${s}"]`);
-    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = Math.min(innerWidth - 60, r.left + r.width / 2) + 'px'; gl.style.top = (r.top - 30) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
+    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = Math.min(innerWidth - 60, r.left + r.width / 2) + 'px'; gl.style.top = (Math.min(r.top, $('aksiBaru').getBoundingClientRect().top) - 32) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
   }
   gl.style.visibility = 'hidden';
 }
@@ -576,6 +576,17 @@ function tugasTick(dt) {
     TUGAS = null; wTugas = 60 + Math.random() * 30; misiTampil = -1;
   }
 }
+
+// ---------- Kartu atas bisa dilipat (semua mode), pilihan diingat ----------
+const KUNCI_UI = 'republikEmas.ui.lipat';
+function lipatKartu(nama, lipat) {
+  const kartu = $(nama === 'kiri' ? 'kiriAtas' : 'kananAtas');
+  kartu.classList.toggle('terlipat', lipat);
+  const t = kartu.querySelector('.lipat'); t.textContent = lipat ? '▾' : '▴'; t.setAttribute('aria-expanded', String(!lipat));
+  try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); u[nama] = lipat; localStorage.setItem(KUNCI_UI, JSON.stringify(u)); } catch (e) { /* abaikan */ }
+}
+document.querySelectorAll('.lipat').forEach(t => t.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); const k = t.dataset.kartu; lipatKartu(k, !$(k === 'kiri' ? 'kiriAtas' : 'kananAtas').classList.contains('terlipat')); }));
+try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); if (u.kiri) lipatKartu('kiri', true); if (u.kanan) lipatKartu('kanan', true); } catch (e) { /* abaikan */ }
 
 // ---------- Satir: pangkat, prestasi, berita ----------
 let wSatir = 0, wBerita = 25, wBatuk = 8, ispaBatas = 0;
@@ -974,7 +985,7 @@ function laporan(tahunan) {
 $('lanjut').onclick = () => { $('laporan').hidden = true; G.jeda = false; };
 
 function hud() {
-  const set = (id, v) => { $(id).style.width = Math.max(0, Math.min(100, v)) + '%'; };
+  const set = (id, v) => { const p = Math.max(0, Math.min(100, v)); $(id).style.width = p + '%'; const mini = $('m' + id.slice(1)); if (mini) mini.style.setProperty('--v', p + '%'); };
   set('bRestu', G.restu); set('bPanas', G.panas); set('bRakyat', G.rakyat); set('bKabut', G.kabut);
   $('cuan').textContent = Math.floor(G.cuan);
   $('penghasilan').textContent = '+' + G.penghasilan.toFixed(1) + '/dtk';
@@ -1178,7 +1189,7 @@ if (sentuh) document.body.classList.add('sentuh');
     const m = $('misi');
     if (!sentuh || !potret.matches) { m.style.top = ''; tumpukan(); return; }
     const a = $('kiriAtas').getBoundingClientRect(), b = $('kananAtas').getBoundingClientRect();
-    m.style.top = (Math.max(a.bottom, b.bottom) + 6) + 'px';
+    m.style.top = (Math.max(a.bottom, b.bottom) + 14) + 'px';
     tumpukan();
   };
   aturTumpukan = tumpukan;
