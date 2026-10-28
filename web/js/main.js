@@ -586,7 +586,10 @@ function lipatKartu(nama, lipat) {
   try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); u[nama] = lipat; localStorage.setItem(KUNCI_UI, JSON.stringify(u)); } catch (e) { /* abaikan */ }
 }
 document.querySelectorAll('.lipat').forEach(t => t.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); const k = t.dataset.kartu; lipatKartu(k, !$(k === 'kiri' ? 'kiriAtas' : 'kananAtas').classList.contains('terlipat')); }));
-try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); if (u.kiri) lipatKartu('kiri', true); if (u.kanan) lipatKartu('kanan', true); } catch (e) { /* abaikan */ }
+// Bawaan: terlipat. Pilihan pemain (terbuka atau terlipat) yang tersimpan menggantikan bawaan.
+let uiTersimpan = {};
+try { uiTersimpan = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}') || {}; } catch (e) { /* abaikan */ }
+lipatKartu('kiri', uiTersimpan.kiri !== false); lipatKartu('kanan', uiTersimpan.kanan !== false);
 
 // ---------- Satir: pangkat, prestasi, berita ----------
 let wSatir = 0, wBerita = 25, wBatuk = 8, ispaBatas = 0;
