@@ -14,11 +14,17 @@ export function buatWaypath({ scene, lantai }) {
   mesh.frustumCulled = false; mesh.renderOrder = 8; mesh.visible = false; scene.add(mesh);
   const d = new THREE.Object3D(), nol = new THREE.Matrix4().makeScale(0, 0, 0);
 
-  function titik(px, pz, tx, tz) {
+  // sudahKeluar: jalan otomatis sudah melewati ujung jembatan, jadi tidak perlu kembali ke jalur jembatan
+  function titik(px, pz, tx, tz, sudahKeluar = false) {
     const p = [{ x: px, z: pz }];
-    if (sisi(px, pz) !== sisi(tx, tz)) {
-      const s = sisi(px, pz), u = [{ x: sungaiX(JEMBATAN.z) - 22, z: JEMBATAN.z }, { x: sungaiX(JEMBATAN.z) + 22, z: JEMBATAN.z }];
-      p.push(u[s], u[1 - s]);
+    const u = [{ x: sungaiX(JEMBATAN.z) - 22, z: JEMBATAN.z }, { x: sungaiX(JEMBATAN.z) + 22, z: JEMBATAN.z }];
+    const s = sisi(px, pz), st = sisi(tx, tz);
+    const keluar = { x: u[st].x + (st ? 8 : -8), z: JEMBATAN.z, keluar: true }; // di luar ujung jembatan, supaya tidak berbelok ke air
+    if (!sudahKeluar) {
+      const lo = st ? u[0].x - 1 : keluar.x + 1.5, hi = st ? keluar.x - 1.5 : u[1].x + 1;
+      const dijembatan = Math.abs(pz - JEMBATAN.z) < 7 && px > lo && px < hi;
+      if (dijembatan) p.push(keluar);
+      else if (s !== st) p.push(u[s], keluar);
     }
     p.push({ x: tx, z: tz });
     return p;
@@ -45,5 +51,5 @@ export function buatWaypath({ scene, lantai }) {
     for (let i = n; i < N; i++) mesh.setMatrixAt(i, nol);
     mesh.instanceMatrix.needsUpdate = true;
   }
-  return { atur };
+  return { atur, titik };
 }

@@ -489,6 +489,8 @@ function perbaruiMisi() {
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
   WAYPATH.atur(px, pz, tx, tz, !!t && jarakT > 9, waktu);
+  const hint = !t || jarakT <= 9 ? '' : otoJalan ? '⏸ Jalan otomatis… (gerakkan joystick untuk berhenti)' : '⏵ Ketuk kartu ini: jalan otomatis ke tujuan';
+  if ($('misiHint').textContent !== hint) $('misiHint').textContent = hint;
   return TUGAS ? null : d.sorot;
 }
 
@@ -612,7 +614,33 @@ let wBeritaTampil = 0;
 
 // ---------- Jalan kaki, lompat, kendaraan ----------
 const fis = { vy: 0, tanah: true };
+let otoJalan = false, otoKeluar = false;
+const inputManual = () => joyX || joyY || jari.size > 0 || ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].some(k => tombol[k]);
+function berhentiOto(sampai) { if (!otoJalan) return; otoJalan = false; if (sampai) toast('Sampai di tujuan.'); }
+$('misi').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (otoJalan) { berhentiOto(); return toast('Jalan otomatis dihentikan.'); }
+  if (G.naik) return toast('Turun dari kendaraan dulu untuk jalan otomatis.');
+  if (!targetTerakhir) return;
+  otoJalan = true; otoKeluar = false; toast('Jalan otomatis ke tujuan. Gerakkan joystick untuk berhenti.');
+});
 function jalanKaki(dt) {
+  let oto = null;
+  if (otoJalan) {
+    if (inputManual() || G.naik || !targetTerakhir) berhentiOto();
+    else {
+      const t = targetTerakhir, tx = t.cx ?? t.x, tz = t.cz ?? t.z, px = pemain.position.x, pz = pemain.position.z;
+      if (jarakDua(px, pz, tx, tz) < 5) berhentiOto(true);
+      else {
+        const w = WAYPATH.titik(px, pz, tx, tz, otoKeluar).slice(1).find(q => jarakDua(px, pz, q.x, q.z) > (q.keluar ? 3 : 5)) || { x: tx, z: tz };
+        if (w.keluar && jarakDua(px, pz, w.x, w.z) < 6) otoKeluar = true; // dekat ujung jembatan: setelah ini langsung ke tujuan
+        const dx = w.x - px, dz = w.z - pz, l = Math.hypot(dx, dz) || 1;
+        oto = { x: dx / l, z: dz / l };
+        const sasaran = Math.atan2(-dx, -dz), selisih = ((sasaran - yaw + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+        yaw += selisih * Math.min(1, dt * 3);
+      }
+    }
+  }
   const fx = -Math.sin(yaw), fz = -Math.cos(yaw), rx = Math.cos(yaw), rz = -Math.sin(yaw);
   let mx = 0, mz = 0;
   if (tombol.w || tombol.arrowup) { mx += fx; mz += fz; }
@@ -624,6 +652,7 @@ function jalanKaki(dt) {
   if (joyX || joyY) { mx += fx * -joyY + rx * joyX * GESER; mz += fz * -joyY + rz * joyX * GESER; }
   const lat = Math.max(-1, Math.min(1, ((tombol.d || tombol.arrowright) ? 1 : 0) - ((tombol.a || tombol.arrowleft) ? 1 : 0) + joyX));
   if (lat && jari.size === 0) yaw -= lat * 1.7 * dt;
+  if (oto) { mx = oto.x; mz = oto.z; }
   const bergerak = mx || mz;
   if (bergerak) {
     const n = Math.hypot(mx, mz), lari = tombol.shift || Math.hypot(joyX, joyY) > 0.9, v = (lari ? 18 : 10) * Math.min(1, n * 1.5) * dt;
@@ -632,7 +661,7 @@ function jalanKaki(dt) {
     else if (lantai(nx, pemain.position.z) > 0.25) pemain.position.x = nx;
     else if (lantai(pemain.position.x, nz) > 0.25) pemain.position.z = nz;
     // Hanya belok (tanpa maju): tokoh menghadap searah kamera supaya kamera tetap di punggungnya
-    const maju = ((tombol.w || tombol.arrowup) ? 1 : 0) - ((tombol.s || tombol.arrowdown) ? 1 : 0) - joyY;
+    const maju = oto ? 1 : ((tombol.w || tombol.arrowup) ? 1 : 0) - ((tombol.s || tombol.arrowdown) ? 1 : 0) - joyY;
     pemain.rotation.y = (Math.abs(maju) < 0.15 && lat) ? yaw + Math.PI : Math.atan2(mx, mz);
   }
   const ayun = (bergerak && fis.tanah) ? Math.sin(waktu * 12) * 0.7 : 0;
