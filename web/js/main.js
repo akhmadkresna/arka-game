@@ -9,6 +9,7 @@ import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
 import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik } from './musik.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { buatPeresmian } from './peresmian.js';
+import { buatWaypath } from './waypath.js';
 import { PRESTASI, PANGKAT, pangkatDari, pilihBerita, ucapan, SAMBUTAN, DENIAL } from './satir.js';
 import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_OJOL, GAGAL_OJOL } from './teks.js';
 
@@ -173,6 +174,7 @@ const E = buatEfek(scene, kamera, pemain, $('melayang'), $('cuan'));
 const V = (x, z, y = 0) => new THREE.Vector3(x, tinggi(x, z) + y, z);
 const depanPemain = (jarakD = 6, y = 1.5) => new THREE.Vector3(pemain.position.x + Math.sin(pemain.rotation.y) * jarakD, pemain.position.y + y, pemain.position.z + Math.cos(pemain.rotation.y) * jarakD);
 const NPC = buatNPC({ scene, G, tinggi, lantai, E, bunyi, toast, monolog, pemain, V, batas });
+const WAYPATH = buatWaypath({ scene, lantai });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
 let fxSumber = null, fxTujuan = null;
 const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas KPK'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
@@ -478,18 +480,15 @@ function perbaruiMisi() {
   if (t) {
     const ikon = $('panahIkon');
     if (jarakT > 6) {
-      const dx = tx - px, dz = tz - pz;
-      const kanan = dx * Math.cos(yaw) + dz * -Math.sin(yaw), depan = dx * -Math.sin(yaw) + dz * -Math.cos(yaw);
-      if (ikon.textContent !== '➤') ikon.textContent = '➤';
-      ikon.style.transform = `rotate(${Math.atan2(kanan, depan)}rad)`;
+      if (ikon.textContent !== '📍') ikon.textContent = '📍';
       $('panahJarak').textContent = Math.round(jarakT) + ' m';
     } else {
       if (ikon.textContent !== '✔') ikon.textContent = '✔';
-      ikon.style.transform = 'none';
       $('panahJarak').textContent = 'Sampai!';
     }
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
+  WAYPATH.atur(px, pz, tx, tz, !!t && jarakT > 9, waktu);
   return TUGAS ? null : d.sorot;
 }
 

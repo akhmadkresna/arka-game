@@ -203,3 +203,4 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 #ucapan{position:fixed;left:0;top:0;width:max-content;max-width:min(240px,64vw);height:auto;transform:translate(-50%,-100%);border-radius:14px;padding:7px 12px;font-size:.82rem;pointer-events:none}
 #ucapan::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-bottom:0;border-top-color:#fffaf0}
 @media(max-aspect-ratio:1/1){.sentuh #ucapan{padding:5px 9px;font-size:.7rem;max-width:min(210px,60vw)}.sentuh #ucapan b{font-size:.56rem}}
+#panahIkon{transform:none!important;font-size:1.5rem}
