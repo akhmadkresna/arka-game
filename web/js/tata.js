@@ -1,7 +1,7 @@
 // Tata letak statis tanpa tumpang tindih: semua benda punya "jejak" lingkaran (FOOT).
 import { rng } from './noise.js';
 import { tinggi } from './terrain.js';
-import { DESA, KANTOR, TPA, SPAWN, UMKM, jarakJalan } from './konfig.js';
+import { DESA, KANTOR, TPA, TPU, SPAWN, UMKM, jarakJalan } from './konfig.js';
 
 export const FOOT = [];
 const bentrok = (x, z, r, sela = 0) => FOOT.some(f => Math.hypot(f.x - x, f.z - z) < f.r + r + sela);
@@ -18,6 +18,7 @@ export const BALIHO_AWAL = [
 tambahJejak(SPAWN.x, SPAWN.z, 5, 'spawn');
 tambahJejak(KANTOR.x, KANTOR.z, 16, 'kantor');
 tambahJejak(TPA.x, TPA.z, 22, 'tpa');
+tambahJejak(TPU.x, TPU.z, 26, 'tpu');
 for (let i = 0; i < 5; i++) tambahJejak(20 + i * 10, 0, 5, 'jembatan');
 UMKM.forEach(u => tambahJejak(u.x, u.z, 5.5, u.nama));
 BALIHO_AWAL.forEach((b, i) => tambahJejak(b.x, b.z, 6, 'baliho' + i));

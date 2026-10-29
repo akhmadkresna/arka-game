@@ -235,7 +235,7 @@ export function buatNPC(d) {
   ];
   const PENGURUS = [];
   function picuKasRaib(b) {
-    const untung = Math.floor(rand(25, 55));
+    const untung = Math.floor(rand(25, 55)) * (b.emas ? 3 : 1);
     b.sampai = G.t + 40; G.kasRaib = (G.kasRaib || 0) + 1;
     G.cuan += untung; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3);
     E.teks(V(b.x, b.z, 7), `KAS KOPDES MASUK KANTONG +${untung}`, 'besar emas');

@@ -10,6 +10,9 @@ export const DESA = [{ x: 150, z: 10, nama: 'DESA MAKMUR\nSENTOSA' }, { x: 190, 
 export const SAWAH = [{ x: 105, z: 60, w: 44, d: 30 }, { x: 150, z: 75, w: 40, d: 26 }, { x: 100, z: -30, w: 34, d: 26 }];
 export const TPA = { x: -40, z: 170 };
 export const KANTOR = { x: 0, z: 60 };
+// Tempat Pemakaman Umum (TPU) dan lahan strategis Kopdes di sebelahnya (Kopdes di sini bercuan besar)
+export const TPU = { x: -62, z: -52 };
+export const ZONA_EMAS = { x: -22, z: -52, r: 11 };
 export const SPAWN = { x: 0, z: 30 };
 export const JEMBATAN = { z: 0, panjang: 46, lebar: 8, tinggi: 2.6 };
 export const TITIK_BEBAS = { x: 70, z: -70 };

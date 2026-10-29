@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 import { rng, fbm } from './noise.js';
 import { tinggi } from './terrain.js';
 import { TATA, FOOT } from './tata.js';
-import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
+import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
 
 export const M = {
   air: new THREE.MeshLambertMaterial({ color: 0x2f93d3, transparent: true, opacity: 0.82 }),
@@ -133,6 +133,55 @@ export class Inst {
   sinkron() { if (this.kotor) { this.mesh.instanceMatrix.needsUpdate = true; this.kotor = false; } }
 }
 
+
+// ---------- Kelapa sawit: batang bertekstur, pelepah melengkung berdaun menyirip, tandan buah ----------
+function geoTajukSawit() {
+  const pos = [], col = [], idx = [];
+  const baris = (cx, cy, cz, sa, w, t, drop, hijau) => { // tiga titik melintang: kiri, tulang daun, kanan
+    const px = -Math.sin(sa), pz = Math.cos(sa), g = hijau;
+    const warna = [g[0] + (0.2 - g[0]) * 0, g[1], g[2]];
+    pos.push(cx + px * w, cy - drop, cz + pz * w, cx, cy + 0.04, cz, cx - px * w, cy - drop, cz - pz * w);
+    const k = 0.55 + 0.45 * t; // pangkal lebih gelap, ujung lebih terang
+    for (let i = 0; i < 3; i++) col.push(warna[0] * k * (i === 1 ? 1.25 : 1), warna[1] * k * (i === 1 ? 1.2 : 1), warna[2] * k * (i === 1 ? 0.8 : 1));
+  };
+  const pelepah = (ang, L, tinggiAwal, lengkung, naik) => {
+    const segs = 8, ca = Math.cos(ang), sa = Math.sin(ang), mulai = pos.length / 3;
+    for (let s = 0; s <= segs; s++) {
+      const t = s / segs, r = L * t, y = tinggiAwal + L * (naik * t - lengkung * t * t);
+      const w = 0.62 * Math.sin(Math.PI * Math.min(1, 0.18 + t * 0.9)) * (1 - 0.35 * t) * (t < 0.1 ? t / 0.1 : 1);
+      baris(ca * r, y, sa * r, ang, w, t, w * 0.6, [0.2, 0.46, 0.12]);
+    }
+    for (let s = 0; s < segs; s++) { const a = mulai + s * 3, b = a + 3; idx.push(a, b, a + 1, a + 1, b, b + 1, a + 1, b + 1, a + 2, a + 2, b + 1, b + 2); }
+  };
+  const N = 14;
+  for (let k = 0; k < N; k++) {
+    const ang = k / N * Math.PI * 2 + Math.sin(k * 12.9) * 0.12;
+    pelepah(ang, 3.7 + (k % 3) * 0.35, 0.15, 1.35 + (k % 2) * 0.35, 0.95 + (k % 2) * 0.1);
+  }
+  for (let k = 0; k < 4; k++) pelepah(k * 1.57 + 0.4, 1.9, 0.3, 0.2, 1.85); // pelepah muda menjulang
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+function teksBatangSawit() {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const x = c.getContext('2d'); x.fillStyle = '#5b4026'; x.fillRect(0, 0, 64, 64);
+  for (let r = 0; r < 8; r++) for (let q = 0; q < 4; q++) { // pangkal pelepah berbentuk belah ketupat
+    const cx = q * 16 + (r % 2 ? 8 : 0), cy = r * 8 + 4;
+    x.fillStyle = (q + r) % 2 ? '#7a5a38' : '#42301c';
+    x.beginPath(); x.moveTo(cx, cy - 4.5); x.lineTo(cx + 7, cy); x.lineTo(cx, cy + 4.5); x.lineTo(cx - 7, cy); x.closePath(); x.fill();
+  }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 7); t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const geoSawit = { tajuk: geoTajukSawit(), batang: new THREE.CylinderGeometry(0.3, 0.52, 1, 8).translate(0, 0.5, 0), buah: new THREE.IcosahedronGeometry(0.42, 0) };
+const bahanSawit = {
+  tajuk: new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }),
+  batang: new THREE.MeshLambertMaterial({ map: teksBatangSawit() }),
+  buah: new THREE.MeshLambertMaterial({ color: 0xc2561a }),
+};
+
 const HIJAU = [0x2f7a3a, 0x3b8a3c, 0x2a6e44, 0x4a9a3e, 0x2c7a52, 0x558f34].map(c => new THREE.Color(c));
 const HIJAU_GELAP = [0x1f5a34, 0x24663a, 0x1b5030].map(c => new THREE.Color(c));
 
@@ -163,7 +212,7 @@ export function buatObjek(scene, terrain) {
   // ----- Tumbuhan dekoratif (hutan di bukit, semak, batu) -----
   const zonaKena = (x, z, m = 0) => ZONA.some(zn => { const c = pusatZona(zn); return Math.abs(x - c.x) < 82 + m && Math.abs(z - c.z) < 68 + m; });
   const bebas = (x, z) => !zonaKena(x, z, 4) && jarakJalan(x, z) > 7
-    && !DESA.some(d => Math.hypot(x - d.x, z - d.z) < 52) && Math.hypot(x - TPA.x, z - TPA.z) > 40
+    && !DESA.some(d => Math.hypot(x - d.x, z - d.z) < 52) && Math.hypot(x - TPA.x, z - TPA.z) > 40 && Math.hypot(x - TPU.x, z - TPU.z) > 34 && Math.hypot(x - ZONA_EMAS.x, z - ZONA_EMAS.z) > 20
     && Math.hypot(x - KANTOR.x, z - 50) > 40 && !SAWAH.some(s => Math.abs(x - s.x) < s.w / 2 + 6 && Math.abs(z - s.z) < s.d / 2 + 6)
     && Math.abs(x - sungaiX(z)) > 16 && FOOT.every(f => Math.hypot(f.x - x, f.z - z) > f.r + 4);
   const batangDekor = new Inst(geo.batang, M.batang, 1400), bulatDekor = new Inst(geo.tajukBulat, M.daun, 800, true), kerucutDekor = new Inst(geo.tajukKerucut, M.daun, 800, true);
@@ -205,7 +254,7 @@ export function buatObjek(scene, terrain) {
   const total = ZONA.length * KOLOM * BARIS;
   const I = {
     batang: new Inst(geo.batang, M.batang, total * 16), bulat: new Inst(geo.tajukBulat, M.daun, total * 16, true), kerucut: new Inst(geo.tajukKerucut, M.daun, total * 16, true),
-    tunggul: new Inst(geo.batang, M.arang, total * 16), palemB: new Inst(geo.batang, M.batang, total * 16), palemD: new Inst(geo.tajukPalem, M.sawitDaun, total * 16),
+    tunggul: new Inst(geo.batang, M.arang, total * 16), palemB: new Inst(geoSawit.batang, bahanSawit.batang, total * 16), palemD: new Inst(geoSawit.tajuk, bahanSawit.tajuk, total * 16), palemF: new Inst(geoSawit.buah, bahanSawit.buah, total * 16 * 3),
     api1: new Inst(geo.api, M.api, total * 5), api2: new Inst(geo.api, M.api2, total * 5),
   };
   Object.values(I).forEach(i => dunia.add(i.mesh));
@@ -228,8 +277,10 @@ export function buatObjek(scene, terrain) {
       // Sawit: barisan rapi
       for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) {
         const x = cx + (a - 1.5) * 6, z = cz + (b - 1.5) * 6, h = tinggi(x, z);
-        p.ref.sawit.push([I.palemB, I.palemB.tambah(x, h, z, 0.4, 4.2, 0.4, 0, false)]);
-        p.ref.sawit.push([I.palemD, I.palemD.tambah(x, h + 4.1, z, 2.5, 1.3, 2.5, a + b, false)]);
+        const tp = 5.6 + acak() * 1.6, sk = 0.9 + acak() * 0.25, ry = acak() * 6.28;
+        p.ref.sawit.push([I.palemB, I.palemB.tambah(x, h, z, 1, tp, 1, 0, false)]);
+        p.ref.sawit.push([I.palemD, I.palemD.tambah(x, h + tp, z, sk, sk, sk, ry, false)]);
+        for (let f = 0; f < 3; f++) { const af = ry + f * 2.1; p.ref.sawit.push([I.palemF, I.palemF.tambah(x + Math.cos(af) * 0.55, h + tp - 0.35 - (f % 2) * 0.2, z + Math.sin(af) * 0.55, 1, 1.15, 1, af, false)]); }
       }
       // Api
       p.api1 = []; p.api2 = [];
@@ -273,7 +324,7 @@ export function buatObjek(scene, terrain) {
     g.scale.setScalar(1.3);
     g.position.set(x, h, z); g.rotation.y = ry; dunia.add(g);
   }
-  const palemDesa = new Inst(geo.batang, M.batang, 80), palemDesaD = new Inst(geo.tajukPalem, M.sawitDaun, 80);
+  const palemDesa = new Inst(geoSawit.batang, bahanSawit.batang, 80), palemDesaD = new Inst(geoSawit.tajuk, bahanSawit.tajuk, 80);
   DESA.forEach((d, di) => {
     const tt = TATA.desa[di];
     tt.rumah.forEach(r => rumah(r.x, r.z, r.tipe, r.ry));
@@ -284,8 +335,8 @@ export function buatObjek(scene, terrain) {
     const pd = papan(d.nama, 9, 3.4); pd.position.set(tt.papan.x, tinggi(tt.papan.x, tt.papan.z) + 5.5, tt.papan.z); pd.rotation.y = Math.PI / 2; dunia.add(pd);
     dunia.add(tiang(M.kayu, tt.papan.x, tinggi(tt.papan.x, tt.papan.z) + 2.6, tt.papan.z - 4.2, 0.2, 5.2), tiang(M.kayu, tt.papan.x, tinggi(tt.papan.x, tt.papan.z) + 2.6, tt.papan.z + 4.2, 0.2, 5.2));
     tt.palem.forEach(({ x, z }) => {
-      const h = tinggi(x, z), th = 4 + acak() * 2;
-      palemDesa.tambah(x, h, z, 0.4, th, 0.4); palemDesaD.tambah(x, h + th - 0.1, z, 2.6, 1.3, 2.6, acak() * 6);
+      const h = tinggi(x, z), th = 5 + acak() * 2;
+      palemDesa.tambah(x, h, z, 1, th, 1); palemDesaD.tambah(x, h + th, z, 1, 1, 1, acak() * 6);
     });
   });
   dunia.add(palemDesa.mesh, palemDesaD.mesh);
@@ -297,6 +348,46 @@ export function buatObjek(scene, terrain) {
   }
   [0xd6453d, 0x5aa0d6, 0xe8b83c, 0x5fb36a, 0xffffff].forEach((c, i) => { const m = new THREE.MeshLambertMaterial({ color: c }); for (let k = 0; k < 4; k++) { const x = TPA.x + (acak() - 0.5) * 36, z = TPA.z + (acak() - 0.5) * 22; dunia.add(mesh(geo.box, m, x, tinggi(x, z) + 0.4, z, 0.8, 0.5, 0.8)); } });
   const tp = papan('TPA\n(Taman Pemandangan Abadi)', 8, 3); tp.position.set(TPA.x, tinggi(TPA.x, TPA.z - 14) + 5, TPA.z - 14); dunia.add(tp);
+
+  // ----- Tempat Pemakaman Umum (TPU) -----
+  {
+    const hT = tinggi(TPU.x, TPU.z), rx = 22, rz = 18;
+    const tanahT = new THREE.MeshLambertMaterial({ color: 0x8fa56c }), gundukM = new THREE.MeshLambertMaterial({ color: 0x5a4330 }), nisanM = new THREE.MeshLambertMaterial({ color: 0xcfcabd }), pagarM = new THREE.MeshLambertMaterial({ color: 0xe8e2d2 });
+    const lantaiT = mesh(geo.box, tanahT, TPU.x, hT + 0.08, TPU.z, rx * 2, 0.16, rz * 2); dunia.add(lantaiT);
+    const pagar = (x, z, w, d) => dunia.add(mesh(geo.box, pagarM, TPU.x + x, hT + 0.7, TPU.z + z, w, 1.4, d));
+    pagar(0, -rz, rx * 2, 0.5); pagar(-rx, 0, 0.5, rz * 2); pagar(rx, 0, 0.5, rz * 2); pagar(-rx / 2 - 3.5, rz, rx - 7, 0.5); pagar(rx / 2 + 3.5, rz, rx - 7, 0.5); // pintu masuk di sisi selatan
+    [-3.2, 3.2].forEach(s => dunia.add(mesh(geo.box, pagarM, TPU.x + s, hT + 1.6, TPU.z + rz, 0.9, 3.2, 0.9)));
+    const gerbang = papan('TPU RUKUN DAMAI\n(Kavling Baru: Promo Pemilu)', 8, 2.6); gerbang.position.set(TPU.x, hT + 4.2, TPU.z + rz + 0.2); dunia.add(gerbang);
+    const gundukan = new Inst(geo.box, gundukM, 60), nisan = new Inst(geo.box, nisanM, 60), puncak = new Inst(geo.silinder, nisanM, 60);
+    const bunga = [0xe8b83c, 0xd6453d, 0xffffff].map(c => new Inst(geo.bola, new THREE.MeshLambertMaterial({ color: c }), 40));
+    let nb = 0;
+    for (let a = 0; a < 7; a++) for (let b = 0; b < 4; b++) {
+      if (acak() < 0.1) continue;
+      const x = TPU.x - rx + 5 + a * 5.6 + (acak() - 0.5) * 0.8, z = TPU.z - rz + 5 + b * 7 + (acak() - 0.5) * 0.8, ry = (acak() - 0.5) * 0.18, h = tinggi(x, z);
+      gundukan.tambah(x, h + 0.25, z + 1.2, 1.7, 0.5, 3.6, ry);
+      nisan.tambah(x, h + 0.9, z - 0.8, 1.0, 1.5, 0.22, ry); puncak.tambah(x, h + 1.65, z - 0.8, 0.5, 0.22, 0.12, ry);
+      if (acak() < 0.55 && nb < 40) { bunga[nb % 3].tambah(x + (acak() - 0.5) * 0.8, h + 0.6, z + 0.9, 0.22, 0.22, 0.22); nb++; }
+    }
+    dunia.add(gundukan.mesh, nisan.mesh, puncak.mesh, ...bunga.map(i => i.mesh));
+    // Kamboja di sudut TPU
+    const kamboja = new THREE.MeshLambertMaterial({ color: 0x3f7a3a }), putihK = new THREE.MeshLambertMaterial({ color: 0xfff4e0 });
+    [[-rx + 3, -rz + 3], [rx - 3, -rz + 3], [-rx + 3, rz - 4], [rx - 3, rz - 4]].forEach(([dx, dz]) => {
+      const x = TPU.x + dx, z = TPU.z + dz, h = tinggi(x, z);
+      dunia.add(mesh(geo.batang, M.batang, x, h, z, 0.5, 4.2, 0.5), mesh(geo.tajukBulat, kamboja, x, h + 5.4, z, 2.9, 2.2, 2.9));
+      for (let f = 0; f < 6; f++) { const a2 = f * 1.05; dunia.add(mesh(geo.bola, putihK, x + Math.cos(a2) * 2.4, h + 5 + (f % 3) * 0.6, z + Math.sin(a2) * 2.4, 0.3, 0.3, 0.3)); }
+    });
+  }
+
+  // ----- Lahan strategis Kopdes (bercuan besar) -----
+  {
+    const hE = tinggi(ZONA_EMAS.x, ZONA_EMAS.z), emas = new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.75, side: THREE.DoubleSide });
+    const cincin = new THREE.Mesh(new THREE.RingGeometry(ZONA_EMAS.r - 1.4, ZONA_EMAS.r, 40), emas); cincin.rotation.x = -Math.PI / 2; cincin.position.set(ZONA_EMAS.x, hE + 0.25, ZONA_EMAS.z); dunia.add(cincin);
+    const alas = new THREE.Mesh(new THREE.CircleGeometry(ZONA_EMAS.r - 1.4, 40), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.16, side: THREE.DoubleSide })); alas.rotation.x = -Math.PI / 2; alas.position.set(ZONA_EMAS.x, hE + 0.2, ZONA_EMAS.z); dunia.add(alas);
+    const sinar = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 60, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false })); sinar.position.set(ZONA_EMAS.x, hE + 30, ZONA_EMAS.z); dunia.add(sinar);
+    const ps = papan('LAHAN STRATEGIS KOPDES\nBangun di sini: CUAN 8x', 9, 3, { latar: '#ffe27a' }); ps.position.set(ZONA_EMAS.x, hE + 5.6, ZONA_EMAS.z - ZONA_EMAS.r + 1); dunia.add(ps);
+    [-4.2, 4.2].forEach(s => dunia.add(tiang(M.kayu, ZONA_EMAS.x + s, hE + 2.6, ZONA_EMAS.z - ZONA_EMAS.r + 0.8, 0.2, 5.2)));
+    dunia.userData.cincinEmas = cincin; dunia.userData.sinarEmas = sinar;
+  }
 
   // ----- Kantor Dinas -----
   const k = new THREE.Group();

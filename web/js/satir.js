@@ -26,6 +26,8 @@ export const PRESTASI = [
   { id: 'panas', nama: 'Panas Tapi Santai', ket: 'Panas KPK di atas 70, masih tersenyum.', ok: g => g.panas >= 70 },
   { id: 'tugas', nama: 'Anak Emas Bos', ket: 'Menuntaskan 3 penugasan Bos.', ok: g => (g.tugasOk || 0) >= 3 },
   { id: 'ispa', nama: 'Pelopor Udara Pekat', ket: '100 kasus ISPA. Pemerintah: "Itu angka pembulatan."', ok: g => (g.ispa || 0) >= 100 },
+  { id: 'emas', nama: 'Pengusaha Tanah Emas', ket: 'Membangun Kopdes di lahan strategis.', ok: g => g.bangunan.some(b => b.emas) },
+  { id: 'bubar', nama: 'Pembubar Persuasif', ket: 'Membubarkan demo dengan aparat sewaan 3 kali.', ok: g => (g.dibubarkan || 0) >= 3 },
   { id: 'tahun', nama: 'Bertahan Setahun', ket: 'Melewati satu tahun jabatan tanpa dipecat.', ok: g => g.bulan > 12 },
 ];
 
@@ -51,10 +53,12 @@ export function pilihBerita(g, k) {
   if (k.hutanPersen <= 60) p.push('Hutan menyusut. Pemerintah: "Kami menyebutnya penghijauan versi kuning."');
   if (g.stat.palak >= 5) p.push('Pungutan UMKM disebut "Program Gotong Royong Digital". Sistem digitalnya: kantong Menteri.');
   if (g.panas >= 55) p.push('KPK: "Kami hanya sedang lewat." Lewatnya sudah 3 kali.', 'Menteri tegaskan tidak pernah bertemu pihak mana pun. Foto bersama: dianggap editan.');
+  if ((g.dibubarkan || 0) > 0) p.push('Demo bubar tertib. Juru bicara: "Mereka pulang karena kangen rumah, bukan karena aparat."');
   if (g.rakyat >= 40) p.push('Rakyat berunjuk rasa. Menteri: "Itu bukan demo, itu apresiasi dengan suara keras."');
   if ((g.kasRaib || 0) > 0) p.push('Kas Kopdes belum ditemukan. Petugas: "Rekeningnya ada, hanya saja pemiliknya bukan koperasi."');
   if (k.mangkrak > 0) p.push(`${k.mangkrak} bangunan mangkrak diresmikan ulang. Gunting pitanya sama.`);
   if (g.bangunan.length === 0 && g.bulan > 2) p.push('Belum ada pembangunan. Pengamat: "Ini terobosan: nol proyek, nol temuan."');
+  if (g.bangunan.some(b => b.emas)) p.push('Kopdes di lahan strategis catat omzet fantastis. Pembukuannya hanya dimengerti pengurus dan Menteri.');
   if (g.citra >= 30) p.push('Survei citra: Menteri unggul. Respondennya Menteri, istri Menteri, dan baliho Menteri.');
   if (g.ojolMogok > 0) p.push('Ojol mogok kerja. Menteri: "Mereka sedang berlibur secara sukarela."');
   const pakai = p.length && Math.random() < 0.75 ? p : UMUM;
