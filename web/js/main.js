@@ -176,7 +176,7 @@ const V = (x, z, y = 0) => new THREE.Vector3(x, tinggi(x, z) + y, z);
 const depanPemain = (jarakD = 6, y = 1.5) => new THREE.Vector3(pemain.position.x + Math.sin(pemain.rotation.y) * jarakD, pemain.position.y + y, pemain.position.z + Math.cos(pemain.rotation.y) * jarakD);
 const NPC = buatNPC({ scene, G, tinggi, lantai, E, bunyi, toast, monolog, pemain, V, batas });
 const WAYPATH = buatWaypath({ scene, lantai });
-const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, V, batas, kilat });
+const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kilat, titik: WAYPATH.titik });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
 let fxSumber = null, fxTujuan = null;
 const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas Hukum'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
