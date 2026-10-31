@@ -220,12 +220,33 @@ function sasaranPalak() {
   return terbaik ? terbaik.u : null;
 }
 let wUcap = 0, uSapa = null;
-// Berita menutupi kartu meter (kiri) dan ucapan warga menutupi kartu status (kanan) sebentar saja
-function selaraskan() {
-  for (const [ov, kartu] of [['berita', 'kiriAtas']]) {
-    const r = $(kartu).getBoundingClientRect(), s = $(ov).style;
-    s.left = r.left + 'px'; s.top = r.top + 'px'; s.width = Math.max(r.width, 170) + 'px'; s.height = Math.max(r.height, 76) + 'px'; // kartu terlipat tetap memberi ruang bagi berita
-  }
+// ---------- Banner pengumuman (berita, juru bicara, sambutan) ----------
+const antreBanner = []; let bannerAktif = false, wBanner = 0, wKedip = 0, jedaBanner = 0;
+function posisiBanner() {
+  const e = $('berita'), r = $('misi').getBoundingClientRect();
+  if (potretLayar()) { e.style.left = '8px'; e.style.width = (innerWidth - 16) + 'px'; }
+  else { e.style.left = r.left + 'px'; e.style.width = r.width + 'px'; }
+  e.style.top = (r.bottom + 8) + 'px';
+}
+const potretLayar = () => matchMedia('(max-aspect-ratio: 1/1)').matches;
+function banner(tag, teks, varian = 'berita', durasi = 7) {
+  if (bannerAktif) { if (antreBanner.length < 2) antreBanner.push([tag, teks, varian, durasi]); return; }
+  const e = $('berita');
+  e.className = 'banner ' + varian + ' kedip';
+  e.innerHTML = '<span class="tag"><i></i></span><span class="isi"></span>';
+  e.firstChild.append(tag); e.lastChild.textContent = teks;
+  e.style.setProperty('--dur', durasi + 's');
+  posisiBanner(); void e.offsetWidth; e.classList.add('tampil', 'hitung');
+  wBanner = durasi; wKedip = 3; bannerAktif = true;
+  (varian === 'berita' ? bunyi.berita : bunyi.jubir)(); try { navigator.vibrate && navigator.vibrate(30); } catch (x) { /* abaikan */ }
+  aturTumpukan();
+}
+function tutupBanner() { wBanner = 0; }
+$('berita').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); tutupBanner(); });
+function bannerTick(dt) {
+  if (!bannerAktif) { if (antreBanner.length && (jedaBanner -= dt) <= 0) banner(...antreBanner.shift()); return; }
+  if (wKedip > 0 && (wKedip -= dt) <= 0) $('berita').classList.remove('kedip');
+  if ((wBanner -= dt) <= 0) { $('berita').classList.remove('tampil', 'hitung', 'kedip'); bannerAktif = false; jedaBanner = 0.5; aturTumpukan(); }
 }
 const vUcap = new THREE.Vector3();
 function posisiUcap() {
@@ -233,7 +254,7 @@ function posisiUcap() {
   vUcap.copy(ucapPos || pemain.position); if (!ucapPos) vUcap.y += 6.2;
   vUcap.project(kamera);
   if (vUcap.z > 1) { e.style.opacity = 0; return; }
-  let atas = $('misi').getBoundingClientRect().bottom;
+  let atas = bannerAktif ? parseFloat($('berita').style.top) + $('berita').offsetHeight : $('misi').getBoundingClientRect().bottom;
   for (const id of ['prompt', 'toast']) { const el = $(id); if (el.style.visibility === 'visible' || +el.style.opacity > 0) atas = Math.max(atas, el.getBoundingClientRect().bottom); }
   atas += 8;
   const w = e.offsetWidth, h = e.offsetHeight;
@@ -244,8 +265,12 @@ function posisiUcap() {
 function ucap(u, jenis) { const c = ucapan(u, jenis); if (c) ucapTeks(c.nama, c.teks, new THREE.Vector3(u.x, tinggi(u.x, u.z) + 7.5, u.z)); }
 let ucapPos = null;
 function ucapTeks(nama, teks, pos) {
+  if (!pos) { // pernyataan resmi: tampil sebagai banner di atas, bukan gelembung di dunia
+    const jubir = /juru bicara/i.test(nama);
+    return banner(jubir ? '📢 JUBIR' : '🎤 MENTERI', '“' + teks + '”', jubir ? 'jubir' : 'menteri', 8);
+  }
   const c = { nama, teks };
-  ucapPos = pos || null;
+  ucapPos = pos;
   const e = $('ucapan'); e.innerHTML = '<b></b><span></span>'; e.firstChild.textContent = c.nama; e.lastChild.textContent = '“' + c.teks + '”';
   e.style.opacity = 1; wUcap = 5; posisiUcap();
   if (sentuh) { $('monolog').style.opacity = 0; wMono = 0; } // layar kecil: satu suara dalam satu waktu
@@ -613,14 +638,13 @@ function satirTick(dt) {
     ispaBatas = batasIspa; ucapTeks('Juru Bicara Kementerian', DENIAL[Math.floor(Math.random() * DENIAL.length)]);
     toast(`Kasus ISPA warga: ${Math.floor(G.ispa)}. Pemerintah: "Angka ini masih dalam batas keyakinan."`); E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'ISPA NAIK', 'besar buruk');
   }
-  if (wBerita > 0 && (wBerita -= dt) <= 0 && !(wToast > 0 || wUcap > 0 ? (wBerita = 3, true) : false)) { // pesan penting didahulukan
+  if (wBerita > 0 && (wBerita -= dt) <= 0 && !(wToast > 0 || wUcap > 0 || bannerAktif ? (wBerita = 3, true) : false)) { // pesan penting didahulukan
     wBerita = 38 + Math.random() * 20;
     const hutan = Math.round(PETAK.filter(p => p.status === 'hutan').length / PETAK.length * 100);
-    $('berita').innerHTML = '<b>BERITA</b><span></span>'; $('berita').lastChild.textContent = pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length });
-    selaraskan(); $('berita').style.opacity = 1; wBeritaTampil = 6; bunyi.pop();
+    banner('BERITA', pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length }), 'berita', 7);
   }
   if (wUcap > 0) { if ((wUcap -= dt) <= 0) $('ucapan').style.opacity = 0; else posisiUcap(); }
-  if (wBeritaTampil > 0 && (wBeritaTampil -= dt) <= 0) $('berita').style.opacity = 0;
+  bannerTick(dt);
   if ((wSatir -= dt) > 0) return;
   wSatir = 1;
   const pk = pangkatDari(G.citra);
@@ -1193,6 +1217,7 @@ if (sentuh) document.body.classList.add('sentuh');
     const p = $('prompt'), t = $('toast'), n = $('monolog'), m = $('misi');
     if (!sentuh || !potret.matches) { p.style.top = t.style.top = n.style.top = ''; return; }
     let y = m.getBoundingClientRect().bottom + 6;
+    if (bannerAktif) y = parseFloat($('berita').style.top) + $('berita').offsetHeight + 6;
     p.style.top = y + 'px';
     if (p.style.visibility === 'visible') y += p.offsetHeight + 4;
     t.style.top = y + 'px';

@@ -68,5 +68,7 @@ export const bunyi = {
   tabrak() { derau(0.25, 0.3, 500); nada(90, 0.25, 'sawtooth', 0.12, 40); },
   simpan() { nada(660, 0.08, 'triangle', 0.07); nada(880, 0.1, 'triangle', 0.07, null, 0.08); },
   sirene() { nada(650, 0.45, 'sawtooth', 0.045, 920); nada(920, 0.45, 'sawtooth', 0.045, 650, 0.45); },
+  berita() { nada(880, 0.14, 'sine', 0.1, null); nada(1175, 0.18, 'sine', 0.1, null, 0.13); },
+  jubir() { nada(392, 0.16, 'square', 0.06, null); nada(330, 0.16, 'square', 0.06, null, 0.17); nada(392, 0.2, 'square', 0.06, null, 0.34); },
   pop() { nada(300, 0.1, 'sine', 0.1, 900); },
 };
