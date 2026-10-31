@@ -1,4 +1,4 @@
-// Republik Emas (anti stunting): dunia terbuka, kamera orang ketiga, mode santai tanpa akhir.
+// Republik Emas (anti gizi buruk): dunia terbuka, kamera orang ketiga, mode santai tanpa akhir.
 import * as THREE from '../vendor/three.module.js';
 import { R, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG, JALAN } from './konfig.js';
 import { tinggi, lantai, buatTerrain } from './terrain.js';
@@ -106,7 +106,7 @@ function pasangBaliho(x, z, hadap, tema, dinamis = false) {
 }
 BALIHO_AWAL.forEach(b => pasangBaliho(b.x, b.z, b.ry, b.tema));
 
-// ---------- Kendaraan: motor dekat titik mulai, mobil dinas dekat Kantor Dinas ----------
+// ---------- Kendaraan: motor dekat titik mulai, mobil dinas dekat Kantor Kementerian ----------
 const KENDARAAN = [
   { jenis: 'motor', nama: 'Motor', g: motorPemain(), x: 8, z: 22, ry: 2.4, maks: 25, belok: 2.5, duduk: 0.55 },
   { jenis: 'mobil', nama: 'Mobil Dinas', g: mobilDinas(), x: 26, z: 54, ry: Math.PI, maks: 34, belok: 1.6, duduk: 0 },
@@ -179,7 +179,7 @@ const WAYPATH = buatWaypath({ scene, lantai });
 const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, V, batas, kilat });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
 let fxSumber = null, fxTujuan = null;
-const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas KPK'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
+const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas Hukum'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
 const SIFAT = { cuan: true, restu: true, panas: false, rakyat: false, citra: true, berkas: true };
 const ambil = () => ({ cuan: G.cuan, restu: G.restu, panas: G.panas, rakyat: G.rakyat, citra: G.citra, berkas: G.berkas });
 function umumkan(a, b) {
@@ -213,7 +213,7 @@ function klasifikasi(x, z) {
 const kiosDekat = () => sasaranPalak();
 const dekatKantor = () => jarakDua(pemain.position.x, pemain.position.z, KANTOR.x, KANTOR.z) < 24;
 
-// ---------- Palak UMKM dan ojol ----------
+// ---------- Palak usaha kecil dan ojol ----------
 function sasaranPalak() {
   let terbaik = null;
   for (const u of KIOS.concat(OJOL)) { const d = jarakDua(pemain.position.x, pemain.position.z, u.x, u.z); if (d < 9 && (!terbaik || d < terbaik.d)) terbaik = { u, d }; }
@@ -277,7 +277,7 @@ function ucapTeks(nama, teks, pos) {
 }
 function palak() {
   const u = sasaranPalak();
-  if (!u) return toast('Tidak ada UMKM atau ojol di dekat Anda. Cari kios berpapan nama, atau ojol di jalan.');
+  if (!u) return toast('Tidak ada usaha kecil atau ojol di dekat Anda. Cari kios berpapan nama, atau ojol di jalan.');
   const oj = u.jenis === 'ojol';
   if (u.tutup) return toast(oj ? 'Abang ojol ini sedang mogok. Tidak ada yang bisa dipajaki.' : 'Kiosnya sudah gulung tikar. Tidak ada lagi yang bisa dipajaki.');
   if (u.cd > 0) return toast(`${oj ? 'Abang ojol' : 'Pemilik'} sedang mengawasi Anda. Tunggu ${Math.ceil(u.cd)} detik.`);
@@ -363,11 +363,11 @@ function tanam(p, oleh = null) {
   if (oleh) E.koinKeluar(pusatPetak(p, 2), 3);
   toast('Sawit ditanam. Penghasilan mengalir.'); monolog('sawit');
 }
-function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Coba PALAK UMKM atau ojol dulu.`); bunyi.blokir(); return false; } return true; }
+function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Coba PALAK USAHA KECIL atau ojol dulu.`); bunyi.blokir(); return false; } return true; }
 const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 function tandaiEmas(b) {
   b.emas = true;
-  const lb = labelSprite('KOPDES EMAS ×8', 'proses'); lb.position.set(0, 9.5, 0); b.g.add(lb); b.label = lb;
+  const lb = labelSprite('KOPERASI EMAS ×8', 'proses'); lb.position.set(0, 9.5, 0); b.g.add(lb); b.label = lb;
 }
 function pasangBangunan(jenis, x, z, rotY, skalaAwal = 1) {
   const g = jenis === 'mbg' ? bangunanMBG() : bangunanKopdes();
@@ -401,7 +401,7 @@ function bangun(jenis) {
   rec.slhs = slhs; rec.lok = l.k; NPC.dapurBaru(rec);
   if (jenis === 'kopdes' && jarakDua(x, z, ZONA_EMAS.x, ZONA_EMAS.z) < ZONA_EMAS.r + 3) {
     tandaiEmas(rec); G.cuan += 100; G.panas = batas(G.panas + 6); G.rakyat = batas(G.rakyat + 5);
-    setTimeout(() => toast('LAHAN STRATEGIS! Dana hibah +100 Cuan. Kopdes ini menghasilkan 8× lipat. Panas KPK +6, Amarah +5.'), 600);
+    setTimeout(() => toast('LAHAN STRATEGIS! Dana hibah +100 Cuan. Koperasi ini menghasilkan 8× lipat. Panas Hukum +6, Amarah +5.'), 600);
   }
   const rot = ry + Math.PI, depan = [Math.sin(rot), Math.cos(rot)], kanan = [Math.cos(rot), -Math.sin(rot)];
   const calon = [[kanan[0] * 17, kanan[1] * 17], [-kanan[0] * 17, -kanan[1] * 17], [depan[0] * 18, depan[1] * 18], [-depan[0] * 18, -depan[1] * 18]];
@@ -409,9 +409,9 @@ function bangun(jenis) {
   if (tempat) pasangBaliho(tempat[0], tempat[1], rot, undefined, true);
   const pusat = V(x, z, 2);
   fxSumber = pusat; E.semburan(pusat, 'debu', 34); E.semburan(V(x, z, 6), 'konfeti', 36); E.getar(0.5); bunyi.bangun();
-  E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPDES EMAS!', 'besar emas');
+  E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPERASI EMAS!', 'besar emas');
   PERESMIAN.mulai(x, z, rot, () => { G.cuan += rec.emas ? 60 : 12; G.citra += 2; G.panas = batas(G.panas + 1); ucapTeks('Sambutan Menteri', SAMBUTAN[Math.floor(Math.random() * SAMBUTAN.length)]); toast(rec.emas ? 'Amplop tamu undangan (lahan strategis) +60 Cuan. Citra +2.' : 'Amplop tamu undangan +12 Cuan. Citra +2.'); });
-  toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MBG)' : 'KOPDES EMAS'} berdiri ${LOKASI[l.k]}${jenis === 'mbg' ? (slhs ? ' SLHS: lengkap, di atas kertas (1 berkas terpakai).' : ' SLHS: sedang diproses (sejak 2024).') : ''}`); monolog('bangun');
+  toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MAKAN GRATIS)' : 'KOPERASI EMAS'} berdiri ${LOKASI[l.k]}${jenis === 'mbg' ? (slhs ? ' Sertifikat higiene: lengkap, di atas kertas (1 berkas terpakai).' : ' Sertifikat higiene: sedang diproses (sejak 2024).') : ''}`); monolog('bangun');
 }
 function selfie() {
   const dekat = G.bangunan.some(b => jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18);
@@ -457,8 +457,8 @@ function jalankanAksi(k) {
   else if (k === 'g') beliGelar(); else if (k === 'u') beliPupuk(); else if (k === 'o') rekrutOknum();
   else if (k === 'j') lompat(); else if (k === 'n') naikTurun(); else if (k === 'h') klakson();
   else if (k === 'r') laporan(false);
-  else if (k === 'e') { if (!dekatKantor()) toast('Berkas dibeli di Kantor Dinas.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
-  else if (k === 'k') { if (!dekatKantor()) toast('Kambing hitam dicari di Kantor Dinas.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Staf "penanggung jawab" dimutasi. Panas KPK -30.'); } }
+  else if (k === 'e') { if (!dekatKantor()) toast('Berkas dibeli di Kantor Kementerian.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
+  else if (k === 'k') { if (!dekatKantor()) toast('Kambing hitam dicari di Kantor Kementerian.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Staf "penanggung jawab" dimutasi. Panas Hukum -30.'); } }
 }
 function aksiTombol(k) {
   if (!G.jalan || G.jeda) return;
@@ -567,7 +567,7 @@ function bukaLembar() {
 
 // ---------- Penugasan Bos: tugas bertenggat setelah tutorial (inspeksi mendadak, target pajak, penghijauan) ----------
 let TUGAS = null, wTugas = 45, idTugas = 0;
-const namaBangunan = b => (b.jenis === 'mbg' ? 'Dapur MBG' : 'Kopdes');
+const namaBangunan = b => (b.jenis === 'mbg' ? 'Dapur Makan Gratis' : 'Koperasi');
 const KEGAGALAN_BOS = [
   'Bos kecewa: "Saya kira Anda bisa dipercaya. Ternyata hanya bisa dipercaya untuk lupa."',
   'Bos: "Saya tidak marah. Saya hanya mencatat. Dengan pulpen merah."',
@@ -631,7 +631,7 @@ let emasDilihat = false, wSatir = 0, wBerita = 25, wBatuk = 8, ispaBatas = 0;
 function satirTick(dt) {
   if (!G.jalan || G.jeda) return;
   tugasTick(dt);
-  if (!emasDilihat && jarakDua(pemain.position.x, pemain.position.z, ZONA_EMAS.x, ZONA_EMAS.z) < 34) { emasDilihat = true; toast('LAHAN STRATEGIS KOPDES! Bangun Kopdes di cincin emas ini: Cuan 8× lipat.'); }
+  if (!emasDilihat && jarakDua(pemain.position.x, pemain.position.z, ZONA_EMAS.x, ZONA_EMAS.z) < 34) { emasDilihat = true; toast('LAHAN STRATEGIS KOPERASI! Bangun Koperasi di cincin emas ini: Cuan 8× lipat.'); }
   if (G.kabut > 45 && (wBatuk -= dt) <= 0) { wBatuk = 7 + Math.random() * 5; E.teks(pemain.position.clone().setY(pemain.position.y + 4.2), 'UHUK! UHUK!', 'info'); bunyi.batuk(); }
   const batasIspa = Math.floor(G.ispa / 18);
   if (batasIspa > ispaBatas) {
@@ -793,7 +793,7 @@ function naikTurun() {
     return;
   }
   const k = kendaraanDekat();
-  if (!k) return toast('Tidak ada kendaraan di dekat Anda. Motor ada dekat titik mulai, mobil dinas dekat Kantor Dinas.');
+  if (!k) return toast('Tidak ada kendaraan di dekat Anda. Motor ada dekat titik mulai, mobil dinas dekat Kantor Kementerian.');
   G.naik = k; k.v = 0; G.stat.naik++; bunyi.pop(); E.semburan(V(k.x, k.z, 1), 'debu', 10);
   toast(`Naik ${k.nama}. Kemudikan dengan W/A/S/D atau joystick. Tekan ${sentuh ? 'Naik' : 'N'} lagi untuk turun.`);
 }
@@ -962,7 +962,7 @@ function update(dt) {
     else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${HARGA.tanam})`;
     else if (p.status === 'sawit') h = 'Kebun sawit: panen otomatis. Jauhkan dari api.';
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
-  } else if (dekatKantor()) h = `Kantor Dinas: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
+  } else if (dekatKantor()) h = `Kantor Kementerian: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
   setPrompt(h);
   if (u && !u.tutup && u !== uSapa && G.t > (u.sapaLagi || 0)) { ucap(u, 's'); u.sapaLagi = G.t + 60; }
   uSapa = u || null;
@@ -1016,8 +1016,8 @@ function laporan(tahunan) {
   const tahun = Math.floor((G.bulan - 1) / 12);
   $('laporanJudul').textContent = tahunan ? `Laporan Tahunan ke-${tahun}` : 'Laporan Kinerja (sementara)';
   $('laporanAlasan').textContent = tahunan ? 'Setahun berlalu. Bos meminta laporan. Anda menyiapkan dua versi.' : 'Dua versi laporan, satu kenyataan.';
-  $('laporanResmi').innerHTML = `Serapan anggaran: <b>100%</b><br>Bangunan diresmikan: <b>${G.bangunan.length}</b><br>Baliho terpasang: <b>${G.baliho}</b><br>Penerimaan pajak daerah: <b>naik ${60 + G.stat.palak * 3}%</b><br>Kasus keracunan MBG: <b>0 (hanya "reaksi tubuh")</b><br>Stunting (laporan): <b>${stuntingResmi.toFixed(1)}%</b><br>Predikat: <b>SANGAT BERKINERJA</b>`;
-  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>UMKM gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kas Kopdes masuk kantong Menteri: <b>${G.kasRaib || 0} kali</b><br>Penugasan Bos tuntas: <b>${G.tugasOk || 0}</b><br>Kasus ISPA warga: <b>${Math.floor(G.ispa || 0)}</b><br>Demo rakyat: <b>${G.demoKali || 0}</b> (dikepung ${G.dikepung || 0}, dibubarkan aparat ${G.dibubarkan || 0})<br>Pangkat: <b>${PANGKAT[G.pangkat][1]}</b><br>Prestasi: <b>${G.prestasi.length}/${PRESTASI.length}</b> ${G.prestasi.map(id => PRESTASI.find(x => x.id === id).nama).join(', ')}<br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Stunting nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
+  $('laporanResmi').innerHTML = `Serapan anggaran: <b>100%</b><br>Bangunan diresmikan: <b>${G.bangunan.length}</b><br>Baliho terpasang: <b>${G.baliho}</b><br>Penerimaan pajak daerah: <b>naik ${60 + G.stat.palak * 3}%</b><br>Kasus keracunan Makan Gratis: <b>0 (hanya "reaksi tubuh")</b><br>Stunting (laporan): <b>${stuntingResmi.toFixed(1)}%</b><br>Predikat: <b>SANGAT BERKINERJA</b>`;
+  $('laporanNyata').innerHTML = `Hutan tersisa: <b>${hutanSisa}%</b><br>Bangunan mangkrak: <b>${mangkrak} dari ${G.bangunan.length}</b><br>Usaha kecil gulung tikar: <b>${G.gulungTikar}</b><br>Ojol mogok: <b>${G.ojolMogok}</b><br>Siswa dirujuk ke puskesmas: <b>${G.korban}</b> (${G.insiden} kejadian)<br>Kas Koperasi masuk kantong Menteri: <b>${G.kasRaib || 0} kali</b><br>Penugasan Bos tuntas: <b>${G.tugasOk || 0}</b><br>Kasus ISPA warga: <b>${Math.floor(G.ispa || 0)}</b><br>Demo rakyat: <b>${G.demoKali || 0}</b> (dikepung ${G.dikepung || 0}, dibubarkan aparat ${G.dibubarkan || 0})<br>Pangkat: <b>${PANGKAT[G.pangkat][1]}</b><br>Prestasi: <b>${G.prestasi.length}/${PRESTASI.length}</b> ${G.prestasi.map(id => PRESTASI.find(x => x.id === id).nama).join(', ')}<br>Kabut puncak: <b>${Math.round(G.kabutPuncak)}/100</b><br>Gizi buruk nyata: <b>${G.stunting.toFixed(1)}%</b><br>Amarah rakyat: <b>${Math.round(G.rakyat)}/100</b>`;
   G.jeda = true; $('laporan').hidden = false;
 }
 $('lanjut').onclick = () => { $('laporan').hidden = true; G.jeda = false; };

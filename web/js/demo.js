@@ -3,8 +3,8 @@ import * as THREE from '../vendor/three.module.js';
 import { M, papan, manusiaMini } from './objek.js';
 import { sungaiX } from './konfig.js';
 
-const TULISAN = ['TURUNKAN\nHARGA!', 'HUTAN\nKAMI!', 'SAWIT BUKAN\nHUTAN', 'MANA\nJANJI?', 'UDARA\nBERSIH!', 'KOPDES\nKOSONG!', 'MBG YANG\nBENAR!'];
-const SERUAN = ['TURUNKAN HARGA!', 'MANA JANJIMU?', 'HUTAN KAMI!', 'UDARA BERSIH!', 'KOPDES KOSONG!'];
+const TULISAN = ['TURUNKAN\nHARGA!', 'HUTAN\nKAMI!', 'SAWIT BUKAN\nHUTAN', 'MANA\nJANJI?', 'UDARA\nBERSIH!', 'KOPERASI\nKOSONG!', 'MAKAN GRATIS\nYANG BENAR!'];
+const SERUAN = ['TURUNKAN HARGA!', 'MANA JANJIMU?', 'HUTAN KAMI!', 'UDARA BERSIH!', 'KOPERASI KOSONG!'];
 const BAJU = [0xb8362e, 0x3a6aa0, 0x5a8a3a, 0xc98a2a, 0x7a4a8a, 0x2f7a74].map(c => new THREE.MeshLambertMaterial({ color: c }));
 const sisi = (x, z) => (x < sungaiX(z) ? 0 : 1);
 const rand = (a, b) => a + Math.random() * (b - a);

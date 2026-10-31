@@ -1,5 +1,5 @@
 {
-  "keterangan": "Gambar latar layar awal. 'berkas' dipakai untuk layar lebar (lanskap), 'berkasPotret' untuk layar tegak. Isi null untuk tampilan polos. Lihat docs/panduan-seni/PROMPT-GAMBAR.md.",
+  "keterangan": "Gambar latar layar awal. 'berkas' dipakai untuk layar lebar (lanskap), 'berkasPotret' untuk layar tegak. Isi null untuk tampilan polos.",
   "berkas": "menu-lanskap.jpg",
   "berkasPotret": "menu-potret.jpg"
 }

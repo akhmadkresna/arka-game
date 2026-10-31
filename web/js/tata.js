@@ -11,7 +11,7 @@ export function tambahJejak(x, z, r, n = '') { FOOT.push({ x, z, r, n }); }
 export const BALIHO_AWAL = [
   { x: -30, z: 18, ry: 0.5 },
   { x: 32, z: 26, ry: -0.5, tema: 'EMAS UNTUK\nSEMUA (KECUALI ANDA)' },
-  { x: 60, z: 24, ry: 0.2, tema: 'PAJAK ITU\nGOTONG ROYONG' },
+  { x: 60, z: 24, ry: 0.2, tema: 'PAJAK ITU\nSUMBANGAN SUKARELA' },
 ];
 
 // Benda tetap

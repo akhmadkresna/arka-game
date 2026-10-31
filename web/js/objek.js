@@ -347,7 +347,7 @@ export function buatObjek(scene, terrain) {
     dunia.add(mesh(geo.kerucut, M.sampah, x, tinggi(x, z) + s * 0.4, z, s * 1.3, s, s * 1.3));
   }
   [0xd6453d, 0x5aa0d6, 0xe8b83c, 0x5fb36a, 0xffffff].forEach((c, i) => { const m = new THREE.MeshLambertMaterial({ color: c }); for (let k = 0; k < 4; k++) { const x = TPA.x + (acak() - 0.5) * 36, z = TPA.z + (acak() - 0.5) * 22; dunia.add(mesh(geo.box, m, x, tinggi(x, z) + 0.4, z, 0.8, 0.5, 0.8)); } });
-  const tp = papan('TPA\n(Taman Pemandangan Abadi)', 8, 3); tp.position.set(TPA.x, tinggi(TPA.x, TPA.z - 14) + 5, TPA.z - 14); dunia.add(tp);
+  const tp = papan('TEMPAT PEMBUANGAN\n(Taman Pemandangan Abadi)', 8, 3); tp.position.set(TPA.x, tinggi(TPA.x, TPA.z - 14) + 5, TPA.z - 14); dunia.add(tp);
 
   // ----- Tempat Pemakaman Umum (TPU) -----
   {
@@ -357,7 +357,7 @@ export function buatObjek(scene, terrain) {
     const pagar = (x, z, w, d) => dunia.add(mesh(geo.box, pagarM, TPU.x + x, hT + 0.7, TPU.z + z, w, 1.4, d));
     pagar(0, -rz, rx * 2, 0.5); pagar(-rx, 0, 0.5, rz * 2); pagar(rx, 0, 0.5, rz * 2); pagar(-rx / 2 - 3.5, rz, rx - 7, 0.5); pagar(rx / 2 + 3.5, rz, rx - 7, 0.5); // pintu masuk di sisi selatan
     [-3.2, 3.2].forEach(s => dunia.add(mesh(geo.box, pagarM, TPU.x + s, hT + 1.6, TPU.z + rz, 0.9, 3.2, 0.9)));
-    const gerbang = papan('TPU RUKUN DAMAI\n(Kavling Baru: Promo Pemilu)', 8, 2.6); gerbang.position.set(TPU.x, hT + 4.2, TPU.z + rz + 0.2); dunia.add(gerbang);
+    const gerbang = papan('PEMAKAMAN RUKUN DAMAI\n(Kavling Baru: Promo Pemilihan)', 8, 2.6); gerbang.position.set(TPU.x, hT + 4.2, TPU.z + rz + 0.2); dunia.add(gerbang);
     const gundukan = new Inst(geo.box, gundukM, 60), nisan = new Inst(geo.box, nisanM, 60), puncak = new Inst(geo.silinder, nisanM, 60);
     const bunga = [0xe8b83c, 0xd6453d, 0xffffff].map(c => new Inst(geo.bola, new THREE.MeshLambertMaterial({ color: c }), 40));
     let nb = 0;
@@ -378,23 +378,23 @@ export function buatObjek(scene, terrain) {
     });
   }
 
-  // ----- Lahan strategis Kopdes (bercuan besar) -----
+  // ----- Lahan strategis Koperasi (bercuan besar) -----
   {
     const hE = tinggi(ZONA_EMAS.x, ZONA_EMAS.z), emas = new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.75, side: THREE.DoubleSide });
     const cincin = new THREE.Mesh(new THREE.RingGeometry(ZONA_EMAS.r - 1.4, ZONA_EMAS.r, 40), emas); cincin.rotation.x = -Math.PI / 2; cincin.position.set(ZONA_EMAS.x, hE + 0.25, ZONA_EMAS.z); dunia.add(cincin);
     const alas = new THREE.Mesh(new THREE.CircleGeometry(ZONA_EMAS.r - 1.4, 40), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.16, side: THREE.DoubleSide })); alas.rotation.x = -Math.PI / 2; alas.position.set(ZONA_EMAS.x, hE + 0.2, ZONA_EMAS.z); dunia.add(alas);
     const sinar = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 60, 12, 1, true), new THREE.MeshBasicMaterial({ color: 0xffd23a, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false })); sinar.position.set(ZONA_EMAS.x, hE + 30, ZONA_EMAS.z); dunia.add(sinar);
-    const ps = papan('LAHAN STRATEGIS KOPDES\nBangun di sini: CUAN 8x', 9, 3, { latar: '#ffe27a' }); ps.position.set(ZONA_EMAS.x, hE + 5.6, ZONA_EMAS.z - ZONA_EMAS.r + 1); dunia.add(ps);
+    const ps = papan('LAHAN STRATEGIS KOPERASI\nBangun di sini: CUAN 8x', 9, 3, { latar: '#ffe27a' }); ps.position.set(ZONA_EMAS.x, hE + 5.6, ZONA_EMAS.z - ZONA_EMAS.r + 1); dunia.add(ps);
     [-4.2, 4.2].forEach(s => dunia.add(tiang(M.kayu, ZONA_EMAS.x + s, hE + 2.6, ZONA_EMAS.z - ZONA_EMAS.r + 0.8, 0.2, 5.2)));
     dunia.userData.cincinEmas = cincin; dunia.userData.sinarEmas = sinar;
   }
 
-  // ----- Kantor Dinas -----
+  // ----- Kantor Kementerian -----
   const k = new THREE.Group();
   k.add(kotak(M.kantor, 0, 6, 0, 22, 12, 12), mesh(prisma(24, 4, 13), M.atapAbu, 0, 12, 0), kotak(M.batu, 0, 0.4, 6.8, 24, 0.8, 3));
   for (let i = -2; i <= 2; i++) k.add(tiang(M.putih, i * 4.4, 5.6, 7.6, 0.6, 11));
   for (let i = -2; i <= 2; i++) k.add(kotak(M.kaca, i * 4.4, 8, 6.05, 2.2, 3, 0.1));
-  const pk = papan('KANTOR DINAS\nBerkas & Kambing Hitam', 14, 4.4); pk.position.set(0, 13.6, 7.2); k.add(pk);
+  const pk = papan('KANTOR KEMENTERIAN\nBerkas & Kambing Hitam', 14, 4.4); pk.position.set(0, 13.6, 7.2); k.add(pk);
   k.position.set(KANTOR.x, tinggi(KANTOR.x, KANTOR.z), KANTOR.z); dunia.add(k);
 
   // ----- Pesisir: perahu kecil dan rambu -----
@@ -434,7 +434,7 @@ export function bangunanMBG() {
   const a = kotak(M.tembok, 0, 3, 0, 11, 6, 8), b = mesh(prisma(12.4, 3.2, 9), M.atapMerah, 0, 6, 0), c = kotak(M.krem, -3.2, 7.6, -1, 1.2, 4, 1.2);
   g.add(a, b, c, kotak(M.emas, 0, 6.05, 4.1, 11.2, 0.4, 0.2), kotak(M.kaca, -2.8, 3.4, 4.05, 3, 1.8, 0.1), kotak(M.kayu, 3, 2, 4.05, 1.8, 4, 0.1), kotak(M.putih, -2.8, 2.2, 4.4, 3.2, 0.3, 0.9));
   for (let i = 0; i < 4; i++) g.add(kotak(M.emas, -4 + i * 1.1, 2.55, 4.45, 0.9, 0.2, 0.7));
-  const pn = papan('DAPUR EMAS (MBG)', 9, 2.4); pn.position.set(0, 8.8, 4.3); g.add(pn);
+  const pn = papan('DAPUR EMAS (MAKAN GRATIS)', 9, 2.4); pn.position.set(0, 8.8, 4.3); g.add(pn);
   [-1, 1].forEach(s => g.add(mesh(geo.silinder, M.atapHijau, s * 6.2, 0.9, 5.2, 0.6, 0.9, 0.6)));
   return tandai(g, [a, b, c]);
 }
@@ -444,7 +444,7 @@ export function bangunanKopdes() {
   g.add(a, b, v, kotak(M.kaca, -3.6, 2.8, 4.05, 3, 2, 0.1), kotak(M.kaca, 3.6, 2.8, 4.05, 3, 2, 0.1), kotak(M.kayu, 0, 1.8, 4.05, 1.8, 3.6, 0.1));
   for (const x of [-5, 5]) g.add(tiang(M.putih, x, 2.6, 4.9, 0.3, 5.2));
   g.add(kotak(M.atapHijau, 0, 5.3, 4.8, 12.6, 0.3, 2));
-  const pn = papan('KOPDES EMAS', 9, 2.4); pn.position.set(0, 7.9, 4.3); g.add(pn);
+  const pn = papan('KOPERASI EMAS', 9, 2.4); pn.position.set(0, 7.9, 4.3); g.add(pn);
   return tandai(g, [a, b, v]);
 }
 export function mangkrakkan(g) {
@@ -582,7 +582,7 @@ export function bangunanPuskesmas() {
   const g = new THREE.Group(), merah = new THREE.MeshLambertMaterial({ color: 0xd6302a });
   g.add(kotak(M.putih, 0, 2.6, 0, 14, 5.2, 8), kotak(M.atapAbu, 0, 5.4, 0, 15, 0.5, 9), kotak(M.kaca, -4, 2.8, 4.05, 3, 1.8, 0.1), kotak(M.kaca, 4, 2.8, 4.05, 3, 1.8, 0.1), kotak(M.kayu, 0, 1.5, 4.05, 1.6, 3, 0.1));
   g.add(kotak(merah, 0, 7.0, 4.0, 3.2, 0.9, 0.3), kotak(merah, 0, 7.0, 4.0, 0.9, 3.2, 0.3));
-  const pn = papan('PUSKESMAS MAKMUR\nBuka 08.00-12.00', 9, 2.6); pn.position.set(0, 4.6, 4.3); g.add(pn);
+  const pn = papan('KLINIK RAKYAT MAKMUR\nBuka 08.00-12.00', 9, 2.6); pn.position.set(0, 4.6, 4.3); g.add(pn);
   g.add(kotak(M.atapAbu, 9.5, 3.4, 0, 6, 0.3, 6.5)); [[-2.7, -3], [-2.7, 3], [2.7, -3], [2.7, 3]].forEach(([x, z]) => g.add(tiang(M.putih, 9.5 + x, 1.7, z, 0.2, 3.4)));
   return g;
 }

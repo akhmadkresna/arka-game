@@ -15,7 +15,7 @@ export const MONOLOG = {
   pupuk: ['Pupuk bersubsidi, hasil non-subsidi. Itu namanya efisiensi.'],
   oknum: ['Rekrut oknum baru. Dia bekerja, saya bertanggung jawab (atas fotonya).'],
   gelar: ['Gelar baru. Ilmu? Itu urusan belakangan.'],
-  palak: ['Itu bukan memalak. Itu "kontribusi sukarela yang diwajibkan".', 'UMKM kuat kalau rajin berkontribusi. Pada saya.'],
+  palak: ['Itu bukan memalak. Itu "kontribusi sukarela yang diwajibkan".', 'Usaha kecil kuat kalau rajin berkontribusi. Pada saya.'],
   palakGagal: ['Pemilik kiosnya tidak paham konsep "pajak". Sungguh kurang edukasi.', 'Videonya viral. Pasti editan.'],
   aparat: ['Aparat sewaan: pengawal yang loyal selama bayarannya lancar.'],
   tutup: ['Kiosnya tutup? Berarti pajaknya sudah lunas. Selamanya.'],
@@ -41,20 +41,20 @@ export const LOKASI = {
   sawah: 'di tengah sawah produktif. Padinya pindah ke dalam laporan.',
   tpa: 'persis di samping tempat pembuangan sampah. Baunya ikut diresmikan.',
   hutan: 'di tengah hutan, jauh dari penduduk mana pun.',
-  kantor: 'di halaman kantor dinas, demi efisiensi foto.',
+  kantor: 'di halaman kantor kementerian, demi efisiensi foto.',
   bukit: 'di puncak bukit berangin. Tidak ada jalan, tapi pemandangannya bagus untuk baliho.',
   kosong: 'di lahan kosong tanpa jalan, tanpa air, tanpa penduduk.',
 };
 
 // Kartu denda: kegagalan di mode santai hanyalah kerugian
 export const DENDA = {
-  restu: ['Direshuffle (jabatan baru, nasib sama)', 'Bos kehilangan kepercayaan. Anda dipindah ke kementerian yang sama dengan nama berbeda. Denda administrasi 40% Cuan. Restu Bos dipulihkan ke 45.'],
-  panas: ['Dipanggil KPK (hanya sebagai saksi)', 'Berkas diperiksa, kambing hitam disita. Denda 40% Cuan. Berkas habis. Panas KPK turun ke 25.'],
+  restu: ['Dirotasi (jabatan baru, nasib sama)', 'Bos kehilangan kepercayaan. Anda dipindah ke kementerian yang sama dengan nama berbeda. Denda administrasi 40% Cuan. Restu Bos dipulihkan ke 45.'],
+  panas: ['Dipanggil Lembaga Antikorupsi (hanya sebagai saksi)', 'Berkas diperiksa, kambing hitam disita. Denda 40% Cuan. Berkas habis. Panas Hukum turun ke 25.'],
   rakyat: ['Demo besar di depan kantor', 'Rakyat turun ke jalan membawa panci. Anda "berdialog" dengan mereka, 30% Cuan hilang sebagai biaya dialog. Amarah turun ke 35.'],
 };
 
 // Panduan misi. {x} dst. diganti nama tombol sesuai perangkat. buka = tombol yang relevan (null = semua).
-export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'MBG', '2': 'Kopdes', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
+export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'Dapur', '2': 'Koperasi', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
 export const MISI = [
   { ringkas: 'Ke warung/ojol terdekat bertanda panah, ketuk {x}. {v} = pasti berhasil.', teks: 'Tidak punya modal? Jalan ke warung atau ojol terdekat yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
   { ringkas: 'Ke hutan bertanda panah, ketuk {b} (gratis).', teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },
@@ -62,7 +62,7 @@ export const MISI = [
   { ringkas: 'Ulangi {b} lalu {p} sampai 3 petak sawit. Kehabisan Cuan? {x}.', teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },
   { ringkas: 'Ke titik bertanda (jauh dari desa), hadap tanah kosong, ketuk {1}.', teks: 'Bangun dapur: jalan ke titik yang ditandai (jauh dari desa), hadapkan tokoh ke tanah kosong, lalu tekan {1}.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
   { ringkas: 'Hadap ke desa lalu ketuk {1}. Lihat apa yang terjadi.', teks: 'Sekarang coba bangun dekat desa: hadapkan tokoh ke desa, lalu tekan {1}. Lihat apa yang terjadi.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
-  { ringkas: 'Ke motor bertanda, ketuk {n}; ketuk lagi untuk turun. {j} = lompat.', teks: 'Naik kendaraan: jalan ke motor yang ditandai, lalu tekan {n}. Kemudikan dengan W/A/S/D atau joystick dan tekan {n} lagi untuk turun. Mobil dinas ada di dekat Kantor Dinas. {j} untuk lompat.', buka: ['n', 'j', 'h', 'x', 'v'] },
+  { ringkas: 'Ke motor bertanda, ketuk {n}; ketuk lagi untuk turun. {j} = lompat.', teks: 'Naik kendaraan: jalan ke motor yang ditandai, lalu tekan {n}. Kemudikan dengan W/A/S/D atau joystick dan tekan {n} lagi untuk turun. Mobil dinas ada di dekat Kantor Kementerian. {j} untuk lompat.', buka: ['n', 'j', 'h', 'x', 'v'] },
   { ringkas: 'Bos menagih setoran tiap bulan. Beli {u}, rekrut {o}, atau sewa {v}. Tanpa akhir!', teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Ojol di jalan juga bisa dipalak. Selamat bertugas, tanpa akhir!', buka: null },
 ];
 

@@ -1,4 +1,4 @@
-// NPC dan kejadian di sekitar dapur MBG: murid, guru, juru masak, pengantar, wartawan, ambulans.
+// NPC dan kejadian di sekitar dapur Makan Gratis: murid, guru, juru masak, pengantar, wartawan, ambulans.
 // Catatan kepekaan: korban keracunan tidak digambarkan. Ambulans hanya berlabel jumlah siswa yang dirujuk,
 // dan sasaran satirnya adalah jawaban pejabat serta pembiaran, bukan anak-anak.
 import * as THREE from '../vendor/three.module.js';
@@ -49,7 +49,7 @@ export function buatNPC(d) {
   const SEKOLAH = [];
   TATA.desa.forEach((t, di) => {
     const sk = t.sekolah; if (!sk) return;
-    const g = bangunanSekolah('SD NEGERI HARAPAN ' + String(di + 1).padStart(2, '0'));
+    const g = bangunanSekolah('SEKOLAH DASAR HARAPAN ' + String(di + 1).padStart(2, '0'));
     g.position.set(sk.x, tinggi(sk.x, sk.z), sk.z); g.rotation.y = sk.ry; scene.add(g);
     const f = [Math.sin(sk.ry), Math.cos(sk.ry)], r = [Math.cos(sk.ry), -Math.sin(sk.ry)];
     const s = { x: sk.x, z: sk.z, f, r, pusat: { x: sk.x + f[0] * 15, z: sk.z + f[1] * 15 }, anak: [], kumpul: null };
@@ -64,7 +64,7 @@ export function buatNPC(d) {
     const pl = papan('KEGIATAN BELAJAR LIBUR\nSiswa sedang dirawat', 9, 2.6, { latar: '#f2b8a8', warna: '#5a1208' });
     pl.position.set(0, 3.4, 9.4); pl.visible = false; g.add(pl);
     for (const sx of [-4.2, 4.2]) { const tiang = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, 0.3), M.kayu); tiang.position.set(sx, 1.7, 9.4); tiang.visible = false; g.add(tiang); (s.tiang = s.tiang || []).push(tiang); }
-    s.papan = pl; s.absen = 0; s.kejadian = 0; s.libur = false; s.pulihSisa = 0; s.nama = 'SD Negeri Harapan ' + String(di + 1).padStart(2, '0');
+    s.papan = pl; s.absen = 0; s.kejadian = 0; s.libur = false; s.pulihSisa = 0; s.nama = 'Sekolah Dasar Harapan ' + String(di + 1).padStart(2, '0');
     SEKOLAH.push(s);
   });
   function setLibur(s, v) { s.libur = v; s.papan.visible = v; s.tiang.forEach(t => { t.visible = v; }); }
@@ -96,7 +96,7 @@ export function buatNPC(d) {
     }
   }
 
-  // ---------- Puskesmas dan ambulans ----------
+  // ---------- Klinik dan ambulans ----------
   const pk = TATA.desa[0] && TATA.desa[0].puskesmas;
   let parkir = null;
   if (pk) {
@@ -144,7 +144,7 @@ export function buatNPC(d) {
       else if (a.mode === 'antar') {
         teksLabel(a, `RUJUK ${a.n} SISWA`); a.v = 19;
         if (ikuti(a, dt, 19)) { a.mode = 'tiba'; a.timer = 2.5; G.korban += a.n; E.teks(new THREE.Vector3(a.x, a.g.position.y + 5, a.z), `${a.n} siswa dirujuk`, 'besar buruk'); bunyi.pop(); }
-      } else if (a.mode === 'tiba') { a.v = 0; teksLabel(a, 'TIBA DI PUSKESMAS', 'tutup'); if ((a.timer -= dt) <= 0) { a.n = 0; a.mode = 'kembali'; const t = a.pts ? titikTerdekat(a, a.x, a.z) : { x: parkir ? parkir.x : a.x, z: parkir ? parkir.z : a.z, s: 0 }; a.sKembali = t.s; a.rute = rute(a, t); a.idx = 0; } }
+      } else if (a.mode === 'tiba') { a.v = 0; teksLabel(a, 'TIBA DI KLINIK', 'tutup'); if ((a.timer -= dt) <= 0) { a.n = 0; a.mode = 'kembali'; const t = a.pts ? titikTerdekat(a, a.x, a.z) : { x: parkir ? parkir.x : a.x, z: parkir ? parkir.z : a.z, s: 0 }; a.sKembali = t.s; a.rute = rute(a, t); a.idx = 0; } }
       else if (a.mode === 'kembali') { a.v = 12; if (ikuti(a, dt, 12)) { if (a.pts) { a.s = a.sKembali; a.mode = 'patroli'; } else a.mode = 'parkir'; } }
       taruh(a, dt);
       a.g.userData.roda.forEach(r => { r.rotation.x += a.v * dt * 1.6; });
@@ -163,15 +163,15 @@ export function buatNPC(d) {
     return bebas.length;
   }
 
-  // ---------- Dapur: label SLHS, juru masak ----------
+  // ---------- Dapur: label sertifikat higiene, juru masak ----------
   function labelDapur(b) {
-    if (!b.label) { b.label = labelSprite('SLHS', 'proses'); b.label.position.set(0, 11.8, 0); b.g.add(b.label); }
+    if (!b.label) { b.label = labelSprite('sertifikat higiene', 'proses'); b.label.position.set(0, 11.8, 0); b.g.add(b.label); }
     const ditutup = G.t < (b.sampai || 0);
     const kunci = b.mangkrak ? 'mangkrak' : ditutup ? 'tutup' : b.slhs ? 'ada' : 'proses';
     if (b.labelKunci === kunci) return;
     b.labelKunci = kunci;
     if (kunci === 'mangkrak') b.label.visible = false;
-    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP SEMENTARA' : kunci === 'ada' ? 'SLHS: ADA (DI KERTAS)' : 'SLHS: PROSES (SEJAK 2024)', kunci); }
+    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP SEMENTARA' : kunci === 'ada' ? 'Sertifikat higiene: ADA (DI KERTAS)' : 'Sertifikat higiene: PROSES (SEJAK 2024)', kunci); }
   }
   function tambahJuru(b) {
     const rot = b.g.rotation.y, f = [Math.sin(rot), Math.cos(rot)], r = [Math.cos(rot), -Math.sin(rot)];
@@ -189,7 +189,7 @@ export function buatNPC(d) {
   function kirimPengantar(b) {
     if (PENGANTAR.length >= 3 || !SEKOLAH.length) return;
     const s = SEKOLAH.slice().sort((p, q) => dist(p.x, p.z, b.x, b.z) - dist(q.x, q.z, b.x, b.z))[0];
-    const g = ojol(PENGANTAR.length + 5), lb = labelSprite('ANTAR MBG', 'ada'); lb.position.set(0, 4.4, 0); g.add(lb); scene.add(g);
+    const g = ojol(PENGANTAR.length + 5), lb = labelSprite('ANTAR MAKANAN', 'ada'); lb.position.set(0, 4.4, 0); g.add(lb); scene.add(g);
     const dari = { x: b.x + Math.sin(b.g.rotation.y) * 11, z: b.z + Math.cos(b.g.rotation.y) * 11 };
     PENGANTAR.push({ g, x: dari.x, z: dari.z, ry: 0, dapur: dari, sekolah: s, fase: 'pergi', rute: rute(dari, s.pusat), idx: 0, timer: 0 });
   }
@@ -226,11 +226,11 @@ export function buatNPC(d) {
     }
   }
 
-  // ---------- Kopdes: bendahara membawa kabur kas ----------
+  // ---------- Koperasi: bendahara membawa kabur kas ----------
   const KABUR = [
-    'Bendahara Kopdes menyetor "uang terima kasih" ke kantong Bapak Menteri. Pembukuan: tidak pernah ada.',
-    'Kas Kopdes "diamankan" ke kantong Menteri. Anggota koperasi dijanjikan sisa-sisanya.',
-    'Laporan Kopdes: kas aman. Posisi kas: di saku jas Menteri. Sangat aman.',
+    'Bendahara Koperasi menyetor "uang terima kasih" ke kantong Bapak Menteri. Pembukuan: tidak pernah ada.',
+    'Kas Koperasi "diamankan" ke kantong Menteri. Anggota koperasi dijanjikan sisa-sisanya.',
+    'Laporan Koperasi: kas aman. Posisi kas: di saku jas Menteri. Sangat aman.',
     'Juru bicara: "Dana itu bukan hilang, melainkan dipindahkan ke pihak yang lebih berjasa."',
   ];
   const PENGURUS = [];
@@ -238,7 +238,7 @@ export function buatNPC(d) {
     const untung = Math.floor(rand(25, 55)) * (b.emas ? 3 : 1);
     b.sampai = G.t + 40; G.kasRaib = (G.kasRaib || 0) + 1;
     G.cuan += untung; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3);
-    E.teks(V(b.x, b.z, 7), `KAS KOPDES MASUK KANTONG +${untung}`, 'besar emas');
+    E.teks(V(b.x, b.z, 7), `KAS KOPERASI MASUK KANTONG +${untung}`, 'besar emas');
     toast(KABUR[Math.floor(Math.random() * KABUR.length)]);
     const g = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x7a4a2a }), M.hitam, 0.5);
     const karung = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), new THREE.MeshLambertMaterial({ color: 0xd9b66a }));

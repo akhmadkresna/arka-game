@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Republik Emas (anti stunting)</title>
+<title>Republik Emas (anti gizi buruk)</title>
 <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
 <div id="hud">
   <div id="kiriAtas">
     <div class="baris"><span>Restu Bos</span><div class="bar baik"><i id="bRestu"></i></div></div>
-    <div class="baris"><span>Panas KPK</span><div class="bar bahaya"><i id="bPanas"></i></div></div>
+    <div class="baris"><span>Panas Hukum</span><div class="bar bahaya"><i id="bPanas"></i></div></div>
     <div class="baris"><span>Amarah Rakyat</span><div class="bar bahaya"><i id="bRakyat"></i></div></div>
     <div class="baris"><span>Kabut</span><div class="bar netral"><i id="bKabut"></i></div></div>
     <div id="miniMeter" title="Meter"><i id="mRestu" class="baik"></i><i id="mPanas" class="bahaya"></i><i id="mRakyat" class="bahaya"></i><i id="mKabut" class="netral"></i></div>
@@ -30,7 +30,7 @@
     <div class="angka rinci">Pangkat: <b id="pangkat"></b></div>
     <div class="angka rinci">Kasus ISPA: <b id="ispa">0</b></div>
     <div class="angka rinci">Citra <b id="citra">0</b> · Berkas <b id="berkas">0</b></div>
-    <div class="angka rinci">Hutan <b id="hutan">100%</b> · Stunting <b id="stunting">20.0%</b></div>
+    <div class="angka rinci">Hutan <b id="hutan">100%</b> · Gizi buruk <b id="stunting">20.0%</b></div>
     <div class="angka rinci">Siswa dirujuk <b id="korban">0</b></div>
     <div class="angka" id="aparat"></div>
     <div class="rinci" id="tombolRinci"><button id="btnLaporan">Laporan</button> <button id="btnSuara">Suara: hidup</button> <button id="btnMusik">Musik: hidup</button> <button id="btnSimpan">Simpan</button></div>
@@ -44,8 +44,8 @@
   <div id="ucapan"></div>
   <div id="monolog"></div>
   <div id="bantuan">WASD/panah: jalan · Shift: lari · Seret mouse: putar kamera · Roda: zoom · R: laporan<br>
-    <kbd>X</kbd> palak UMKM · <kbd>V</kbd> sewa aparat · <kbd>B</kbd> bakar · <kbd>T</kbd> tebang · <kbd>P</kbd> tanam sawit · <kbd>1</kbd> dapur MBG · <kbd>2</kbd> Kopdes · <kbd>F</kbd> selfie · <kbd>C</kbd> konferensi pers<br>
-    <kbd>U</kbd> pupuk · <kbd>O</kbd> oknum · <kbd>G</kbd> gelar · <kbd>E</kbd>/<kbd>K</kbd> berkas/kambing hitam (di Kantor Dinas)<br>
+    <kbd>X</kbd> palak usaha kecil · <kbd>V</kbd> sewa aparat · <kbd>B</kbd> bakar · <kbd>T</kbd> tebang · <kbd>P</kbd> tanam sawit · <kbd>1</kbd> dapur Makan Gratis · <kbd>2</kbd> Koperasi · <kbd>F</kbd> selfie · <kbd>C</kbd> konferensi pers<br>
+    <kbd>U</kbd> pupuk · <kbd>O</kbd> oknum · <kbd>G</kbd> gelar · <kbd>E</kbd>/<kbd>K</kbd> berkas/kambing hitam (di Kantor Kementerian)<br>
     <kbd>Spasi</kbd> lompat · <kbd>N</kbd> naik/turun motor atau mobil dinas · <kbd>H</kbd> klakson · progres tersimpan otomatis</div>
 </div>
 
@@ -53,7 +53,7 @@
   <div id="joy"><div id="knob"></div></div>
   <div id="aksiSentuh">
     <button data-k="x">Palak</button><button data-k="v">Aparat<small id="hargaAparat"></small></button><button data-k="b">Bakar</button><button data-k="t">Tebang</button><button data-k="p">Tanam</button>
-    <button data-k="1">MBG</button><button data-k="2">Kopdes</button><button data-k="f">Selfie</button><button data-k="c">Pers</button><button data-k="e">Berkas</button>
+    <button data-k="1">Dapur</button><button data-k="2">Koperasi</button><button data-k="f">Selfie</button><button data-k="c">Pers</button><button data-k="e">Berkas</button>
     <button data-k="k">Kambing</button><button data-k="u">Pupuk<small id="hargaPupuk"></small></button><button data-k="o">Oknum<small id="hargaOknum"></small></button><button data-k="g">Gelar<small id="hargaGelar"></small></button>
     <button data-k="j">Lompat</button><button data-k="n">Naik</button><button data-k="h">Klakson</button>
   </div>
@@ -69,12 +69,12 @@
 
 <div id="judul" class="layar">
   <div id="latarMenu"></div>
-  <div id="logoMenu"><h1>REPUBLIK EMAS</h1><h2>(anti stunting)</h2><p>Simulator Menteri Paling Berjasa Sepanjang Masa</p></div>
+  <div id="logoMenu"><h1>REPUBLIK EMAS</h1><h2>(anti gizi buruk)</h2><p>Simulator Menteri Paling Berjasa Sepanjang Masa</p></div>
   <div class="kotak">
     <h1>REPUBLIK EMAS</h1>
-    <h2>(anti stunting)</h2>
+    <h2>(anti gizi buruk)</h2>
     <p class="sub">Simulator Menteri Paling Berjasa Sepanjang Masa</p>
-    <p>Anda <b>Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M.</b>, menteri terbaik yang pernah ada (menurut Anda). Tidak punya modal? Tarik "pajak" dari UMKM. Bakar hutan, tanam sawit, bangun dapur dan koperasi di tempat yang salah. Tidak ada akhir, hanya laporan tahunan.</p>
+    <p>Anda <b>Dr. (H.C.) Ir. H. Bambang Jaya Wijaya Kusuma Perkasa, S.E., M.M.</b>, menteri terbaik yang pernah ada (menurut Anda). Tidak punya modal? Tarik "pajak" dari usaha kecil. Bakar hutan, tanam sawit, bangun dapur dan koperasi di tempat yang salah. Tidak ada akhir, hanya laporan tahunan.</p>
     <p class="redup">Musik latar orisinal (disintesis di peramban). Pulau, tokoh, dan lembaga dalam game ini fiktif. Kemiripan hanyalah kebetulan yang sangat sistemik. Anda di sini adalah pihak yang salah, dan akibatnya akan terlihat.</p>
     <p id="infoSimpan" class="redup"></p>
     <button id="lanjutkan" hidden>Lanjutkan</button>
