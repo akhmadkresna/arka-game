@@ -86,3 +86,13 @@ body.sentuh #btnBantuan{display:none}
 body #bantuan{display:none}
 body #bantuan.buka{display:block;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);bottom:auto;right:auto;width:min(700px,92vw);padding:22px 26px;text-align:left;font-size:.98rem;line-height:2;color:#3b2a14;text-shadow:none;border:14px solid transparent;border-image:url(../assets/kenney/ui/panel_beige.png) 14 fill/14px/0 stretch;pointer-events:auto;z-index:8}
 body #bantuan .jb{display:block;font-size:1.1rem;color:#7a3a0a;margin-bottom:4px}
+
+/* ===== Fase 2 UX: satu tombol utama, menu aksi berkelompok, pilihan Bangun ===== */
+body #lembarGrid h4.seksi{grid-column:1/-1;margin:8px 0 0;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:#7a3a0a}
+body #lembarGrid h4.seksi:first-child{margin-top:0}
+body #lembarGrid.satu{grid-template-columns:1fr}
+body #lembarGrid .kartuBangun{flex-direction:row;justify-content:flex-start;gap:14px;text-align:left;min-height:78px;padding:0 10px}
+body #lembarGrid .kartuBangun .ik{width:34px;height:34px;margin:0;flex:none}
+body #lembarGrid .kartuBangun span{display:flex;flex-direction:column;gap:2px}
+body #lembarGrid .kartuBangun b{font-size:1.05rem}
+body #lembarGrid .kartuBangun small{font-size:.8rem;font-weight:400;opacity:.9}

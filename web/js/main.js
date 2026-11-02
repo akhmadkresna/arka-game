@@ -165,7 +165,7 @@ let monologTerakhir = -99;
 function monolog(kunci) { if (wToast > 0 || wUcap > 0 || bannerAktif || waktu - monologTerakhir < 25) return; monologTerakhir = waktu; $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
 function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warna; f.style.transition = 'none'; f.style.opacity = 0.85; requestAnimationFrame(() => { f.style.transition = 'opacity .6s'; f.style.opacity = 0; }); }
 // Nama tombol sesuai perangkat: ponsel menampilkan nama tombol, komputer menampilkan hurufnya
-const tb = k => `<kbd>${sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
+const tb = k => `<kbd>${k === 'B' ? (sentuh ? 'Bangun' : '1/2') : sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
 const isiTombol = teks => teks.replace(/\{(\w)\}/g, (_, k) => tb(k));
 let promptLama = '';
 let aturTumpukan = () => {};
@@ -537,41 +537,64 @@ function perbaruiMisi() {
 }
 
 // Tombol sentuh: satu tombol utama besar sesuai konteks, chip untuk aksi kedua, dan lembar "semua aksi"
-const PRIORITAS = ['x', 'b', 'p', 'v', 'e', 'n', '1', 't', 'k', '2', 'h', 'f'];
+const PRIORITAS = ['x', 'b', 'p', 'e', 'n', 'bangun', 'k', 't', 'h', 'f'];
 let sigAksi = '';
+const NAMA = { ...NAMA_TOMBOL, bangun: 'Bangun' };
 const hargaTombol = k => document.querySelector(`#aksiSentuh button[data-k="${k}"] small`)?.textContent || '';
-const IKON_TOMBOL = { x: 'shoppingBasket', v: 'medal1', b: 'warning', t: 'wrench', p: 'plus', '1': 'home', '2': 'shoppingCart', f: 'movie', c: 'information', e: 'save', k: 'target', u: 'barsVertical', o: 'multiplayer', g: 'trophy', n: 'up', j: 'arrowUp', h: 'audioOn' };
-const labelTombol = (k, tema = 'White') => { const hg = hargaTombol(k), ik = IKON_TOMBOL[k]; return (ik ? `<img class="ik" src="assets/kenney/ikon/${tema}/${ik}.png" alt="">` : '') + `<span>${NAMA_TOMBOL[k]}</span>` + (hg ? `<small>${hg}</small>` : ''); };
-let aksiBoleh = () => true;
+const IKON_TOMBOL = { x: 'shoppingBasket', v: 'medal1', b: 'warning', t: 'wrench', p: 'plus', '1': 'home', '2': 'shoppingCart', bangun: 'home', f: 'movie', c: 'information', e: 'save', k: 'target', u: 'barsVertical', o: 'multiplayer', g: 'trophy', n: 'up', j: 'arrowUp', h: 'audioOn' };
+const namaTombol = k => (k === 'n' && G.naik ? 'Turun' : NAMA[k]);
+const labelTombol = (k, tema = 'White') => { const hg = hargaTombol(k), ik = IKON_TOMBOL[k]; return (ik ? `<img class="ik" src="assets/kenney/ikon/${tema}/${ik}.png" alt="">` : '') + `<span>${namaTombol(k)}</span>` + (hg ? `<small>${hg}</small>` : ''); };
+let aksiBoleh = () => true, relSekarang = new Set();
+// Layar sentuh: hanya satu tombol utama kontekstual, Lompat (atau Klakson di mobil), dan menu aksi
 function perbaruiTombol(s, rel = new Set()) {
   const buka = MISI[G.misi].buka;
+  if (s === '1' || s === '2') s = 'bangun';
+  if (rel.has('1') || rel.has('2')) { rel.delete('1'); rel.delete('2'); rel.add('bangun'); }
   if (s) rel.add(s);
-  aksiBoleh = k => !buka || buka.includes(k) || k === s;
+  relSekarang = rel;
+  aksiBoleh = k => !buka || k === s || (k === 'bangun' ? (buka.includes('1') || buka.includes('2')) : buka.includes(k));
   const daftar = PRIORITAS.filter(k => rel.has(k) && aksiBoleh(k));
   if (s && daftar.includes(s)) { daftar.splice(daftar.indexOf(s), 1); daftar.unshift(s); }
-  const utama = daftar[0] || null, chip = daftar.slice(1, 3);
-  const sig = [utama, chip.join(''), s].join('|');
+  const utama = daftar[0] || null;
+  const mobil = G.naik && G.naik.jenis === 'mobil';
+  const sig = [utama, s, G.naik ? G.naik.jenis : ''].join('|');
   if (sig !== sigAksi) {
     sigAksi = sig;
-    const u = $('aksiUtama');
-    u.dataset.k = utama || 'j'; u.innerHTML = labelTombol(utama || 'j', 'Black'); u.classList.toggle('sorot', !!utama && utama === s);
-    $('btnLompat').style.display = utama ? '' : 'none';
-    $('chipAksi').innerHTML = chip.map(k => `<button class="chip${k === s ? ' sorot' : ''}" data-k="${k}">${labelTombol(k)}</button>`).join('');
+    const u = $('aksiUtama'), l = $('btnLompat');
+    u.dataset.k = utama || (mobil ? 'h' : 'j'); u.innerHTML = labelTombol(utama || (mobil ? 'h' : 'j'), 'Black'); u.classList.toggle('sorot', !!utama && utama === s);
+    l.dataset.k = mobil ? 'h' : 'j'; l.innerHTML = `<img class="ik" src="assets/kenney/ikon/Black/${mobil ? 'audioOn' : 'arrowUp'}.png" alt=""><span>${mobil ? 'Klakson' : 'Lompat'}</span>`;
+    l.style.display = utama ? '' : 'none';
+    $('chipAksi').innerHTML = '';
   }
   const gl = $('gelembung');
   if (sentuh && s) {
     const bt = document.querySelector(`#aksiBaru [data-k="${s}"]`);
-    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = Math.min(innerWidth - 60, r.left + r.width / 2) + 'px'; gl.style.top = (Math.min(r.top, $('aksiBaru').getBoundingClientRect().top) - 32) + 'px'; gl.textContent = 'Ketuk ' + NAMA_TOMBOL[s] + ' ▼'; gl.style.visibility = 'visible'; return; }
+    if (bt) { const r = bt.getBoundingClientRect(); gl.style.left = Math.min(innerWidth - 60, r.left + r.width / 2) + 'px'; gl.style.top = (r.top - 32) + 'px'; gl.textContent = 'Ketuk ' + namaTombol(s) + ' ▼'; gl.style.visibility = 'visible'; return; }
   }
   gl.style.visibility = 'hidden';
 }
+// Menu aksi: "Di sini" (aksi yang relevan), "Belanja", dan "Lainnya"
 function bukaLembar() {
-  const g = $('lembarGrid');
-  g.innerHTML = [...document.querySelectorAll('#aksiSentuh button[data-k]')].map(b => b.dataset.k).filter(k => k !== 'j' && aksiBoleh(k)).map(k => `<button data-k="${k}">${labelTombol(k)}</button>`).join('');
+  const utama = $('aksiUtama').dataset.k, bagian = [];
+  const ada = k => aksiBoleh(k) && k !== utama && k !== 'j';
+  const sini = ['x', 'b', 'p', 'e', 'k', 't', 'v', 'n'].filter(k => relSekarang.has(k) || (k === 'v' && relSekarang.has('x'))).filter(ada);
+  if (relSekarang.has('bangun') && utama !== 'bangun' && aksiBoleh('bangun')) sini.push('bangun');
+  const belanja = ['v', 'u', 'o', 'g', 'e', 'k'].filter(k => !sini.includes(k) && ada(k));
+  const lain = ['f', 'c', 't', 'h', 'n'].filter(k => !sini.includes(k) && ada(k));
+  const buat = (judul, daftar) => daftar.length ? `<h4 class="seksi">${judul}</h4>` + daftar.map(k => `<button data-k="${k}">${labelTombol(k)}</button>`).join('') : '';
+  $('lembarJudul').textContent = 'Menu aksi';
+  $('lembarGrid').className = '';
+  $('lembarGrid').innerHTML = buat('Di sini', sini) + buat('Belanja', belanja) + buat('Lainnya', lain) || '<p>Belum ada aksi lain.</p>';
   $('lembar').hidden = false;
 }
-
-
+// Satu tombol "Bangun" membuka pilihan dua kartu berharga
+function bukaBangun() {
+  const kartu = (k, judul, harga, ket) => `<button class="kartuBangun" data-k="${k}"><img class="ik" src="assets/kenney/ikon/White/${IKON_TOMBOL[k]}.png" alt=""><span><b>${judul}</b><small>${harga} Cuan · ${ket}</small></span></button>`;
+  $('lembarJudul').textContent = 'Bangun apa?';
+  $('lembarGrid').className = 'satu';
+  $('lembarGrid').innerHTML = (aksiBoleh('bangun') ? kartu('1', 'Dapur Makan Gratis', HARGA.mbg, 'hasil +130, rawan keracunan') + kartu('2', 'Koperasi', HARGA.kopdes, 'hasil +130, kas bisa raib') : '');
+  $('lembar').hidden = false;
+}
 
 // ---------- Penugasan Bos: tugas bertenggat setelah tutorial (inspeksi mendadak, target pajak, penghijauan) ----------
 let TUGAS = null, wTugas = 45, idTugas = 0;
@@ -1216,6 +1239,7 @@ document.addEventListener('pointerdown', e => {
   const t = e.target.closest('#aksiBaru [data-k], #lembar [data-k], #btnSemua, #tutupLembar'); if (!t) return;
   e.preventDefault();
   if (t.id === 'btnSemua') { bunyi.buka(); return bukaLembar(); }
+  if (t.dataset.k === 'bangun') { bunyi.buka(); return bukaBangun(); }
   if (t.id === 'tutupLembar') { bunyi.tutup(); $('lembar').hidden = true; return; }
   if (t.closest('#lembar')) { bunyi.pilih(); $('lembar').hidden = true; }
   aksiTombol(t.dataset.k);
