@@ -96,3 +96,24 @@ body #lembarGrid .kartuBangun .ik{width:34px;height:34px;margin:0;flex:none}
 body #lembarGrid .kartuBangun span{display:flex;flex-direction:column;gap:2px}
 body #lembarGrid .kartuBangun b{font-size:1.05rem}
 body #lembarGrid .kartuBangun small{font-size:.8rem;font-weight:400;opacity:.9}
+
+/* ===== Fase 3 UX: Koran, Cara main ===== */
+body #btnKoran{display:flex;align-items:center;justify-content:center;position:absolute;top:2px;left:2px;width:40px;height:40px;min-height:40px;padding:0;margin:0;background:none;border-radius:0;pointer-events:auto;z-index:2}
+body #btnKoran .ik{width:22px;height:22px;margin:0;opacity:.95}
+body #lencanaKoran{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#d6252d;color:#fff;font-size:.68rem;font-weight:800;line-height:18px;text-align:center;box-shadow:0 0 0 2px #4a3219;text-shadow:none}
+body #lencanaKoran[hidden]{display:none}
+body #btnKoran.denyut .ik{animation:gantungKoran 1.4s ease-in-out}
+@keyframes gantungKoran{0%,100%{transform:none}15%{transform:rotate(-18deg) scale(1.2)}35%{transform:rotate(14deg) scale(1.2)}55%{transform:rotate(-8deg)}75%{transform:rotate(5deg)}}
+body #kananAtas{padding-left:44px}
+body #lembarGrid.daftar{grid-template-columns:1fr;gap:8px}
+body #lembarGrid .kor{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:8px 10px;background:#f1e6c8;border:2px solid #b89b62;color:#3b2a14;border-radius:6px}
+body #lembarGrid .kor.baru{border-color:#d6252d;box-shadow:0 0 0 2px #d6252d33}
+body #lembarGrid .kor .kt{grid-row:1/3;align-self:start;padding:2px 8px;border-radius:999px;background:#5fa3d6;color:#06121f;font-size:.62rem;font-weight:900;letter-spacing:.08em}
+body #lembarGrid .kor.jubir .kt{background:#ff6a5a;color:#2a0505}
+body #lembarGrid .kor.menteri .kt{background:#ffd23a;color:#2a1a06}
+body #lembarGrid .kor .kx{font-size:.92rem;line-height:1.3;font-weight:600}
+body #lembarGrid .kor small{grid-column:2;color:#7a5a30;font-size:.72rem}
+body #lembarGrid .cara{display:flex;align-items:center;gap:12px;padding:8px 10px;background:#8a6a42;border-radius:6px;color:#fff7e0;font-size:.95rem;font-weight:600}
+body #lembarGrid .cara .ik{width:26px;height:26px;margin:0;flex:none}
+body #lembarGrid p{color:#3b2a14;grid-column:1/-1}
+body #kananAtas.buka #tombolRinci button{border:8px solid transparent;border-image:url(../assets/kenney/ui/buttonLong_brown.png) 14 fill/8px/0 stretch;background:none;color:var(--kteks);text-shadow:0 1px 1px #2a1a0a;padding:2px 10px;min-height:44px}

@@ -236,7 +236,22 @@ function posisiBanner() {
   e.style.top = (r.bottom + 8) + 'px';
 }
 const potretLayar = () => matchMedia('(max-aspect-ratio: 1/1)').matches;
+// ---------- Koran: semua berita, jubir, dan sambutan tercatat; hanya yang besar muncul otomatis ----------
+G.koran = [];
+let jubirTerakhir = -99, otoPernah = false;
+try { otoPernah = localStorage.getItem('republikEmas.hintOto') === '1'; } catch (e) { /* abaikan */ }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const labelKoran = { berita: 'BERITA', jubir: 'JUBIR', menteri: 'MENTERI' };
+function lencanaKoran() { const n = G.koran.filter(e => e.baru).length, l = $('lencanaKoran'); l.textContent = n > 9 ? '9+' : n; l.hidden = n === 0; }
 function banner(tag, teks, varian = 'berita', durasi = 7) {
+  G.koran.push({ varian, teks, bulan: G.bulan, baru: true }); if (G.koran.length > 30) G.koran.shift();
+  lencanaKoran();
+  const kb = $('btnKoran'); kb.classList.remove('denyut'); void kb.offsetWidth; kb.classList.add('denyut');
+  if (varian === 'berita') return; // berita rutin: hanya masuk koran (lencana berdenyut)
+  if (varian === 'jubir') { if (waktu - jubirTerakhir < 45) return; jubirTerakhir = waktu; } // bantahan beruntun masuk koran saja
+  tampilBanner(tag, teks, varian, durasi);
+}
+function tampilBanner(tag, teks, varian = 'berita', durasi = 7) {
   if (bannerAktif) { if (antreBanner.length < 2) antreBanner.push([tag, teks, varian, durasi]); return; }
   const e = $('berita');
   e.className = 'banner ' + varian + ' kedip';
@@ -251,7 +266,7 @@ function banner(tag, teks, varian = 'berita', durasi = 7) {
 function tutupBanner() { wBanner = 0; }
 $('berita').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); tutupBanner(); });
 function bannerTick(dt) {
-  if (!bannerAktif) { if (antreBanner.length && (jedaBanner -= dt) <= 0) banner(...antreBanner.shift()); return; }
+  if (!bannerAktif) { if (antreBanner.length && (jedaBanner -= dt) <= 0) tampilBanner(...antreBanner.shift()); return; }
   if (wKedip > 0 && (wKedip -= dt) <= 0) $('berita').classList.remove('kedip');
   if ((wBanner -= dt) <= 0) { $('berita').classList.remove('tampil', 'hitung', 'kedip'); bannerAktif = false; jedaBanner = 0.5; aturTumpukan(); }
 }
@@ -531,7 +546,7 @@ function perbaruiMisi() {
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
   WAYPATH.atur(px, pz, tx, tz, !!t && jarakT > 9, waktu);
-  const hint = !t || jarakT <= 9 ? '' : otoJalan ? '⏸ Jalan otomatis (gerak = berhenti)' : '⏵ Ketuk di sini: jalan otomatis';
+  const hint = !t || jarakT <= 9 || (otoPernah && !otoJalan) ? '' : otoJalan ? '⏸ Jalan otomatis (gerak = berhenti)' : '⏵ Ketuk di sini: jalan otomatis';
   if ($('misiHint').textContent !== hint) $('misiHint').textContent = hint;
   return TUGAS ? null : d.sorot;
 }
@@ -585,6 +600,19 @@ function bukaLembar() {
   $('lembarJudul').textContent = 'Menu aksi';
   $('lembarGrid').className = '';
   $('lembarGrid').innerHTML = buat('Di sini', sini) + buat('Belanja', belanja) + buat('Lainnya', lain) || '<p>Belum ada aksi lain.</p>';
+  $('lembar').hidden = false;
+}
+function bukaKoran() {
+  $('lembarJudul').textContent = 'Koran Hari Ini'; $('lembarGrid').className = 'daftar';
+  const daftar = G.koran.slice().reverse().slice(0, 15);
+  $('lembarGrid').innerHTML = daftar.length ? daftar.map(e => `<div class="kor ${e.varian}${e.baru ? ' baru' : ''}"><span class="kt">${labelKoran[e.varian]}</span><span class="kx">${esc(e.teks)}</span><small>Bulan ${e.bulan}</small></div>`).join('') : '<p>Belum ada berita. Biarkan pemerintah bekerja.</p>';
+  G.koran.forEach(e => { e.baru = false; }); lencanaKoran();
+  $('lembar').hidden = false;
+}
+function bukaCaraMain() {
+  const baris = (ik, t) => `<div class="cara"><img class="ik" src="assets/kenney/ikon/White/${ik}.png" alt=""><span>${t}</span></div>`;
+  $('lembarJudul').textContent = 'Cara main'; $('lembarGrid').className = 'daftar';
+  $('lembarGrid').innerHTML = [baris('joystick', 'Joystick kiri: jalan. Geser layar: putar kamera.'), baris('shoppingBasket', 'Tombol besar: aksi di tempat Anda berdiri.'), baris('menuGrid', '⋯ : belanja dan aksi lain.'), baris('up', 'Ketuk kartu misi: jalan otomatis ke tujuan.'), baris('menuList', 'Koran: berita dan bantahan pemerintah.'), baris('gear', 'Gigi: pengaturan dan rincian.')].join('');
   $('lembar').hidden = false;
 }
 // Satu tombol "Bangun" membuka pilihan dua kartu berharga
@@ -702,7 +730,7 @@ $('misi').addEventListener('pointerdown', e => {
   if (otoJalan) { berhentiOto(); return toast('Jalan otomatis dihentikan.'); }
   if (G.naik) return toast('Turun dulu untuk jalan otomatis.');
   if (!targetTerakhir) return;
-  otoJalan = true; otoKeluar = false; toast('Jalan otomatis. Gerak joystick untuk berhenti.');
+  otoJalan = true; otoKeluar = false; otoPernah = true; try { localStorage.setItem('republikEmas.hintOto', '1'); } catch (e) { /* abaikan */ } toast('Jalan otomatis. Gerak joystick untuk berhenti.');
 });
 function jalanKaki(dt) {
   let oto = null;
@@ -1196,6 +1224,8 @@ $('lanjutkan').onclick = () => {
   mulaiGame();
 };
 $('btnRinci').onclick = () => $('kananAtas').classList.toggle('buka');
+$('btnKoran').onclick = () => { bunyi.buka(); bukaKoran(); };
+$('btnCara').onclick = () => { bunyi.buka(); bukaCaraMain(); };
 $('btnSimpan').onclick = () => simpan(true);
 addEventListener('visibilitychange', () => { if (document.hidden) simpan(); });
 addEventListener('pagehide', () => simpan());
