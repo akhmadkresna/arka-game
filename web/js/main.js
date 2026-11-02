@@ -533,7 +533,8 @@ function perbaruiMisi() {
 const PRIORITAS = ['x', 'b', 'p', 'v', 'e', 'n', '1', 't', 'k', '2', 'h', 'f'];
 let sigAksi = '';
 const hargaTombol = k => document.querySelector(`#aksiSentuh button[data-k="${k}"] small`)?.textContent || '';
-const labelTombol = k => { const hg = hargaTombol(k); return NAMA_TOMBOL[k] + (hg ? `<small>${hg}</small>` : ''); };
+const IKON_TOMBOL = { x: 'shoppingBasket', v: 'medal1', b: 'warning', t: 'wrench', p: 'plus', '1': 'home', '2': 'shoppingCart', f: 'movie', c: 'information', e: 'save', k: 'target', u: 'barsVertical', o: 'multiplayer', g: 'trophy', n: 'up', j: 'arrowUp', h: 'audioOn' };
+const labelTombol = (k, tema = 'White') => { const hg = hargaTombol(k), ik = IKON_TOMBOL[k]; return (ik ? `<img class="ik" src="assets/kenney/ikon/${tema}/${ik}.png" alt="">` : '') + `<span>${NAMA_TOMBOL[k]}</span>` + (hg ? `<small>${hg}</small>` : ''); };
 let aksiBoleh = () => true;
 function perbaruiTombol(s, rel = new Set()) {
   const buka = MISI[G.misi].buka;
@@ -546,7 +547,7 @@ function perbaruiTombol(s, rel = new Set()) {
   if (sig !== sigAksi) {
     sigAksi = sig;
     const u = $('aksiUtama');
-    u.dataset.k = utama || 'j'; u.innerHTML = utama ? labelTombol(utama) : 'Lompat'; u.classList.toggle('sorot', !!utama && utama === s);
+    u.dataset.k = utama || 'j'; u.innerHTML = labelTombol(utama || 'j', 'Black'); u.classList.toggle('sorot', !!utama && utama === s);
     $('btnLompat').style.display = utama ? '' : 'none';
     $('chipAksi').innerHTML = chip.map(k => `<button class="chip${k === s ? ' sorot' : ''}" data-k="${k}">${labelTombol(k)}</button>`).join('');
   }
@@ -620,7 +621,7 @@ function lipatKartu(nama, lipat) {
   const t = kartu.querySelector('.lipat'); t.textContent = lipat ? '▾' : '▴'; t.setAttribute('aria-expanded', String(!lipat));
   try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); u[nama] = lipat; localStorage.setItem(KUNCI_UI, JSON.stringify(u)); } catch (e) { /* abaikan */ }
 }
-document.querySelectorAll('.lipat').forEach(t => t.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); const k = t.dataset.kartu; lipatKartu(k, !$(k === 'kiri' ? 'kiriAtas' : 'kananAtas').classList.contains('terlipat')); }));
+document.querySelectorAll('.lipat').forEach(t => t.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); const k = t.dataset.kartu; bunyi.togel(); lipatKartu(k, !$(k === 'kiri' ? 'kiriAtas' : 'kananAtas').classList.contains('terlipat')); }));
 // Bawaan: terlipat. Pilihan pemain (terbuka atau terlipat) yang tersimpan menggantikan bawaan.
 let uiTersimpan = {};
 try { uiTersimpan = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}') || {}; } catch (e) { /* abaikan */ }
@@ -1202,9 +1203,9 @@ joy.addEventListener('pointerup', joyLepas); joy.addEventListener('pointercancel
 document.addEventListener('pointerdown', e => {
   const t = e.target.closest('#aksiBaru [data-k], #lembar [data-k], #btnSemua, #tutupLembar'); if (!t) return;
   e.preventDefault();
-  if (t.id === 'btnSemua') return bukaLembar();
-  if (t.id === 'tutupLembar') { $('lembar').hidden = true; return; }
-  if (t.closest('#lembar')) $('lembar').hidden = true;
+  if (t.id === 'btnSemua') { bunyi.buka(); return bukaLembar(); }
+  if (t.id === 'tutupLembar') { bunyi.tutup(); $('lembar').hidden = true; return; }
+  if (t.closest('#lembar')) { bunyi.pilih(); $('lembar').hidden = true; }
   aksiTombol(t.dataset.k);
 });
 $('lembar').addEventListener('pointerdown', e => { if (e.target === $('lembar')) $('lembar').hidden = true; });

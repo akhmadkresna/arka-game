@@ -1,0 +1,60 @@
+/* Skin RPG dari Kenney (UI Pack RPG Expansion, Game Icons; CC0). Hapus tautan berkas ini di index.html untuk kembali ke gaya lama. */
+:root{--kk:url(../assets/kenney/ui);--kcoklat:#4a3219;--kteks:#fff7e0}
+
+/* Kartu HUD: bingkai kayu */
+body #kiriAtas,body #kananAtas{background:none;border:7px solid transparent;border-image:url(../assets/kenney/ui/panel_brown.png) 14 fill/7px/0 stretch;border-radius:0;padding:5px 8px;color:var(--kteks);text-shadow:0 1px 1px #2a1a0a}
+body #kiriAtas.terlipat,body #kananAtas.terlipat{padding:3px 8px!important}
+body .angka b{color:#ffe27a}
+body .baris span{color:#fff1d0}
+body .bar{background:#4a3219;border-radius:6px;box-shadow:inset 0 1px 2px #0008;height:11px}
+body .bar i{border-radius:6px;box-shadow:inset 0 -3px 0 #0003,inset 0 2px 0 #fff4}
+body #miniMeter i{background:linear-gradient(90deg,var(--w) var(--v,0%),#4a3219 var(--v,0%));box-shadow:inset 0 1px 2px #0008}
+
+/* Kartu misi: perkamen */
+body #misi{background:none;border:8px solid transparent;border-image:url(../assets/kenney/ui/panel_beige.png) 14 fill/8px/0 stretch;border-radius:0;color:#3b2a14;text-shadow:none;box-shadow:none;padding:6px 8px}
+body #misi.baru{background:none;filter:brightness(1.12) saturate(1.2)}
+body #misiNo{color:#9a4a10}
+body #misiHint{color:#7a4a10}
+body #misiTeks{color:#3b2a14}
+body #misi kbd{background:#8a6a42;color:#fff7e0;border:0;border-bottom:3px solid #4a3219;border-radius:6px;box-shadow:none}
+body #panahIkon{background:#e8b83c;color:#3b2a14;box-shadow:0 0 0 3px #8a6a42}
+body #panahJarak{color:#3b2a14;text-shadow:none}
+
+/* Banner pengumuman */
+body #berita{border:7px solid transparent;border-radius:0;background:none;box-shadow:none;border-image:url(../assets/kenney/ui/panel_beigeLight.png) 14 fill/7px/0 stretch;color:#2f2210;text-shadow:none;padding:4px 6px 8px}
+body #berita.jubir{border-image-source:url(../assets/kenney/ui/panel_brown.png);color:#fff7e0;text-shadow:0 1px 1px #2a1a0a}
+body #berita.menteri{border-image-source:url(../assets/kenney/ui/panel_beige.png);color:#3b2a14}
+body #berita.kedip{animation:kedipFilter .55s ease-in-out infinite alternate}
+@keyframes kedipFilter{from{filter:none}to{filter:brightness(1.25) drop-shadow(0 0 8px var(--bk))}}
+body #berita::after{left:6px;right:6px;bottom:2px;width:auto;border-radius:2px}
+
+/* Tombol aksi */
+.ik{display:block;width:26px;height:26px;margin:0 auto 1px;image-rendering:auto;pointer-events:none}
+body #aksiUtama{width:92px;height:92px;min-height:92px;border-radius:0;border:10px solid transparent;border-image:url(../assets/kenney/ui/buttonSquare_beige.png) 14 fill/10px/0 stretch;background:none;box-shadow:none;color:#3b2a14;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.9rem;font-weight:800}
+body #aksiUtama:active{border-image-source:url(../assets/kenney/ui/buttonSquare_beige_pressed.png)}
+body #aksiUtama.sorot{background:none;filter:brightness(1.15) drop-shadow(0 0 10px #ffd23a);animation:denyut .6s infinite}
+body #chipAksi .chip{border:9px solid transparent;border-image:url(../assets/kenney/ui/buttonLong_brown.png) 14 fill/9px/0 stretch;background:none;border-radius:0;color:var(--kteks);min-height:46px;padding:0 8px;display:flex;align-items:center;gap:6px;font-weight:700;text-shadow:0 1px 1px #2a1a0a}
+body #chipAksi .chip:active{border-image-source:url(../assets/kenney/ui/buttonLong_brown_pressed.png)}
+body #chipAksi .chip.sorot{filter:brightness(1.3) drop-shadow(0 0 8px #ffd23a);animation:denyut .6s infinite}
+body #chipAksi .ik{margin:0;width:20px;height:20px}
+body #chipAksi small,body #lembarGrid small{display:inline;margin-left:2px}
+body .bulat{border:8px solid transparent;border-image:url(../assets/kenney/ui/buttonSquare_brown.png) 14 fill/8px/0 stretch;background:none;border-radius:0;width:58px;height:58px;min-height:58px;color:var(--kteks);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6rem;line-height:1;text-shadow:0 1px 1px #2a1a0a}
+body #btnLompat{border-image-source:url(../assets/kenney/ui/buttonSquare_beige.png);color:#3b2a14;text-shadow:none}
+body #btnSemua .ik{display:none}
+
+/* Lembar semua aksi */
+body #lembar .isi{background:none;border:10px solid transparent;border-image:url(../assets/kenney/ui/panel_beige.png) 14 fill/10px/0 stretch;border-radius:0;color:#3b2a14}
+body #lembar .atas b{color:#3b2a14;font-size:1rem}
+body #lembar .atas button{background:none;border:8px solid transparent;border-image:url(../assets/kenney/ui/buttonSquare_brown.png) 14 fill/8px/0 stretch;border-radius:0;color:var(--kteks);width:46px;min-height:46px;display:flex;align-items:center;justify-content:center}
+body #lembarGrid button{border:9px solid transparent;border-image:url(../assets/kenney/ui/buttonLong_brown.png) 14 fill/9px/0 stretch;background:none;border-radius:0;color:var(--kteks);min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;text-shadow:0 1px 1px #2a1a0a}
+body #lembarGrid button:active{border-image-source:url(../assets/kenney/ui/buttonLong_brown_pressed.png)}
+
+/* Tab lipat */
+body .lipat{background:#6b4a28;border:2px solid #3b2a14;color:#fff1d0}
+
+/* Laporan dan kartu denda: dokumen resmi */
+body #laporan .kotak,body #kartu .kotak{background:none;border:12px solid transparent;border-image:url(../assets/kenney/ui/panel_beige.png) 14 fill/12px/0 stretch;border-radius:0;color:#3b2a14;box-shadow:none}
+body #laporan .kotak h1,body #laporan .kotak h3,body #kartu .kotak h1,body #kartu .kotak h3{color:#7a3a0a}
+body #laporan .kotak p,body #laporan .kotak div,body #kartu .kotak p{color:#3b2a14}
+body #laporan .kotak b{color:#8a3a0a}
+body #laporan .kotak button,body #kartu .kotak button{border:10px solid transparent;border-image:url(../assets/kenney/ui/buttonLong_brown.png) 14 fill/10px/0 stretch;background:none;border-radius:0;color:var(--kteks);padding:4px 18px;text-shadow:0 1px 1px #2a1a0a}

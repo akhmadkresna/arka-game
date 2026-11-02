@@ -17,6 +17,7 @@ export function aktifkan() {
       for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
     }
     if (ctx.state === 'suspended') ctx.resume();
+    muatSampel();
   } catch (e) { /* abaikan */ }
 }
 function nada(f, dur, tipe = 'sine', vol = 0.1, f2 = null, tunda = 0) {
@@ -33,6 +34,21 @@ function derau(dur, vol = 0.15, lp = 2000, tunda = 0, hp = 0) {
   s.buffer = bufDerau; f.type = hp ? 'highpass' : 'lowpass'; f.frequency.value = hp || lp;
   g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   s.connect(f); f.connect(g); g.connect(ctx.destination); s.start(t); s.stop(t + dur + 0.03);
+}
+// Sampel suara (Kenney "Interface Sounds", CC0): dimuat setelah audio aktif; bila gagal, dipakai suara sintetis
+const SAMPEL = ['click_002', 'confirmation_001', 'confirmation_003', 'bong_001', 'open_001', 'close_001', 'toggle_001', 'select_003', 'error_003', 'tick_002'];
+const buf = {};
+function muatSampel() {
+  if (!ctx) return;
+  for (const n of SAMPEL) {
+    if (buf[n] !== undefined) continue; buf[n] = null;
+    fetch('assets/kenney/audio/' + n + '.ogg').then(r => (r.ok ? r.arrayBuffer() : Promise.reject())).then(a => new Promise((ok, gagal) => ctx.decodeAudioData(a, ok, gagal))).then(d => { buf[n] = d; }).catch(() => { buf[n] = null; });
+  }
+}
+function sampel(n, vol = 0.5) {
+  if (!ctx || bisu || !buf[n]) return false;
+  const s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = buf[n]; g.gain.value = vol; s.connect(g); g.connect(ctx.destination); s.start();
+  return true;
 }
 // Mesin kendaraan: satu osilator yang frekuensi dan volumenya mengikuti laju
 let mOsc = null, mGain = null;
@@ -62,13 +78,17 @@ export const bunyi = {
   misi() { [523, 659, 784, 1047].forEach((f, i) => nada(f, 0.2, 'triangle', 0.1, null, i * 0.09)); },
   setoran() { [900, 760, 620, 480].forEach((f, i) => nada(f, 0.12, 'square', 0.05, null, i * 0.07)); },
   denda() { nada(150, 0.5, 'sawtooth', 0.12, 55); derau(0.3, 0.15, 600); },
-  klik() { nada(620, 0.05, 'square', 0.05); },
+  klik() { if (!sampel('click_002', 0.5)) nada(620, 0.05, 'square', 0.05); },
   lompat() { nada(260, 0.16, 'sine', 0.1, 520); },
   mendarat() { derau(0.1, 0.18, 600); nada(120, 0.1, 'sine', 0.1, 70); },
   tabrak() { derau(0.25, 0.3, 500); nada(90, 0.25, 'sawtooth', 0.12, 40); },
   simpan() { nada(660, 0.08, 'triangle', 0.07); nada(880, 0.1, 'triangle', 0.07, null, 0.08); },
   sirene() { nada(650, 0.45, 'sawtooth', 0.045, 920); nada(920, 0.45, 'sawtooth', 0.045, 650, 0.45); },
-  berita() { nada(880, 0.14, 'sine', 0.1, null); nada(1175, 0.18, 'sine', 0.1, null, 0.13); },
-  jubir() { nada(392, 0.16, 'square', 0.06, null); nada(330, 0.16, 'square', 0.06, null, 0.17); nada(392, 0.2, 'square', 0.06, null, 0.34); },
+  berita() { if (!sampel('confirmation_001', 0.55)) { nada(880, 0.14, 'sine', 0.1, null); nada(1175, 0.18, 'sine', 0.1, null, 0.13); } },
+  jubir() { if (!sampel('bong_001', 0.6)) { nada(392, 0.16, 'square', 0.06, null); nada(330, 0.16, 'square', 0.06, null, 0.17); nada(392, 0.2, 'square', 0.06, null, 0.34); } },
+  buka() { if (!sampel('open_001', 0.5)) nada(500, 0.08, 'triangle', 0.08, 800); },
+  tutup() { if (!sampel('close_001', 0.5)) nada(700, 0.08, 'triangle', 0.08, 450); },
+  togel() { if (!sampel('toggle_001', 0.45)) nada(600, 0.05, 'square', 0.04); },
+  pilih() { if (!sampel('select_003', 0.45)) nada(660, 0.06, 'triangle', 0.08); },
   pop() { nada(300, 0.1, 'sine', 0.1, 900); },
 };
