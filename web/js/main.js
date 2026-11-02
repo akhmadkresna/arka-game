@@ -140,6 +140,8 @@ kanvas.addEventListener('touchmove', e => {
 }, { passive: true });
 kanvas.addEventListener('touchend', () => { jarakCubit = 0; }, { passive: true });
 addEventListener('keydown', e => {
+  if (e.key === '?' || e.key === 'F1') { e.preventDefault(); bantuanBuka(); return; }
+  if (e.key === 'Escape') bantuanBuka(false);
   const k = e.key.toLowerCase();
   tombol[k] = true;
   if (!e.repeat) aksiTombol(k === ' ' ? 'j' : k);
@@ -151,11 +153,16 @@ addEventListener('resize', resize); resize();
 
 // ---------- Antarmuka ----------
 const $ = id => document.getElementById(id);
+let nilaiMeter = [60, 5, 5, 0], kiriSampai = 0, kiriTetap = false;
+function bantuanBuka(v) { const b = $('bantuan'); b.classList.toggle('buka', v ?? !b.classList.contains('buka')); }
+$('btnBantuan').onclick = () => bantuanBuka();
+$('bantuan').addEventListener('pointerdown', () => bantuanBuka(false));
 const acak = a => a[Math.floor(Math.random() * a.length)];
 const batas = (n, a = 0, b = 100) => Math.max(a, Math.min(b, n));
 let wToast = 0, wMono = 0;
-function toast(teks) { $('toast').textContent = teks; $('toast').style.opacity = 1; wToast = 3.6; }
-function monolog(kunci) { if (sentuh && (wToast > 0 || wUcap > 0)) return; $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
+function toast(teks) { if (bannerAktif && $('berita').classList.contains('berita')) tutupBanner(); $('toast').textContent = teks; $('toast').style.opacity = 1; wToast = 3.6; }
+let monologTerakhir = -99;
+function monolog(kunci) { if (wToast > 0 || wUcap > 0 || bannerAktif || waktu - monologTerakhir < 25) return; monologTerakhir = waktu; $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
 function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warna; f.style.transition = 'none'; f.style.opacity = 0.85; requestAnimationFrame(() => { f.style.transition = 'opacity .6s'; f.style.opacity = 0; }); }
 // Nama tombol sesuai perangkat: ponsel menampilkan nama tombol, komputer menampilkan hurufnya
 const tb = k => `<kbd>${sentuh ? NAMA_TOMBOL[k] : k.toUpperCase()}</kbd>`;
@@ -174,7 +181,7 @@ $('kartuLanjut').onclick = () => { $('kartu').hidden = true; G.jeda = false; bun
 const E = buatEfek(scene, kamera, pemain, $('melayang'), $('cuan'));
 const V = (x, z, y = 0) => new THREE.Vector3(x, tinggi(x, z) + y, z);
 const depanPemain = (jarakD = 6, y = 1.5) => new THREE.Vector3(pemain.position.x + Math.sin(pemain.rotation.y) * jarakD, pemain.position.y + y, pemain.position.z + Math.cos(pemain.rotation.y) * jarakD);
-const NPC = buatNPC({ scene, G, tinggi, lantai, E, bunyi, toast, monolog, pemain, V, batas });
+const NPC = buatNPC({ scene, G, tinggi, lantai, E, bunyi, toast, monolog, pemain, V, batas, ucapResmi: (n, t) => ucapTeks(n, t) });
 const WAYPATH = buatWaypath({ scene, lantai });
 const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kilat, titik: WAYPATH.titik });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
@@ -277,7 +284,7 @@ function ucapTeks(nama, teks, pos) {
 }
 function palak() {
   const u = sasaranPalak();
-  if (!u) return toast('Tidak ada usaha kecil atau ojol di dekat Anda. Cari kios berpapan nama, atau ojol di jalan.');
+  if (!u) return toast('Tidak ada kios atau ojol di dekat.');
   const oj = u.jenis === 'ojol';
   if (u.tutup) return toast(oj ? 'Abang ojol ini sedang mogok. Tidak ada yang bisa dipajaki.' : 'Kiosnya sudah gulung tikar. Tidak ada lagi yang bisa dipajaki.');
   if (u.cd > 0) return toast(`${oj ? 'Abang ojol' : 'Pemilik'} sedang mengawasi Anda. Tunggu ${Math.ceil(u.cd)} detik.`);
@@ -290,7 +297,7 @@ function palak() {
     G.cuan += bersih; G.panas = batas(G.panas + (pakaiAparat ? 3 : 2)); G.rakyat = batas(G.rakyat + (pakaiAparat ? 3 : 1));
     u.berhasil++;
     fxSumber = pos; E.semburan(pos, 'percik', 12); bunyi.koin();
-    toast(`"${acak(oj ? PAJAK_OJOL : PAJAK)}" berhasil: +${bersih} Cuan${pakaiAparat ? ' (25% untuk uang lelah aparat)' : ''}.`);
+    toast(`+${bersih} Cuan${pakaiAparat ? ' (aparat 25%)' : ''}`);
     monolog(oj ? 'ojol' : 'palak');
     if (u.berhasil >= TUTUP_SETELAH) { tutupkan(u); if (!oj) ucap(u, 't'); } else ucap(u, 'ok');
   } else {
@@ -298,7 +305,7 @@ function palak() {
     G.cuan -= rugi; G.rakyat = batas(G.rakyat + 5); G.restu = batas(G.restu - 3); G.citra = Math.max(0, G.citra - 5);
     u.marah = 1.6; fxTujuan = pos;
     E.teks(pos, 'GAGAL!', 'besar buruk'); E.getar(0.35); bunyi.gagal(); kilat('#d6453d');
-    toast(`GAGAL: ${acak(oj ? GAGAL_OJOL : GAGAL)} (Cuan -${Math.round(rugi)}, Citra -5)`);
+    toast(`GAGAL! Cuan -${Math.round(rugi)}`);
     monolog('palakGagal'); ucap(u, 'g');
     if (oj) klaksonMassal(u);
   }
@@ -314,11 +321,11 @@ function tutupkan(u) {
   u.tutup = true; G.rakyat = batas(G.rakyat + 4);
   if (u.jenis === 'ojol') {
     u.sisaTutup = 90; G.ojolMogok++; u.label.userData.set('OJOL MOGOK', 'mogok');
-    toast('Abang ojol mogok setelah dipajaki berkali-kali. Jalan terasa lebih sepi.'); monolog('mogok');
+    toast('Abang ojol mogok.'); monolog('mogok');
   } else {
     u.sisaTutup = LAMA_TUTUP; G.gulungTikar++;
     const d = u.g.userData; d.pemilik.visible = false; d.tutup.visible = true; d.label.visible = false; d.atap.color.setHex(0x777777);
-    toast(`${u.nama} gulung tikar setelah dipajaki berkali-kali.`); monolog('tutup');
+    toast(`${u.nama} gulung tikar.`); monolog('tutup');
   }
   E.semburan(new THREE.Vector3(u.x, tinggi(u.x, u.z) + 1.5, u.z), 'debu', 14); bunyi.gagal();
 }
@@ -332,11 +339,11 @@ function bukaLagi(u) {
   const d = u.g.userData; d.pemilik.visible = true; d.tutup.visible = false; d.label.visible = true; d.atap.color.setHex(d.warnaAsli);
 }
 function sewaAparat() {
-  if (G.cuan < HARGA.aparat) return toast(`Cuan kurang (butuh ${HARGA.aparat}) untuk sewa aparat.`);
+  if (G.cuan < HARGA.aparat) return toast(`Cuan kurang (butuh ${HARGA.aparat}).`);
   G.cuan -= HARGA.aparat; G.aparat = Math.min(G.aparat + DURASI_APARAT, DURASI_APARAT * 3);
   while (daftarAparat.length < 2) { const a = aparatSewaan(); a.position.copy(pemain.position); scene.add(a); daftarAparat.push(a); E.semburan(a.position.clone().setY(a.position.y + 1), 'debu', 10); }
   fxTujuan = depanPemain(4, 2); bunyi.pop();
-  toast(`Aparat disewa ${DURASI_APARAT} detik. Palak 100% berhasil, tapi 25% hasilnya untuk mereka.`); monolog('aparat');
+  toast(`Aparat ${DURASI_APARAT} dtk: palak pasti berhasil.`); monolog('aparat');
 }
 
 // ---------- Hutan, sawit, bangunan ----------
@@ -344,8 +351,8 @@ function ubahStatus(p, status) { p.status = status; dunia.tampilkan(p); }
 const pusatPetak = (p, y = 1) => V(p.cx, p.cz, y);
 function bakar(p) {
   if (!p || p.status !== 'hutan') return;
-  if (G.berkas > 0) { G.berkas--; G.panas = batas(G.panas + 1); toast('Dibakar "sesuai prosedur". Berkas terpakai.'); }
-  else { G.panas = batas(G.panas + 3); toast('Dibakar tanpa berkas. Titik panas terlihat satelit.'); }
+  if (G.berkas > 0) { G.berkas--; G.panas = batas(G.panas + 1); toast('Dibakar sesuai prosedur. Berkas -1.'); }
+  else { G.panas = batas(G.panas + 3); toast('Tanpa berkas: Panas Hukum naik.'); }
   G.stat.bakar++; p.api = DURASI_API; ubahStatus(p, 'api'); monolog('bakar');
   E.semburan(pusatPetak(p, 1), 'api', 34); E.semburan(pusatPetak(p, 3), 'asap', 8); E.getar(0.3); bunyi.api();
 }
@@ -353,7 +360,7 @@ function tebang(p) {
   if (!p || p.status !== 'hutan' || !bisaBayar(HARGA.tebang)) return;
   G.cuan -= HARGA.tebang; p.umurLahan = 0; ubahStatus(p, 'lahan'); fxTujuan = pusatPetak(p, 2);
   E.semburan(pusatPetak(p, 2), 'kayu', 28); E.semburan(pusatPetak(p, 1), 'daun', 14); E.getar(0.25); bunyi.kayu();
-  toast('Ditebang manual. Mahal dan lama. Tidak ada yang memuji.'); monolog('tebang');
+  toast('Ditebang manual. Mahal.'); monolog('tebang');
 }
 function tanam(p, oleh = null) {
   if (!p || p.status !== 'lahan') return;
@@ -363,7 +370,7 @@ function tanam(p, oleh = null) {
   if (oleh) E.koinKeluar(pusatPetak(p, 2), 3);
   toast('Sawit ditanam. Penghasilan mengalir.'); monolog('sawit');
 }
-function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Coba PALAK USAHA KECIL atau ojol dulu.`); bunyi.blokir(); return false; } return true; }
+function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Palak dulu.`); bunyi.blokir(); return false; } return true; }
 const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 function tandaiEmas(b) {
   b.emas = true;
@@ -381,11 +388,11 @@ function bangun(jenis) {
   const biaya = HARGA[jenis], ry = pemain.rotation.y;
   const x = pemain.position.x + Math.sin(ry) * 9, z = pemain.position.z + Math.cos(ry) * 9;
   const l = klasifikasi(x, z);
-  if (l.k === 'air') return toast('Itu air. Izin reklamasinya belum terbit.');
+  if (l.k === 'air') return toast('Itu air. Tidak bisa dibangun.');
   const pt = petakDi(x, z);
-  if (pt && (pt.status === 'hutan' || pt.status === 'sawit')) return toast(`Petak ini masih ditumbuhi ${pt.status === 'hutan' ? 'hutan' : 'sawit'}. Bakar atau tebang dulu, baru bangun.`);
-  if (pt && pt.status === 'api') return toast('Api sedang menyala. Tunggu padam dulu.');
-  if (!l.benar && !adaTempat(x, z, 9, 1)) return toast('Sudah ada bangunan di sini. Geser sedikit.');
+  if (pt && (pt.status === 'hutan' || pt.status === 'sawit')) return toast(`Masih ${pt.status === 'hutan' ? 'hutan' : 'sawit'}. Bakar atau tebang dulu.`);
+  if (pt && pt.status === 'api') return toast('Api menyala. Tunggu padam.');
+  if (!l.benar && !adaTempat(x, z, 9, 1)) return toast('Sudah ada bangunan. Geser sedikit.');
   if (!bisaBayar(biaya)) return;
   if (l.benar) {
     G.cuan = Math.max(0, G.cuan - 10); G.restu = batas(G.restu - 3); G.stat.blokir++;
@@ -401,7 +408,7 @@ function bangun(jenis) {
   rec.slhs = slhs; rec.lok = l.k; NPC.dapurBaru(rec);
   if (jenis === 'kopdes' && jarakDua(x, z, ZONA_EMAS.x, ZONA_EMAS.z) < ZONA_EMAS.r + 3) {
     tandaiEmas(rec); G.cuan += 100; G.panas = batas(G.panas + 6); G.rakyat = batas(G.rakyat + 5);
-    setTimeout(() => toast('LAHAN STRATEGIS! Dana hibah +100 Cuan. Koperasi ini menghasilkan 8× lipat. Panas Hukum +6, Amarah +5.'), 600);
+    setTimeout(() => toast('LAHAN STRATEGIS! Hibah +100 Cuan, hasil 8×.'), 600);
   }
   const rot = ry + Math.PI, depan = [Math.sin(rot), Math.cos(rot)], kanan = [Math.cos(rot), -Math.sin(rot)];
   const calon = [[kanan[0] * 17, kanan[1] * 17], [-kanan[0] * 17, -kanan[1] * 17], [depan[0] * 18, depan[1] * 18], [-depan[0] * 18, -depan[1] * 18]];
@@ -410,43 +417,43 @@ function bangun(jenis) {
   const pusat = V(x, z, 2);
   fxSumber = pusat; E.semburan(pusat, 'debu', 34); E.semburan(V(x, z, 6), 'konfeti', 36); E.getar(0.5); bunyi.bangun();
   E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPERASI EMAS!', 'besar emas');
-  PERESMIAN.mulai(x, z, rot, () => { G.cuan += rec.emas ? 60 : 12; G.citra += 2; G.panas = batas(G.panas + 1); ucapTeks('Sambutan Menteri', SAMBUTAN[Math.floor(Math.random() * SAMBUTAN.length)]); toast(rec.emas ? 'Amplop tamu undangan (lahan strategis) +60 Cuan. Citra +2.' : 'Amplop tamu undangan +12 Cuan. Citra +2.'); });
+  PERESMIAN.mulai(x, z, rot, () => { G.cuan += rec.emas ? 60 : 12; G.citra += 2; G.panas = batas(G.panas + 1); ucapTeks('Sambutan Menteri', SAMBUTAN[Math.floor(Math.random() * SAMBUTAN.length)]); toast(rec.emas ? 'Amplop +60 Cuan, Citra +2.' : 'Amplop +12 Cuan, Citra +2.'); });
   toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MAKAN GRATIS)' : 'KOPERASI EMAS'} berdiri ${LOKASI[l.k]}${jenis === 'mbg' ? (slhs ? ' Sertifikat higiene: lengkap, di atas kertas (1 berkas terpakai).' : ' Sertifikat higiene: sedang diproses (sejak 2024).') : ''}`); monolog('bangun');
 }
 function selfie() {
   const dekat = G.bangunan.some(b => jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18);
   kilat(); G.selfie++; bunyi.selfie();
   if (dekat) { G.citra += 10; G.restu = batas(G.restu + 2); E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 22); toast('Selfie di depan "capaian". Citra +10.'); }
-  else { G.citra += 2; toast('Selfie biasa. Citra +2. Cari latar yang lebih berprestasi.'); }
+  else { G.citra += 2; toast('Selfie biasa. Citra +2.'); }
   monolog('selfie');
 }
 function ngeles() {
-  if (G.citra < 20) { bunyi.blokir(); return toast('Citra kurang (butuh 20) untuk konferensi pers.'); }
+  if (G.citra < 20) { bunyi.blokir(); return toast('Citra kurang (butuh 20).'); }
   G.citra -= 20; G.rakyat = batas(G.rakyat - 15); G.panas = batas(G.panas - 5);
   E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'percik', 18); bunyi.misi();
-  toast('Konferensi pers: "Itu hoaks, tapi sudah kami evaluasi." Amarah rakyat turun.'); monolog('ngeles');
+  toast('Konferensi pers: Amarah turun.'); monolog('ngeles');
 }
 function beliGelar() {
-  if (G.gelar >= GELAR.length) return toast('Semua gelar sudah dibeli. Nama Anda tidak muat di kartu nama.');
+  if (G.gelar >= GELAR.length) return toast('Semua gelar sudah dibeli.');
   const b = hargaGelar(G.gelar); if (!bisaBayar(b)) return;
   G.cuan -= b; G.citra += 15; G.restu = batas(G.restu + 3);
   E.semburan(pemain.position.clone().setY(pemain.position.y + 3.5), 'konfeti', 30); bunyi.misi();
   E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), GELAR[G.gelar], 'besar emas', 0.5);
-  toast(`Gelar kehormatan dari "universitas" mitra: ${GELAR[G.gelar++]}. Citra +15.`); monolog('gelar');
+  toast(`Gelar baru: ${GELAR[G.gelar++]}. Citra +15.`); monolog('gelar');
 }
 function beliPupuk() {
-  if (G.pupuk >= MAKS_PUPUK) return toast('Pupuk sudah maksimal. Sawit Anda lebih subur dari anggaran.');
+  if (G.pupuk >= MAKS_PUPUK) return toast('Pupuk sudah maksimal.');
   const b = hargaPupuk(G.pupuk); if (!bisaBayar(b)) return;
   G.cuan -= b; G.pupuk++; bunyi.tanam(); E.semburan(pemain.position.clone().setY(pemain.position.y + 1), 'daun', 22);
   toast(`Pupuk level ${G.pupuk}: hasil sawit +${G.pupuk * 40}%.`); monolog('pupuk');
 }
 function rekrutOknum() {
-  if (G.oknum >= MAKS_OKNUM) return toast('Oknum sudah penuh. Kantor tidak muat lagi.');
+  if (G.oknum >= MAKS_OKNUM) return toast('Oknum sudah penuh.');
   const b = hargaOknum(G.oknum); if (!bisaBayar(b)) return;
   G.cuan -= b; G.oknum++;
   const f = manusia(M.rompi, false); f.position.copy(pemain.position); scene.add(f);
   daftarOknum.push({ f, waktu: 2 }); E.semburan(f.position.clone().setY(f.position.y + 1), 'debu', 12); bunyi.pop();
-  toast('Oknum direkrut: otomatis menanam dan membakar. Anda hanya bertanggung jawab atas fotonya.'); monolog('oknum');
+  toast('Oknum direkrut: tanam dan bakar otomatis.'); monolog('oknum');
 }
 function jalankanAksi(k) {
   const p = petakDi(pemain.position.x, pemain.position.z);
@@ -457,8 +464,8 @@ function jalankanAksi(k) {
   else if (k === 'g') beliGelar(); else if (k === 'u') beliPupuk(); else if (k === 'o') rekrutOknum();
   else if (k === 'j') lompat(); else if (k === 'n') naikTurun(); else if (k === 'h') klakson();
   else if (k === 'r') laporan(false);
-  else if (k === 'e') { if (!dekatKantor()) toast('Berkas dibeli di Kantor Kementerian.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
-  else if (k === 'k') { if (!dekatKantor()) toast('Kambing hitam dicari di Kantor Kementerian.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Staf "penanggung jawab" dimutasi. Panas Hukum -30.'); } }
+  else if (k === 'e') { if (!dekatKantor()) toast('Ke Kantor Kementerian dulu.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
+  else if (k === 'k') { if (!dekatKantor()) toast('Ke Kantor Kementerian dulu.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Kambing hitam dimutasi. Panas Hukum -30.'); } }
 }
 function aksiTombol(k) {
   if (!G.jalan || G.jeda) return;
@@ -485,7 +492,7 @@ function perbaruiMisi() {
   const sebelum = G.misi;
   while (G.misi < MISI_DEF.length - 1 && MISI_DEF[G.misi].selesai()) { G.misi++; }
   if (G.misi !== sebelum) {
-    toast(`Misi ${G.misi} selesai! Lanjut ke misi berikutnya.`); wMisiBaru = 5;
+    toast(`Misi ${G.misi} selesai!`); wMisiBaru = 5;
     E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 40); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'MISI SELESAI!', 'besar emas'); bunyi.misi();
   }
   const d = MISI_DEF[G.misi];
@@ -505,8 +512,8 @@ function perbaruiMisi() {
   const kunciTampil = TUGAS ? 'T' + TUGAS.id : G.misi;
   if (misiTampil !== kunciTampil) {
     misiTampil = kunciTampil;
-    if (TUGAS) $('misiTeks').innerHTML = isiTombol(sentuh ? TUGAS.ringkas : TUGAS.teks);
-    else { $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`; $('misiTeks').innerHTML = isiTombol(sentuh && MISI[G.misi].ringkas ? MISI[G.misi].ringkas : MISI[G.misi].teks); }
+    if (TUGAS) $('misiTeks').innerHTML = isiTombol(TUGAS.ringkas);
+    else { $('misiNo').textContent = `MISI ${G.misi + 1}/${MISI_DEF.length}`; $('misiTeks').innerHTML = isiTombol(MISI[G.misi].ringkas || MISI[G.misi].teks); }
   }
   if (TUGAS) $('misiNo').textContent = `PENUGASAN BOS · ${Math.ceil(TUGAS.sisa)} dtk`;
   $('misi').classList.toggle('baru', wMisiBaru > 0);
@@ -524,7 +531,7 @@ function perbaruiMisi() {
     kp.style.visibility = 'visible';
   } else kp.style.visibility = 'hidden';
   WAYPATH.atur(px, pz, tx, tz, !!t && jarakT > 9, waktu);
-  const hint = !t || jarakT <= 9 ? '' : otoJalan ? '⏸ Jalan otomatis… (gerakkan joystick untuk berhenti)' : '⏵ Ketuk kartu ini: jalan otomatis ke tujuan';
+  const hint = !t || jarakT <= 9 ? '' : otoJalan ? '⏸ Jalan otomatis (gerak = berhenti)' : '⏵ Ketuk di sini: jalan otomatis';
   if ($('misiHint').textContent !== hint) $('misiHint').textContent = hint;
   return TUGAS ? null : d.sorot;
 }
@@ -580,25 +587,25 @@ function mulaiTugas() {
   if (jenis === 'kunjungan') {
     const b = G.bangunan[Math.floor(Math.random() * G.bangunan.length)], selfie0 = G.selfie;
     TUGAS = { id, jenis, sisa: 70, target: () => b,
-      teks: `Bos datang mendadak ke ${namaBangunan(b)}! Segera ke sana dan ketuk {f} (swafoto) sebelum waktu habis.`, ringkas: `Bos mau tinjau ${namaBangunan(b)}! Ke sana, ketuk {f}.`,
+      teks: `Bos datang mendadak ke ${namaBangunan(b)}! Segera ke sana dan ketuk {f} (swafoto) sebelum waktu habis.`, ringkas: `Bos tinjau ${namaBangunan(b)}! Ketuk {f} di sana.`,
       sorotTombol: () => (jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18 ? 'f' : null),
       selesai: () => G.selfie > selfie0 && jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18,
-      hadiah: () => { if (b.mangkrak) { G.cuan += 15; G.restu = batas(G.restu + 3); toast('Spanduk raksasa menutupi bagian yang rusak. Bos puas dari jarak 20 meter. Cuan +15.'); } else { G.cuan += 40; G.restu = batas(G.restu + 8); G.citra += 5; toast('Bos puas: "Inilah wajah pembangunan." Cuan +40, Restu +8, Citra +5.'); } } };
+      hadiah: () => { if (b.mangkrak) { G.cuan += 15; G.restu = batas(G.restu + 3); toast('Spanduk menutupi yang rusak. Cuan +15.'); } else { G.cuan += 40; G.restu = batas(G.restu + 8); G.citra += 5; toast('Bos puas. Cuan +40, Restu +8, Citra +5.'); } } };
   } else if (jenis === 'pajak') {
     const p0 = G.stat.palak;
     TUGAS = { id, jenis, sisa: 100, target: () => terdekatDari(KIOS.concat(OJOL).filter(u => !u.tutup && u.cd <= 0)),
-      teks: 'Bos minta setoran pajak daerah: palak 3 kali (warung atau ojol) sebelum waktu habis. Tekan {x}.', ringkas: 'Bos minta target pajak: palak 3 kali. Ketuk {x}.',
+      teks: 'Bos minta setoran pajak daerah: palak 3 kali (warung atau ojol) sebelum waktu habis. Tekan {x}.', ringkas: 'Target pajak: palak 3 kali ({x}).',
       sorotTombol: () => { const u = kiosDekat(); return u && !u.tutup && u.cd <= 0 ? 'x' : null; },
       selesai: () => G.stat.palak - p0 >= 3,
-      hadiah: () => { G.cuan += 60; G.restu = batas(G.restu + 6); toast('Target pajak tercapai. Bos: "Besok targetnya naik. Seperti biasa." Cuan +60, Restu +6.'); } };
+      hadiah: () => { G.cuan += 60; G.restu = batas(G.restu + 6); toast('Target pajak tercapai. Cuan +60, Restu +6.'); } };
   } else {
     const t0 = G.stat.tanam;
     TUGAS = { id, jenis, sisa: 130, target: () => terdekat('lahan') || terdekat('api') || terdekat('hutan'),
-      teks: 'Bos minta program penghijauan: tanam sawit 2 petak sebelum waktu habis. Bakar dulu hutannya, lalu tekan {p}.', ringkas: 'Bos minta penghijauan: tanam sawit 2 petak. {b} lalu {p}.',
+      teks: 'Bos minta program penghijauan: tanam sawit 2 petak sebelum waktu habis. Bakar dulu hutannya, lalu tekan {p}.', ringkas: 'Tanam sawit 2 petak: {b} lalu {p}.',
       selesai: () => G.stat.tanam - t0 >= 2,
-      hadiah: () => { G.cuan += 50; G.restu = batas(G.restu + 6); toast('Penghijauan selesai: hijaunya sawit. Bos: "Hijau tetap hijau." Cuan +50, Restu +6.'); } };
+      hadiah: () => { G.cuan += 50; G.restu = batas(G.restu + 6); toast('Penghijauan selesai. Cuan +50, Restu +6.'); } };
   }
-  wMisiBaru = 5; misiTampil = -1; toast('PENUGASAN BOS! Lihat panah kuning.'); bunyi.misi(); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'PENUGASAN BOS!', 'besar emas');
+  wMisiBaru = 5; misiTampil = -1; toast('PENUGASAN BOS!'); bunyi.misi(); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'PENUGASAN BOS!', 'besar emas');
 }
 function tugasTick(dt) {
   if (G.misi < MISI_DEF.length - 1) return;
@@ -608,7 +615,7 @@ function tugasTick(dt) {
     TUGAS.hadiah(); G.tugasOk++; E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 40); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS SELESAI!', 'besar emas'); bunyi.misi();
     TUGAS = null; wTugas = 70 + Math.random() * 30; misiTampil = -1;
   } else if (TUGAS.sisa <= 0) {
-    G.restu = batas(G.restu - 8); G.panas = batas(G.panas + 2); toast(KEGAGALAN_BOS[Math.floor(Math.random() * KEGAGALAN_BOS.length)] + ' Restu -8.'); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS GAGAL', 'besar buruk'); bunyi.gagal();
+    G.restu = batas(G.restu - 8); G.panas = batas(G.panas + 2); toast('Tugas gagal. Restu -8.'); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS GAGAL', 'besar buruk'); bunyi.gagal();
     TUGAS = null; wTugas = 60 + Math.random() * 30; misiTampil = -1;
   }
 }
@@ -617,7 +624,7 @@ function tugasTick(dt) {
 const KUNCI_UI = 'republikEmas.ui.lipat';
 function lipatKartu(nama, lipat) {
   const kartu = $(nama === 'kiri' ? 'kiriAtas' : 'kananAtas');
-  kartu.classList.toggle('terlipat', lipat);
+  kartu.classList.toggle('terlipat', lipat); if (nama === 'kiri') kiriTetap = !lipat;
   const t = kartu.querySelector('.lipat'); t.textContent = lipat ? '▾' : '▴'; t.setAttribute('aria-expanded', String(!lipat));
   try { const u = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}'); u[nama] = lipat; localStorage.setItem(KUNCI_UI, JSON.stringify(u)); } catch (e) { /* abaikan */ }
 }
@@ -625,22 +632,22 @@ document.querySelectorAll('.lipat').forEach(t => t.addEventListener('pointerdown
 // Bawaan: terlipat. Pilihan pemain (terbuka atau terlipat) yang tersimpan menggantikan bawaan.
 let uiTersimpan = {};
 try { uiTersimpan = JSON.parse(localStorage.getItem(KUNCI_UI) || '{}') || {}; } catch (e) { /* abaikan */ }
-lipatKartu('kiri', uiTersimpan.kiri !== false); lipatKartu('kanan', uiTersimpan.kanan !== false);
+lipatKartu('kiri', uiTersimpan.kiri !== false); lipatKartu('kanan', uiTersimpan.kanan === true);
 
 // ---------- Satir: pangkat, prestasi, berita ----------
 let emasDilihat = false, wSatir = 0, wBerita = 25, wBatuk = 8, ispaBatas = 0;
 function satirTick(dt) {
   if (!G.jalan || G.jeda) return;
   tugasTick(dt);
-  if (!emasDilihat && jarakDua(pemain.position.x, pemain.position.z, ZONA_EMAS.x, ZONA_EMAS.z) < 34) { emasDilihat = true; toast('LAHAN STRATEGIS KOPERASI! Bangun Koperasi di cincin emas ini: Cuan 8× lipat.'); }
+  if (!emasDilihat && jarakDua(pemain.position.x, pemain.position.z, ZONA_EMAS.x, ZONA_EMAS.z) < 34) { emasDilihat = true; toast('LAHAN STRATEGIS! Bangun Koperasi di cincin emas: 8×.'); }
   if (G.kabut > 45 && (wBatuk -= dt) <= 0) { wBatuk = 7 + Math.random() * 5; E.teks(pemain.position.clone().setY(pemain.position.y + 4.2), 'UHUK! UHUK!', 'info'); bunyi.batuk(); }
   const batasIspa = Math.floor(G.ispa / 18);
   if (batasIspa > ispaBatas) {
     ispaBatas = batasIspa; ucapTeks('Juru Bicara Kementerian', DENIAL[Math.floor(Math.random() * DENIAL.length)]);
-    toast(`Kasus ISPA warga: ${Math.floor(G.ispa)}. Pemerintah: "Angka ini masih dalam batas keyakinan."`); E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'ISPA NAIK', 'besar buruk');
+    E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'ISPA NAIK', 'besar buruk');
   }
   if (wBerita > 0 && (wBerita -= dt) <= 0 && !(wToast > 0 || wUcap > 0 || bannerAktif ? (wBerita = 3, true) : false)) { // pesan penting didahulukan
-    wBerita = 38 + Math.random() * 20;
+    wBerita = 75 + Math.random() * 40;
     const hutan = Math.round(PETAK.filter(p => p.status === 'hutan').length / PETAK.length * 100);
     banner('BERITA', pilihBerita(G, { hutanPersen: hutan, mangkrak: G.bangunan.filter(b => b.mangkrak).length }), 'berita', 7);
   }
@@ -656,7 +663,7 @@ function satirTick(dt) {
   for (const pr of PRESTASI) {
     if (G.prestasi.includes(pr.id) || !pr.ok(G)) continue;
     G.prestasi.push(pr.id);
-    toast(`PRESTASI: ${pr.nama}. ${pr.ket}`); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'PRESTASI!', 'besar emas'); bunyi.misi();
+    toast(`PRESTASI: ${pr.nama}`); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'PRESTASI!', 'besar emas'); bunyi.misi();
     break;
   }
 }
@@ -670,9 +677,9 @@ function berhentiOto(sampai) { if (!otoJalan) return; otoJalan = false; if (samp
 $('misi').addEventListener('pointerdown', e => {
   e.preventDefault();
   if (otoJalan) { berhentiOto(); return toast('Jalan otomatis dihentikan.'); }
-  if (G.naik) return toast('Turun dari kendaraan dulu untuk jalan otomatis.');
+  if (G.naik) return toast('Turun dulu untuk jalan otomatis.');
   if (!targetTerakhir) return;
-  otoJalan = true; otoKeluar = false; toast('Jalan otomatis ke tujuan. Gerakkan joystick untuk berhenti.');
+  otoJalan = true; otoKeluar = false; toast('Jalan otomatis. Gerak joystick untuk berhenti.');
 });
 function jalanKaki(dt) {
   let oto = null;
@@ -732,7 +739,7 @@ function jalanKaki(dt) {
   if (Math.abs(kamera.fov - 60) > 0.2) { kamera.fov += (60 - kamera.fov) * Math.min(1, dt * 4); kamera.updateProjectionMatrix(); }
 }
 function lompat() {
-  if (G.naik && G.naik.jenis === 'mobil') return toast('Mobil dinas tidak bisa melompat. Itu bukan kuda.');
+  if (G.naik && G.naik.jenis === 'mobil') return toast('Mobil dinas tidak bisa melompat.');
   if (G.naik) { if (!G.naik.tanah) return; G.naik.vy = 9; G.naik.tanah = false; }
   else { if (!fis.tanah) return; fis.vy = 11; fis.tanah = false; }
   G.stat.lompat++; bunyi.lompat(); E.semburan(pemain.position.clone().setY(pemain.position.y + 0.3), 'debu', 6);
@@ -794,9 +801,9 @@ function naikTurun() {
     return;
   }
   const k = kendaraanDekat();
-  if (!k) return toast('Tidak ada kendaraan di dekat Anda. Motor ada dekat titik mulai, mobil dinas dekat Kantor Kementerian.');
+  if (!k) return toast('Tidak ada kendaraan di dekat.');
   G.naik = k; k.v = 0; G.stat.naik++; bunyi.pop(); E.semburan(V(k.x, k.z, 1), 'debu', 10);
-  toast(`Naik ${k.nama}. Kemudikan dengan W/A/S/D atau joystick. Tekan ${sentuh ? 'Naik' : 'N'} lagi untuk turun.`);
+  toast(`Naik ${k.nama}.`);
 }
 function klakson() {
   if (!G.naik) return toast('Klakson hanya ada di kendaraan.');
@@ -917,7 +924,7 @@ function update(dt) {
       a.position.x += (tx - a.position.x) * Math.min(1, dt * 6); a.position.z += (tz - a.position.z) * Math.min(1, dt * 6);
       a.position.y = lantai(a.position.x, a.position.z); a.rotation.y = pemain.rotation.y;
     });
-    if (G.aparat <= 0) { G.aparat = 0; daftarAparat.splice(0).forEach(a => scene.remove(a)); toast('Kontrak aparat habis. Pemilik kios galak kembali menakutkan.'); }
+    if (G.aparat <= 0) { G.aparat = 0; daftarAparat.splice(0).forEach(a => scene.remove(a)); toast('Kontrak aparat habis.'); }
   }
   for (const o of daftarOknum) {
     o.waktu -= dt; if (o.waktu > 0) continue;
@@ -965,7 +972,7 @@ function update(dt) {
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
   } else if (dekatKantor()) h = `Kantor Kementerian: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
   setPrompt(h);
-  if (u && !u.tutup && u !== uSapa && G.t > (u.sapaLagi || 0)) { ucap(u, 's'); u.sapaLagi = G.t + 60; }
+  if (u && !u.tutup && u !== uSapa && G.t > (u.sapaLagi || 0) && !(wToast > 0 || bannerAktif || wUcap > 0)) { ucap(u, 's'); u.sapaLagi = G.t + 60; }
   uSapa = u || null;
   // Sorot tombol hanya saat aksinya benar-benar bisa dilakukan sekarang
   let s = null;
@@ -988,10 +995,10 @@ function update(dt) {
 function akhirBulan() {
   const kuota = kuotaBulan(G.bulan);
   if (G.cuan >= kuota) {
-    G.cuan -= kuota; G.restu = batas(G.restu + 8); toast(`Setoran bulan ${G.bulan}: ${kuota}. Bos senang.`); monolog('setoranOk');
+    G.cuan -= kuota; G.restu = batas(G.restu + 8); toast(`Setoran ${kuota} lunas. Restu +8.`); monolog('setoranOk');
     E.koinKeluar(V(KANTOR.x, KANTOR.z, 7), Math.min(16, 5 + Math.floor(kuota / 40))); E.teks(depanPemain(3, 3.5), `Setoran -${kuota}`, 'besar rugi'); E.teks(depanPemain(3, 4.5), 'Restu +8', 'bagus', 0.35); E.hudTeks('-' + kuota, 'rugi'); bunyi.setoran();
   } else {
-    G.restu = batas(G.restu - 12); toast(`Setoran bulan ${G.bulan} KURANG (${kuota}). Restu Bos -12.`); monolog('setoranKurang');
+    G.restu = batas(G.restu - 12); toast(`Setoran KURANG (${kuota}). Restu -12.`); monolog('setoranKurang');
     E.teks(depanPemain(3, 3.5), 'SETORAN KURANG', 'besar buruk'); E.teks(depanPemain(3, 4.5), 'Restu -12', 'buruk', 0.35); E.getar(0.35); bunyi.gagal();
   }
   if (G.cuan < 20) G.cuan = 20;
@@ -1026,6 +1033,11 @@ $('lanjut').onclick = () => { $('laporan').hidden = true; G.jeda = false; };
 function hud() {
   const set = (id, v) => { const p = Math.max(0, Math.min(100, v)); $(id).style.width = p + '%'; const mini = $('m' + id.slice(1)); if (mini) mini.style.setProperty('--v', p + '%'); };
   set('bRestu', G.restu); set('bPanas', G.panas); set('bRakyat', G.rakyat); set('bKabut', G.kabut);
+  // Kartu meter hanya muncul saat ada yang genting atau baru berubah (kecuali pemain membukanya sendiri)
+  { const nilai = [G.restu, G.panas, G.rakyat, G.kabut], skrg = performance.now();
+    if (nilaiMeter.some((v, i) => Math.abs(v - nilai[i]) >= 4)) { kiriSampai = skrg + 5000; nilaiMeter = nilai.slice(); }
+    const genting = G.panas >= 60 || G.rakyat >= 60 || G.kabut >= 55 || G.restu <= 25;
+    $('kiriAtas').classList.toggle('sembunyi', !(kiriTetap || genting || skrg < kiriSampai)); }
   $('cuan').textContent = Math.floor(G.cuan);
   $('penghasilan').textContent = '+' + G.penghasilan.toFixed(1) + '/dtk';
   $('citra').textContent = Math.floor(G.citra);
@@ -1118,7 +1130,7 @@ function simpan(manual = false) {
     infoSimpan('✓ Tersimpan');
     if (manual) { bunyi.simpan(); toast('Progres disimpan di peramban ini.'); }
   } catch (e) {
-    if (!simpanGagal || manual) { simpanGagal = true; toast('Penyimpanan tidak tersedia di peramban ini (mode privat atau penuh).'); }
+    if (!simpanGagal || manual) { simpanGagal = true; toast('Penyimpanan tidak tersedia.'); }
   }
 }
 function baca() {

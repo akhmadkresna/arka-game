@@ -43,10 +43,10 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
     aktif = true; fase = 'kumpul'; waktuDemo = 0; kebal = 0; gelombang = 0; chant = 2; pulang = 0;
     G.demoKali = (G.demoKali || 0) + 1;
     E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'DEMO DI KANTOR!', 'besar buruk'); bunyi.klakson(); E.getar(0.2);
-    toast('DEMO! Rakyat berkumpul di depan kantor, lalu akan mencari Anda ke mana pun. Aparat hanya menahan mereka sebentar.');
-    if (!petunjuk) { petunjuk = true; setTimeout(() => toast('Demo baru reda bila Amarah Rakyat turun di bawah 28. Coba konferensi pers atau hentikan kabut.'), 6500); }
+    toast('DEMO! Massa berkumpul di kantor, lalu mengejar Anda.');
+    if (!petunjuk) { petunjuk = true; setTimeout(() => toast('Demo reda bila Amarah < 28.'), 6500); }
   }
-  function selesai() { fase = 'pulang'; pulang = 14; toast('Amarah mereda. Massa bubar pulang. Untuk sementara.'); }
+  function selesai() { fase = 'pulang'; pulang = 14; toast('Demo bubar. Untuk sementara.'); }
   function lepas() { for (const m of massa) scene.remove(m.g); massa.length = 0; aktif = false; fase = 'tidur'; jeda = 70 + rand(0, 40); }
 
   function update(dt) {
@@ -66,7 +66,7 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
       massa.forEach(m => { m.v = Math.min(9.5, m.v + 0.35); m.takut = false; });
       G.rakyat = batas(G.rakyat + 4);
       E.teks(pemain.position.clone().setY(pemain.position.y + 5), 'MASSA KEMBALI!', 'besar buruk'); bunyi.klakson(); E.getar(0.25);
-      toast(`Kontrak aparat habis. Massa kembali: ${massa.length} orang, lebih ramai dan lebih cepat. Amarah +4.`);
+      toast(`Massa kembali: ${massa.length} orang. Amarah +4.`);
     }
     if (!aparat) tercatat = false;
     aparatSebelumnya = aparat;
@@ -113,7 +113,7 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
       const u = m.g.userData; u.lenganK.rotation.x = -2.6 + Math.sin(m.fase * 0.5) * 0.3; u.lenganN.rotation.x = al > 0.05 ? Math.sin(m.fase) * 0.8 : 0;
       if (d < 2.4) dekat++;
     }
-    if (pantau && !tercatat) { tercatat = true; G.dibubarkan = (G.dibubarkan || 0) + 1; G.citra = Math.max(0, G.citra - 3); toast('Aparat berbaris. Massa mundur... untuk sementara. Citra -3.'); }
+    if (pantau && !tercatat) { tercatat = true; G.dibubarkan = (G.dibubarkan || 0) + 1; G.citra = Math.max(0, G.citra - 3); toast('Aparat berbaris. Massa mundur. Citra -3.'); }
 
     // Tersergap massa (berulang selama demo, dengan jeda singkat)
     if (fase === 'kejar' && !aparat && dekat > 0 && kebal <= 0) {
@@ -123,7 +123,7 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
       const ds = pemain.position.clone(); let ex = 0, ez = 0; for (const m of massa) { ex += px - m.x; ez += pz - m.z; } const el = Math.hypot(ex, ez) || 1;
       const tx = px + ex / el * 6, tz = pz + ez / el * 6; if (lantai(tx, tz) > 0.5 && !G.naik) { pemain.position.x = tx; pemain.position.z = tz; }
       E.teks(ds.setY(ds.y + 5), `DIKEPUNG RAKYAT! -${rugi}`, 'besar buruk'); E.getar(0.5); bunyi.gagal(); kilat && kilat('#d6453d');
-      toast(`Rakyat menyampaikan aspirasi dari jarak sangat dekat. Cuan -${rugi}, Citra -4, Restu -5. Mereka masih mengikuti Anda.`);
+      toast(`Dikepung! Cuan -${rugi}, Citra -4, Restu -5.`);
     }
   }
   return { update, mulai, status: () => ({ aktif, fase, n: massa.length, gelombang, pos: massa.map(m => [Math.round(m.x), Math.round(m.z)]) }) };

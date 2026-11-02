@@ -58,3 +58,31 @@ body #laporan .kotak h1,body #laporan .kotak h3,body #kartu .kotak h1,body #kart
 body #laporan .kotak p,body #laporan .kotak div,body #kartu .kotak p{color:#3b2a14}
 body #laporan .kotak b{color:#8a3a0a}
 body #laporan .kotak button,body #kartu .kotak button{border:10px solid transparent;border-image:url(../assets/kenney/ui/buttonLong_brown.png) 14 fill/10px/0 stretch;background:none;border-radius:0;color:var(--kteks);padding:4px 18px;text-shadow:0 1px 1px #2a1a0a}
+
+/* ===== Fase 1 UX: HUD minimal, teks lebih pendek dan terbaca, bantuan sesuai permintaan ===== */
+body #kiriAtas.sembunyi{display:none}
+/* Rincian dan pengaturan di balik ikon gigi (semua mode) */
+body .rinci{display:none}
+body #kananAtas.buka .rinci{display:block}
+body #kananAtas.buka #tombolRinci{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+body #kananAtas.buka #tombolRinci button{margin:0;min-height:40px;padding:6px 12px;font-size:.8rem;border-radius:0}
+body #btnRinci{display:flex;align-items:center;justify-content:center;position:absolute;top:2px;right:2px;width:40px;height:40px;min-height:40px;padding:0;margin:0;background:none;border-radius:0;pointer-events:auto;z-index:2}
+body #btnRinci .ik{width:22px;height:22px;margin:0;opacity:.9}
+body #kananAtas{padding-right:44px;min-height:46px}
+body #kananAtas.terlipat #btnRinci{display:none}
+body .lipat::before{inset:-14px -10px}
+/* Teks permainan: minimal 14 px untuk yang dibaca */
+@media(max-aspect-ratio:1/1){
+  body.sentuh #misiTeks{font-size:.95rem;line-height:1.3}
+  body.sentuh #prompt{font-size:.9rem}
+  body.sentuh #toast{font-size:.92rem}
+  body.sentuh #berita{font-size:.9rem}
+  body.sentuh #ucapan{font-size:.86rem}
+  body.sentuh #monolog{font-size:.88rem}
+}
+/* Bantuan desktop: satu tombol ?, daftar tombol hanya saat diminta */
+body #btnBantuan{position:fixed;right:14px;bottom:14px;width:40px;height:40px;min-height:40px;padding:0;margin:0;border-radius:50%;font-size:1.1rem;background:#4a3219;color:#fff7e0;border:2px solid #8a6a42;pointer-events:auto;z-index:3}
+body.sentuh #btnBantuan{display:none}
+body #bantuan{display:none}
+body #bantuan.buka{display:block;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);bottom:auto;right:auto;width:min(700px,92vw);padding:22px 26px;text-align:left;font-size:.98rem;line-height:2;color:#3b2a14;text-shadow:none;border:14px solid transparent;border-image:url(../assets/kenney/ui/panel_beige.png) 14 fill/14px/0 stretch;pointer-events:auto;z-index:8}
+body #bantuan .jb{display:block;font-size:1.1rem;color:#7a3a0a;margin-bottom:4px}

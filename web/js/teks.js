@@ -56,14 +56,14 @@ export const DENDA = {
 // Panduan misi. {x} dst. diganti nama tombol sesuai perangkat. buka = tombol yang relevan (null = semua).
 export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'Dapur', '2': 'Koperasi', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
 export const MISI = [
-  { ringkas: 'Ke warung/ojol terdekat bertanda panah, ketuk {x}. {v} = pasti berhasil.', teks: 'Tidak punya modal? Jalan ke warung atau ojol terdekat yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
-  { ringkas: 'Ke hutan bertanda panah, ketuk {b} (gratis).', teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },
-  { ringkas: 'Tunggu api padam ±7 dtk, ketuk {p} untuk tanam sawit (40).', teks: 'Tunggu api padam (sekitar 7 detik), lalu tekan {p} untuk menanam sawit (40 Cuan). Setelah ini Cuan mengalir sendiri.', buka: ['p', 'b', 't', 'x', 'v'] },
-  { ringkas: 'Ulangi {b} lalu {p} sampai 3 petak sawit. Kehabisan Cuan? {x}.', teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },
-  { ringkas: 'Ke titik bertanda (jauh dari desa), hadap tanah kosong, ketuk {1}.', teks: 'Bangun dapur: jalan ke titik yang ditandai (jauh dari desa), hadapkan tokoh ke tanah kosong, lalu tekan {1}.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
-  { ringkas: 'Hadap ke desa lalu ketuk {1}. Lihat apa yang terjadi.', teks: 'Sekarang coba bangun dekat desa: hadapkan tokoh ke desa, lalu tekan {1}. Lihat apa yang terjadi.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
-  { ringkas: 'Ke motor bertanda, ketuk {n}; ketuk lagi untuk turun. {j} = lompat.', teks: 'Naik kendaraan: jalan ke motor yang ditandai, lalu tekan {n}. Kemudikan dengan W/A/S/D atau joystick dan tekan {n} lagi untuk turun. Mobil dinas ada di dekat Kantor Kementerian. {j} untuk lompat.', buka: ['n', 'j', 'h', 'x', 'v'] },
-  { ringkas: 'Bos menagih setoran tiap bulan. Beli {u}, rekrut {o}, atau sewa {v}. Tanpa akhir!', teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Ojol di jalan juga bisa dipalak. Selamat bertugas, tanpa akhir!', buka: null },
+  { ringkas: 'Palak warung/ojol: ketuk {x}.', teks: 'Tidak punya modal? Jalan ke warung atau ojol terdekat yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
+  { ringkas: 'Bakar hutan bertanda: ketuk {b}.', teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },
+  { ringkas: 'Tunggu api padam, ketuk {p} (40).', teks: 'Tunggu api padam (sekitar 7 detik), lalu tekan {p} untuk menanam sawit (40 Cuan). Setelah ini Cuan mengalir sendiri.', buka: ['p', 'b', 't', 'x', 'v'] },
+  { ringkas: '3 kebun sawit: {b} lalu {p}.', teks: 'Perbanyak kebun: ulangi {b} lalu {p} sampai punya 3 petak sawit. Kehabisan Cuan? Tekan {x} di warung.', buka: ['p', 'b', 't', 'x', 'v'] },
+  { ringkas: 'Bangun dapur di titik bertanda: {1}.', teks: 'Bangun dapur: jalan ke titik yang ditandai (jauh dari desa), hadapkan tokoh ke tanah kosong, lalu tekan {1}.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
+  { ringkas: 'Hadap ke desa, ketuk {1}.', teks: 'Sekarang coba bangun dekat desa: hadapkan tokoh ke desa, lalu tekan {1}. Lihat apa yang terjadi.', buka: ['1', '2', 'b', 'p', 't', 'x', 'v', 'f'] },
+  { ringkas: 'Naik motor: ketuk {n}. {j} = lompat.', teks: 'Naik kendaraan: jalan ke motor yang ditandai, lalu tekan {n}. Kemudikan dengan W/A/S/D atau joystick dan tekan {n} lagi untuk turun. Mobil dinas ada di dekat Kantor Kementerian. {j} untuk lompat.', buka: ['n', 'j', 'h', 'x', 'v'] },
+  { ringkas: 'Setoran tiap bulan. Beli {u}/{o}/{v}.', teks: 'Bos menagih setoran tiap akhir bulan. Beli pupuk {u}, rekrut oknum {o}, atau sewa aparat {v}. Ojol di jalan juga bisa dipalak. Selamat bertugas, tanpa akhir!', buka: null },
 ];
 
 export const PAJAK = [

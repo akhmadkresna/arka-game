@@ -72,7 +72,7 @@ export function buatNPC(d) {
     for (const s of SEKOLAH) {
       if (s.kumpul && (s.kumpul.sisa -= dt) <= 0) s.kumpul = null;
       if (s.pulihSisa > 0 && (s.pulihSisa -= dt) <= 0) { // anak-anak pulih: sekolah dibuka kembali
-        s.kejadian = 0; if (s.libur) { setLibur(s, false); toast(s.nama + ' kembali buka. Kegiatan belajar dilanjutkan, tepat setelah sesi foto.'); }
+        s.kejadian = 0; if (s.libur) { setLibur(s, false); toast(s.nama + ' kembali buka.'); }
       }
       if (s.pulihSisa <= 0 && s.absen > 0 && (s.balik = (s.balik || 0) - dt) <= 0) { s.absen--; s.balik = 4; }
       for (let i = 0; i < s.anak.length; i++) s.anak[i].g.visible = i < s.anak.length - s.absen;
@@ -239,7 +239,7 @@ export function buatNPC(d) {
     b.sampai = G.t + 40; G.kasRaib = (G.kasRaib || 0) + 1;
     G.cuan += untung; G.panas = batas(G.panas + 3); G.rakyat = batas(G.rakyat + 3);
     E.teks(V(b.x, b.z, 7), `KAS KOPERASI MASUK KANTONG +${untung}`, 'besar emas');
-    toast(KABUR[Math.floor(Math.random() * KABUR.length)]);
+    d.ucapResmi && d.ucapResmi('Juru Bicara Kementerian', KABUR[Math.floor(Math.random() * KABUR.length)]);
     const g = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x7a4a2a }), M.hitam, 0.5);
     const karung = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), new THREE.MeshLambertMaterial({ color: 0xd9b66a }));
     karung.position.set(0, 3.2, -0.9); g.add(karung); grup.add(g);
@@ -270,12 +270,12 @@ export function buatNPC(d) {
     const sk = SEKOLAH.slice().sort((p, q) => dist(p.x, p.z, b.x, b.z) - dist(q.x, q.z, b.x, b.z))[0];
     if (sk) {
       sk.kejadian++; sk.absen = Math.min(sk.anak.length, sk.absen + Math.ceil(n / 6)); sk.pulihSisa = 110; sk.balik = 4;
-      if (!sk.libur && (sk.kejadian >= 2 || sk.absen >= sk.anak.length - 1)) { setLibur(sk, true); sk.absen = sk.anak.length; setTimeout(() => toast(sk.nama + ': KEGIATAN BELAJAR LIBUR. Siswa dirawat. Menteri: "Libur adalah solusi pendidikan paling hemat."'), 4200); }
+      if (!sk.libur && (sk.kejadian >= 2 || sk.absen >= sk.anak.length - 1)) { setLibur(sk, true); sk.absen = sk.anak.length; setTimeout(() => toast(sk.nama + ': libur. Siswa dirawat.'), 4200); }
     }
     G.rakyat = batas(G.rakyat + 8); G.restu = batas(G.restu - 4); G.panas = batas(G.panas + 3); G.citra = Math.max(0, G.citra - 6);
     const pos = V(b.x, b.z, 7);
     E.teks(pos, 'KEJADIAN LUAR BIASA', 'besar buruk'); E.getar(0.3); bunyi.sirene(); bunyi.gagal();
-    toast(`${SANGKALAN[Math.floor(Math.random() * SANGKALAN.length)]} ${n} siswa dirujuk, dapur ditutup sementara.`);
+    toast(`${n} siswa dirujuk. Dapur ditutup.`); { const sk2 = SANGKALAN[Math.floor(Math.random() * SANGKALAN.length)], q = sk2.match(/"(.+)"/); d.ucapResmi && d.ucapResmi('Juru Bicara Kementerian', q ? q[1] : sk2); }
     monolog('keracunan');
     kirimWartawan(b);
     return { n, kirim };
