@@ -1,6 +1,6 @@
 // Republik Emas (anti gizi buruk): dunia terbuka, kamera orang ketiga, mode santai tanpa akhir.
 import * as THREE from '../vendor/three.module.js';
-import { R, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG, JALAN } from './konfig.js';
+import { R, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG, JALAN, titikJalanTerdekat } from './konfig.js';
 import { tinggi, lantai, buatTerrain } from './terrain.js';
 import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite, motorPemain, mobilDinas } from './objek.js';
 import { buatEfek } from './efek.js';
@@ -72,7 +72,7 @@ const KIOS = UMKM.map((u, i) => {
   g.add(new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.4, 4.6), M.batu)); g.children[g.children.length - 1].position.set(0, -0.8, 0);
   g.position.set(u.x, h, u.z);
   g.scale.setScalar(1.3);
-  g.rotation.y = Math.atan2(SPAWN.x - u.x, SPAWN.z - u.z);
+  const tj = titikJalanTerdekat(u.x, u.z); g.rotation.y = Math.atan2(tj.x - u.x, tj.z - u.z); // menghadap jalan terdekat
   scene.add(g);
   return { ...u, jenis: 'kios', g, cd: 0, berhasil: 0, tutup: false, sisaTutup: 0, marah: 0 };
 });
