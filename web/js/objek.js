@@ -3,6 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 import { rng, fbm } from './noise.js';
 import { tinggi } from './terrain.js';
 import { TATA, FOOT } from './tata.js';
+import { klonModel, buatInstansModel } from './model.js';
 import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
 
 export const M = {
@@ -247,6 +248,7 @@ export function buatObjek(scene, terrain) {
   function bersihkan(x, z, r) {
     for (const d of titikDekor) if (d.tampil && Math.hypot(d.x - x, d.z - z) < r) { d.tampil = false; d.ids.forEach(([inst, id]) => inst.tampil(id, false)); }
     [batangDekor, bulatDekor, kerucutDekor, batuDekor].forEach(i => i.sinkron());
+    if (typeof glbInst !== 'undefined') glbInst.forEach(i => i.sinkron());
   }
   [batangDekor, bulatDekor, kerucutDekor, batuDekor].forEach(i => dunia.add(i.mesh));
 
@@ -350,13 +352,14 @@ export function buatObjek(scene, terrain) {
   const tp = papan('TEMPAT PEMBUANGAN\n(Taman Pemandangan Abadi)', 8, 3); tp.position.set(TPA.x, tinggi(TPA.x, TPA.z - 14) + 5, TPA.z - 14); dunia.add(tp);
 
   // ----- Tempat Pemakaman Umum (TPU) -----
+  const tpuLama = [], posisiMakam = [];
   {
     const hT = tinggi(TPU.x, TPU.z), rx = 22, rz = 18;
     const tanahT = new THREE.MeshLambertMaterial({ color: 0x8fa56c }), gundukM = new THREE.MeshLambertMaterial({ color: 0x5a4330 }), nisanM = new THREE.MeshLambertMaterial({ color: 0xcfcabd }), pagarM = new THREE.MeshLambertMaterial({ color: 0xe8e2d2 });
     const lantaiT = mesh(geo.box, tanahT, TPU.x, hT + 0.08, TPU.z, rx * 2, 0.16, rz * 2); dunia.add(lantaiT);
-    const pagar = (x, z, w, d) => dunia.add(mesh(geo.box, pagarM, TPU.x + x, hT + 0.7, TPU.z + z, w, 1.4, d));
+    const pagar = (x, z, w, d) => { const pg = mesh(geo.box, pagarM, TPU.x + x, hT + 0.7, TPU.z + z, w, 1.4, d); tpuLama.push(pg); dunia.add(pg); };
     pagar(0, -rz, rx * 2, 0.5); pagar(-rx, 0, 0.5, rz * 2); pagar(rx, 0, 0.5, rz * 2); pagar(-rx / 2 - 3.5, rz, rx - 7, 0.5); pagar(rx / 2 + 3.5, rz, rx - 7, 0.5); // pintu masuk di sisi selatan
-    [-3.2, 3.2].forEach(s => dunia.add(mesh(geo.box, pagarM, TPU.x + s, hT + 1.6, TPU.z + rz, 0.9, 3.2, 0.9)));
+    [-3.2, 3.2].forEach(s => { const tg = mesh(geo.box, pagarM, TPU.x + s, hT + 1.6, TPU.z + rz, 0.9, 3.2, 0.9); tpuLama.push(tg); dunia.add(tg); });
     const gerbang = papan('PEMAKAMAN RUKUN DAMAI\n(Kavling Baru: Promo Pemilihan)', 8, 2.6); gerbang.position.set(TPU.x, hT + 4.2, TPU.z + rz + 0.2); dunia.add(gerbang);
     const gundukan = new Inst(geo.box, gundukM, 60), nisan = new Inst(geo.box, nisanM, 60), puncak = new Inst(geo.silinder, nisanM, 60);
     const bunga = [0xe8b83c, 0xd6453d, 0xffffff].map(c => new Inst(geo.bola, new THREE.MeshLambertMaterial({ color: c }), 40));
@@ -364,10 +367,12 @@ export function buatObjek(scene, terrain) {
     for (let a = 0; a < 7; a++) for (let b = 0; b < 4; b++) {
       if (acak() < 0.1) continue;
       const x = TPU.x - rx + 5 + a * 5.6 + (acak() - 0.5) * 0.8, z = TPU.z - rz + 5 + b * 7 + (acak() - 0.5) * 0.8, ry = (acak() - 0.5) * 0.18, h = tinggi(x, z);
+      posisiMakam.push([x, z - 0.8, ry, h]);
       gundukan.tambah(x, h + 0.25, z + 1.2, 1.7, 0.5, 3.6, ry);
       nisan.tambah(x, h + 0.9, z - 0.8, 1.0, 1.5, 0.22, ry); puncak.tambah(x, h + 1.65, z - 0.8, 0.5, 0.22, 0.12, ry);
       if (acak() < 0.55 && nb < 40) { bunga[nb % 3].tambah(x + (acak() - 0.5) * 0.8, h + 0.6, z + 0.9, 0.22, 0.22, 0.22); nb++; }
     }
+    tpuLama.push(nisan.mesh, puncak.mesh);
     dunia.add(gundukan.mesh, nisan.mesh, puncak.mesh, ...bunga.map(i => i.mesh));
     // Kamboja di sudut TPU
     const kamboja = new THREE.MeshLambertMaterial({ color: 0x3f7a3a }), putihK = new THREE.MeshLambertMaterial({ color: 0xfff4e0 });
@@ -388,6 +393,50 @@ export function buatObjek(scene, terrain) {
     [-4.2, 4.2].forEach(s => dunia.add(tiang(M.kayu, ZONA_EMAS.x + s, hE + 2.6, ZONA_EMAS.z - ZONA_EMAS.r + 0.8, 0.2, 5.2)));
     dunia.userData.cincinEmas = cincin; dunia.userData.sinarEmas = sinar;
   }
+
+
+  // ----- Aset 3D Kenney (glTF, CC0): dimuat belakangan; bila gagal, dunia prosedural tetap dipakai -----
+  const glbInst = [];
+  const pasangGLB = inst => { glbInst.push(inst); inst.pasangKe(dunia); return inst; };
+  (async () => {
+    try {
+      // Makam, pagar besi, tiang lampu, krip, dan pinus untuk TPU
+      const [nisanG, pagarG, gerbangG, tiangG, krip, pinus, pinusB] = await Promise.all([
+        Promise.all(['gravestone-round', 'gravestone-cross', 'gravestone-bevel', 'gravestone-wide', 'gravestone-broken', 'gravestone-decorative'].map(n => buatInstansModel('grave/' + n, 40))),
+        buatInstansModel('grave/iron-fence', 60), buatInstansModel('grave/iron-fence-border-gate', 4), buatInstansModel('grave/lightpost-single', 6),
+        buatInstansModel('grave/crypt-small', 2), buatInstansModel('grave/pine', 8), buatInstansModel('grave/pine-crooked', 8)]);
+      tpuLama.forEach(m => dunia.remove(m));
+      posisiMakam.forEach(([x, z, ry, h], i) => nisanG[i % nisanG.length].tambah(x, h + 0.1, z, 3, 3, 3, ry));
+      const rx = 22, rz = 18, hT = tinggi(TPU.x, TPU.z), segmen = 3.2;
+      const baris = (x0, z0, panjang, ry, lewati) => { for (let s = segmen / 2; s < panjang; s += segmen) { const px = ry ? x0 : x0 + s, pz = ry ? z0 + s : z0; if (lewati && lewati(px, pz)) continue; pagarG.tambah(px, hT, pz, segmen, 1.7, 1.6, ry); } };
+      baris(TPU.x - rx, TPU.z - rz, rx * 2, 0); baris(TPU.x - rx, TPU.z + rz, rx * 2, 0, (px) => Math.abs(px - TPU.x) < 5);
+      baris(TPU.x - rx, TPU.z - rz, rz * 2, Math.PI / 2); baris(TPU.x + rx, TPU.z - rz, rz * 2, Math.PI / 2);
+      gerbangG.tambah(TPU.x, hT, TPU.z + rz, 8, 2.4, 3, 0);
+      [-5.2, 5.2].forEach(s => tiangG.tambah(TPU.x + s, hT, TPU.z + rz + 0.8, 3.2, 3.2, 3.2, 0));
+      krip.tambah(TPU.x, hT, TPU.z - rz + 3.2, 4.2, 4.2, 4.2, 0);
+      [[-rx - 5, -rz + 2], [rx + 5, -rz + 2], [-rx - 6, rz - 3], [rx + 6, rz - 3]].forEach(([dx, dz], i) => (i % 2 ? pinus : pinusB).tambah(TPU.x + dx, tinggi(TPU.x + dx, TPU.z + dz), TPU.z + dz, 3.4, 3.4, 3.4, i));
+      [...nisanG, pagarG, gerbangG, tiangG, krip, pinus, pinusB].forEach(i => { pasangGLB(i); i.sinkron(); });
+    } catch (e) { console.warn('GLB TPU gagal:', e && e.message); }
+    try {
+      // Tanaman liar, batu, dan tunggul sebagai pengisi dunia
+      const jenis = [
+        ['nature/plant_bush', 130, [2.2, 3.4]], ['nature/plant_bushLarge', 90, [2.4, 3.6]], ['nature/flower_redA', 140, [2.5, 3.5]], ['nature/flower_yellowA', 140, [2.5, 3.5]], ['nature/flower_purpleA', 140, [2.5, 3.5]],
+        ['nature/rock_smallA', 70, [3, 5]], ['nature/rock_smallC', 70, [3, 5]], ['nature/rock_largeA', 40, [3.5, 6]], ['nature/rock_tallA', 40, [3, 5]], ['nature/stump_old', 40, [3, 4.4]], ['nature/log', 40, [3, 4.4]],
+      ];
+      const insts = await Promise.all(jenis.map(([n, maks]) => buatInstansModel(n, maks)));
+      let total = 0;
+      for (let k = 0; k < 9000 && total < 900; k++) {
+        const x = (acak() * 2 - 1) * (R - 15), z = (acak() * 2 - 1) * (R - 15);
+        if (Math.hypot(x, z) > R - 22 || !bebas(x, z)) continue;
+        const h = tinggi(x, z); if (h < 1.4) continue;
+        const i = Math.floor(acak() * insts.length), inst = insts[i];
+        if (inst.n >= inst.kap) continue;
+        const [a, b] = jenis[i][2], s = a + acak() * (b - a), id = inst.tambah(x, h, z, s, s, s, acak() * 6.28);
+        if (id >= 0) { titikDekor.push({ x, z, ids: [[inst, id]], tampil: true }); total++; }
+      }
+      insts.forEach(i => { pasangGLB(i); i.sinkron(); });
+    } catch (e) { console.warn('GLB pengisi gagal:', e && e.message); }
+  })();
 
   // ----- Kantor Kementerian -----
   const k = new THREE.Group();
@@ -549,6 +598,16 @@ export function motorPemain() {
   g.userData = { roda };
   return g;
 }
+// Ganti tampilan kendaraan prosedural dengan model Kenney bila berhasil dimuat (roda dikenali dari nama simpul)
+function gantiModel(g, nama, sx, sy, sz, simpan = [], putar = 0, warna = null) {
+  klonModel(nama).then(m => {
+    g.children.forEach(c => { if (!c.isSprite && !simpan.includes(c)) c.visible = false; });
+    if (warna !== null) m.traverse(x => { if (x.isMesh) { x.material = x.material.clone(); x.material.color.setHex(warna); } }); // gelapkan cat bawaan
+    m.scale.set(sx, sy, sz); m.rotation.y = putar; g.add(m);
+    const roda = []; m.traverse(x => { if (/wheel/i.test(x.name)) roda.push(x); });
+    if (roda.length) g.userData.roda = roda;
+  }).catch(() => { /* tetap prosedural */ });
+}
 export function mobilDinas() {
   const g = new THREE.Group();
   const cat = new THREE.MeshLambertMaterial({ color: 0x1e1e22 }), emasM = new THREE.MeshLambertMaterial({ color: 0xe8b83c });
@@ -564,6 +623,7 @@ export function mobilDinas() {
   });
   const pl = papan('MOBIL DINAS', 2.4, 0.6, { latar: '#e8b83c' }); pl.position.set(0, 1.9, 3.1); g.add(pl);
   g.userData = { roda, lampuM, lampuB };
+  gantiModel(g, 'car/sedan', 2.35, 2.2, 2.35, [lampuM, lampuB, pl], 0, 0x6c6c72);
   return g;
 }
 
@@ -595,6 +655,7 @@ export function ambulans() {
   [[-1.3, 2.2], [1.3, 2.2], [-1.3, -1.9], [1.3, -1.9]].forEach(([x, z]) => { const r = mesh(geo.silinder, M.hitam, x, 0.65, z, 0.66, 0.3, 0.66); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0, 0, 0, 0.45, 1.05, 0.2)); g.add(r); roda.push(r); });
   g.scale.setScalar(1.1);
   g.userData = { roda, lampuM, lampuB };
+  gantiModel(g, 'car/ambulance', 2.2, 2.2, 2.2, [lampuM, lampuB]);
   return g;
 }
 export function manusiaMini(baju, celana = M.hitam, skala = 0.5, topi = null) {

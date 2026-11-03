@@ -9,3 +9,13 @@ Aset pihak ketiga berlisensi CC0 (domain publik), karya [Kenney](https://www.ken
 | Interface Sounds | klik, buka/tutup, berita, jubir | [OpenGameArt](https://opengameart.org/content/interface-sounds) | `web/assets/kenney/audio/` |
 
 Teks lisensi asli ada di tiap folder (`LICENSE-*.txt`).
+
+## Model 3D (Kenney, CC0)
+
+| Aset | Dipakai untuk | Sumber | Lokasi |
+|---|---|---|---|
+| Graveyard Kit | nisan, pagar besi, krip, pinus, tiang lampu pemakaman | [OpenGameArt](https://opengameart.org/content/graveyard-kit) | `web/assets/kenney/model/grave/` |
+| Car Kit | mobil dinas dan ambulans | [OpenGameArt](https://opengameart.org/content/car-kit) | `web/assets/kenney/model/car/` |
+| Nature Kit | semak, bunga, batu, tunggul, dan batang kayu pengisi dunia | [OpenGameArt](https://opengameart.org/content/nature-kit) | `web/assets/kenney/model/nature/` |
+
+Pemuat glTF (`GLTFLoader`, `BufferGeometryUtils`) berasal dari three.js r160 (lisensi MIT) dan ada di `web/vendor/`.
