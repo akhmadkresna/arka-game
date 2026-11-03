@@ -239,3 +239,18 @@ kbd{display:inline-block;min-width:1.5em;padding:1px 7px;margin:0 1px;border-rad
 @keyframes hitungMundur{to{transform:scaleX(1)}}
 @media(max-aspect-ratio:1/1){.sentuh #berita{left:8px;width:calc(100vw - 16px);font-size:.82rem;padding:7px 10px 10px;gap:8px}.sentuh #berita .tag{font-size:.6rem;padding:2px 7px}}
 @media(max-height:480px){#berita{font-size:.78rem;padding:6px 10px 9px}#berita .tag{font-size:.58rem}}
+
+/* ---- Cuan kurang: harus langsung terlihat ---- */
+#kurangCuan{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) scale(.6);z-index:30;min-width:min(340px,88vw);max-width:92vw;background:linear-gradient(#e24b3f,#a9261c);color:#fff;border:3px solid #ffd6cf;border-radius:14px;padding:12px 18px;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.55);opacity:0;pointer-events:none;display:flex;flex-direction:column;gap:3px}
+#kurangCuan b{font-size:1.45rem;letter-spacing:.06em;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#kurangCuan span{font-size:1rem}#kurangCuan em{font-style:normal;font-weight:800;color:#ffe27a;font-size:1.15rem}
+#kurangCuan small{opacity:.85;font-size:.8rem}
+#kurangCuan.tampil{animation:kurangMuncul 2.6s ease-out forwards}
+@keyframes kurangMuncul{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}8%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}14%{transform:translate(-56%,-50%) scale(1)}20%{transform:translate(-44%,-50%) scale(1)}26%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+.angka.kurang{animation:kurangKartu 1.4s ease-out}
+.angka.kurang b{color:#ff6b5e}
+@keyframes kurangKartu{0%,100%{background-color:inherit;box-shadow:none}10%,50%{background-color:#a9261c;box-shadow:0 0 0 3px #ff6b5e,0 0 18px #ff6b5e;transform:translateX(0)}15%{transform:translateX(-5px)}25%{transform:translateX(5px)}35%{transform:translateX(-3px)}45%{transform:translateX(0)}}
+.mahal{color:#ff6b5e;font-weight:800;text-decoration:underline wavy}
+.kartuBangun.mahalK{opacity:.8;outline:2px solid #ff6b5e}
+.kartuBangun.mahalK small{color:#ff9d93}
+.sentuh #kurangCuan{top:38%}

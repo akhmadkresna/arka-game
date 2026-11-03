@@ -163,6 +163,16 @@ const acak = a => a[Math.floor(Math.random() * a.length)];
 const batas = (n, a = 0, b = 100) => Math.max(a, Math.min(b, n));
 let wToast = 0, wMono = 0;
 function toast(teks) { if (bannerAktif && $('berita').classList.contains('berita')) tutupBanner(); $('toast').textContent = teks; $('toast').style.opacity = 1; wToast = 3.6; }
+// Cuan tidak cukup: harus terasa jelas (spanduk merah di tengah, kartu Cuan bergetar merah, layar berkilat, getar, bunyi)
+let wKurang = 0;
+function cuanKurang(butuh) {
+  const el = $('kurangCuan'), sisa = Math.max(0, Math.ceil(butuh - G.cuan));
+  el.innerHTML = `<b>CUAN KURANG</b><span>Butuh ${butuh} · punya ${Math.floor(G.cuan)} · kurang <em>${sisa}</em></span><small>Palak warung atau ojol dulu</small>`;
+  el.classList.remove('tampil'); void el.offsetWidth; el.classList.add('tampil'); wKurang = 2.6;
+  const c = $('cuan').closest('.angka'); if (c) { c.classList.remove('kurang'); void c.offsetWidth; c.classList.add('kurang'); }
+  kilat('#d6453d'); bunyi.blokir(); E.getar(0.25); if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+}
+const hrg = n => G.cuan < n ? `<span class="mahal">${n}</span>` : n;
 let monologTerakhir = -99;
 function monolog(kunci) { if (wToast > 0 || wUcap > 0 || bannerAktif || waktu - monologTerakhir < 25) return; monologTerakhir = waktu; $('monolog').textContent = '“' + acak(MONOLOG[kunci]) + '”'; $('monolog').style.opacity = 1; wMono = 4.5; }
 function kilat(warna = '#fff') { const f = $('kilat'); f.style.background = warna; f.style.transition = 'none'; f.style.opacity = 0.85; requestAnimationFrame(() => { f.style.transition = 'opacity .6s'; f.style.opacity = 0; }); }
@@ -356,7 +366,7 @@ function bukaLagi(u) {
   const d = u.g.userData; d.pemilik.visible = true; d.tutup.visible = false; d.label.visible = true; d.atap.color.setHex(d.warnaAsli);
 }
 function sewaAparat() {
-  if (G.cuan < HARGA.aparat) return toast(`Cuan kurang (butuh ${HARGA.aparat}).`);
+  if (G.cuan < HARGA.aparat) return cuanKurang(HARGA.aparat);
   G.cuan -= HARGA.aparat; G.aparat = Math.min(G.aparat + DURASI_APARAT, DURASI_APARAT * 3);
   while (daftarAparat.length < 2) { const a = aparatSewaan(); a.position.copy(pemain.position); scene.add(a); daftarAparat.push(a); E.semburan(a.position.clone().setY(a.position.y + 1), 'debu', 10); }
   fxTujuan = depanPemain(4, 2); bunyi.pop();
@@ -386,7 +396,7 @@ function tanam(p, oleh = null) {
   if (oleh) E.koinKeluar(pusatPetak(p, 2), 3);
   toast('Sawit ditanam. Penghasilan mengalir.'); monolog('sawit');
 }
-function bisaBayar(biaya) { if (G.cuan < biaya) { toast(`Cuan kurang (butuh ${biaya}). Palak dulu.`); bunyi.blokir(); return false; } return true; }
+function bisaBayar(biaya) { if (G.cuan < biaya) { cuanKurang(biaya); return false; } return true; }
 const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 function tandaiEmas(b) {
   b.emas = true;
@@ -614,7 +624,7 @@ function bukaCaraMain() {
 }
 // Satu tombol "Bangun" membuka pilihan dua kartu berharga
 function bukaBangun() {
-  const kartu = (k, judul, harga, ket) => `<button class="kartuBangun" data-k="${k}"><img class="ik" src="assets/kenney/ikon/White/${IKON_TOMBOL[k]}.png" alt=""><span><b>${judul}</b><small>${harga} Cuan · ${ket}</small></span></button>`;
+  const kartu = (k, judul, harga, ket) => `<button class="kartuBangun${G.cuan < harga ? ' mahalK' : ''}" data-k="${k}"><img class="ik" src="assets/kenney/ikon/White/${IKON_TOMBOL[k]}.png" alt=""><span><b>${judul}</b><small>${hrg(harga)} Cuan${G.cuan < harga ? ` (kurang ${Math.ceil(harga - G.cuan)})` : ''} · ${ket}</small></span></button>`;
   $('lembarJudul').textContent = 'Bangun apa?';
   $('lembarGrid').className = 'satu';
   $('lembarGrid').innerHTML = (aksiBoleh('bangun') ? kartu('1', 'Dapur Makan Gratis', HARGA.mbg, 'hasil +130, rawan keracunan') + kartu('2', 'Koperasi', HARGA.kopdes, 'hasil +130, kas bisa raib') : '');
@@ -1012,10 +1022,10 @@ function update(dt) {
   else if (u) {
     const peluang = G.aparat > 0 ? 100 : Math.round(PELUANG[u.tipe] * 100);
     const oj = u.jenis === 'ojol';
-    h = u.tutup ? `${u.nama}: ${oj ? 'sedang mogok.' : 'gulung tikar.'}` : sentuh ? `${u.nama} · ${u.tipe.toUpperCase()} · peluang ${peluang}%${G.aparat > 0 ? ' (aparat aktif)' : ''}` : `${u.nama} · ${oj ? 'pengendara' : 'pemilik'} ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${HARGA.aparat})`}`;
+    h = u.tutup ? `${u.nama}: ${oj ? 'sedang mogok.' : 'gulung tikar.'}` : sentuh ? `${u.nama} · ${u.tipe.toUpperCase()} · peluang ${peluang}%${G.aparat > 0 ? ' (aparat aktif)' : ''}` : `${u.nama} · ${oj ? 'pengendara' : 'pemilik'} ${u.tipe.toUpperCase()} · peluang ${peluang}% · ${tb('x')} Palak${G.aparat > 0 ? ' (aparat aktif)' : ` · ${tb('v')} Sewa aparat (${hrg(HARGA.aparat)})`}`;
   } else if (p) {
-    if (p.status === 'hutan') h = `Petak hutan: ${tb('b')} Bakar (gratis) · ${tb('t')} Tebang (${HARGA.tebang})`;
-    else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${HARGA.tanam})`;
+    if (p.status === 'hutan') h = `Petak hutan: ${tb('b')} Bakar (gratis) · ${tb('t')} Tebang (${hrg(HARGA.tebang)})`;
+    else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${hrg(HARGA.tanam)})`;
     else if (p.status === 'sawit') h = 'Kebun sawit: panen otomatis. Jauhkan dari api.';
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
   }
