@@ -1,31 +1,31 @@
-// Musik latar orisinal (disintesis, tanpa berkas audio): dangdut-koplo, tangga nada hijaz di A.
-// Kendang, bass, gong, saron, melodi suling. Tempo dan warna bunyi mengikuti keadaan permainan.
+// Musik latar orisinal (disintesis, tanpa berkas audio): mars fanfare megah dalam C mayor, dengan sengaja terlalu bersemangat.
+// Genderang, snare, timpani, tuba, kuningan, dan terompet. Tempo dan warna bunyi mengikuti keadaan permainan.
 import { konteks } from './bunyi.js';
 
-const VOL = 0.8;
+const VOL = 0.9;
 let bisuMusik = false;
 try { bisuMusik = localStorage.getItem('republikEmasMusikBisu') === '1'; } catch (e) { /* abaikan */ }
 export const musikBisu = () => bisuMusik;
 
-// ---------- Bahan musik ----------
-const A = 110;                                   // A2
-const AKOR = [                                   // Am - Dm - E - Am, masing-masing satu birama (16 langkah)
-  { akar: A, nada: [0, 3, 7] },                  // A C E
-  { akar: A * 4 / 3, nada: [0, 3, 7] },          // D F A
-  { akar: A * 3 / 2, nada: [0, 4, 7] },          // E G# B
-  { akar: A, nada: [0, 3, 7] },
+// ---------- Bahan musik: mars fanfare orisinal dalam C mayor (8 birama, 16 langkah per birama) ----------
+const C4 = 261.63;
+const AKOR = [                                   // C - F - C - G - C - F - G - C
+  { akar: 0, nada: [0, 4, 7] }, { akar: 5, nada: [0, 4, 7] }, { akar: 0, nada: [0, 4, 7] }, { akar: 7, nada: [0, 4, 7] },
+  { akar: 0, nada: [0, 4, 7] }, { akar: 5, nada: [0, 4, 7] }, { akar: 7, nada: [0, 4, 7] }, { akar: 0, nada: [0, 4, 7] },
 ];
-const SKALA = [0, 1, 4, 5, 7, 8, 10, 12, 13, 16, 17, 19]; // hijaz (semiton dari A)
-const MELODI = [                                 // indeks ke SKALA, null = jeda
-  [7, null, 6, null, 5, null, 4, null, 5, 6, 7, null, 6, null, 4, null],
-  [5, null, 4, null, 3, null, 2, null, 3, 4, 5, null, 4, null, 2, null],
-  [4, null, 3, null, 4, null, 5, null, 6, 5, 4, 3, 2, null, 1, null],
-  [2, 3, 4, null, 3, null, 2, null, 1, null, 2, null, 0, null, null, null],
+const N = null;
+const MELODI = [                                 // semiton dari C4, null = jeda; titik-titik fanfare terompet
+  [7, N, N, 7, 12, N, N, 12, 16, N, N, N, 12, N, 16, N],
+  [9, N, N, 9, 12, N, N, 12, 17, N, N, N, 12, N, 17, N],
+  [16, N, 14, N, 12, N, 14, N, 16, N, 19, N, 16, N, 12, N],
+  [14, N, N, 14, 11, N, N, 11, 14, N, 19, N, 19, N, N, N],
+  [7, N, N, 7, 12, N, N, 12, 16, N, N, 16, 19, N, N, N],
+  [17, N, 16, N, 17, N, 19, N, 21, N, N, N, 17, N, N, N],
+  [19, N, 17, N, 16, N, 14, N, 14, N, 16, N, 14, N, 11, N],
+  [12, N, N, N, 16, N, N, N, 19, N, N, N, 24, N, N, N],
 ];
-const BASS = [1, 0, 0, 1, 0, 0, 2, 0, 1, 0, 0, 1, 0, 3, 0, 2]; // 1 akar, 2 oktaf, 3 kuint
-const DUNG = [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0];
-const TAK = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
-const TUNG = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0];
+const GENDANG = [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0];             // bas drum di ketukan 1 dan 3
+const SNARE = [0, 0, 1, 0, 2, 0, 1, 0, 0, 0, 1, 0, 2, 0, 1, 0];                // 2 = aksen
 
 const nf = (f0, semiton) => f0 * Math.pow(2, semiton / 12);
 const cacheDerau = new WeakMap();
@@ -53,28 +53,40 @@ function derau(c, out, t, dur, vol, tipeFilter, frek, q = 1) {
 }
 
 // Menjadwalkan satu langkah (1/16 birama). Dipakai oleh pemutar langsung dan oleh uji luring.
-export function mainkanLangkah(c, out, langkah, t, durLangkah, suasana = {}) {
-  const posisi = langkah % 16, birama = Math.floor(langkah / 16) % 4, putaran = Math.floor(langkah / 64), akor = AKOR[birama];
-  // Kendang
-  if (DUNG[posisi]) nada(c, out, 120, t, 0.2, 'sine', 0.36, 55);
-  if (TAK[posisi]) { derau(c, out, t, 0.06, 0.2, 'bandpass', 1800, 2); nada(c, out, 800, t, 0.05, 'sine', 0.08, 400); }
-  if (TUNG[posisi]) nada(c, out, 230, t, 0.1, 'sine', 0.16, 160);
-  if (posisi % 2 === 0) derau(c, out, t, 0.03, 0.05, 'highpass', 6500);
-  // Bass
-  const b = BASS[posisi];
-  if (b) nada(c, out, b === 1 ? akor.akar : b === 2 ? akor.akar * 2 : akor.akar * 1.5, t, durLangkah * 2.2, 'triangle', 0.24);
-  // Gong di awal tiap empat birama, saron di tiap ketukan
-  if (langkah % 64 === 0) { nada(c, out, 65, t, 1.8, 'sine', 0.16); nada(c, out, 65 * 2.01, t, 1.2, 'sine', 0.06); }
-  if (posisi % 4 === 0) { const sar = nf(akor.akar * 2, akor.nada[(posisi / 4 + birama) % 3]); [1, 2.76].forEach((r, i) => nada(c, out, sar * r, t, 0.7 / (i + 1), 'sine', 0.05 / (i + 1))); }
-  // Pad akor di awal birama
-  if (posisi === 0) akor.nada.forEach(s => nada(c, out, nf(akor.akar * 2, s), t, durLangkah * 15, 'triangle', 0.028));
-  // Melodi suling (oktaf naik pada putaran ganjil), bergetar halus
-  const m = MELODI[birama][posisi];
-  if (m !== null) nada(c, out, nf(440, SKALA[m]) * (putaran % 2 ? 2 : 1), t, durLangkah * 1.8, 'triangle', 0.085, null, 12);
-  // Kabut tebal: dengung rendah yang meresahkan
-  if (posisi === 0 && (suasana.kabut || 0) > 40) nada(c, out, A / 2, t, durLangkah * 16, 'sawtooth', 0.02 * Math.min(1, suasana.kabut / 100));
+const SEMI = [0, 4, 7];
+function nadaKuningan(c, out, f, t, dur, vol, vib = 0) {
+  nada(c, out, f, t, dur, 'sawtooth', vol, null, vib); nada(c, out, f * 1.003, t, dur, 'square', vol * 0.45, null, vib);
 }
-const tempo = s => 112 + (s.naik ? 16 : 0) + (s.tegang ? 8 : 0);
+export function mainkanLangkah(c, out, langkah, t, durLangkah, suasana = {}) {
+  const posisi = langkah % 16, birama = Math.floor(langkah / 16) % 8, putaran = Math.floor(langkah / 128), akor = AKOR[birama];
+  const akhirFrasa = birama === 3 || birama === 7, tegang = !!suasana.tegang;
+  // Genderang: bas drum di ketukan 1 dan 3, ketukan awal tambahan di akhir frasa
+  if (GENDANG[posisi] || (akhirFrasa && posisi === 14)) nada(c, out, 110, t, 0.22, 'sine', 0.42, 48);
+  // Snare baris-berbaris, dan gulungan di akhir frasa
+  const sn = SNARE[posisi] || (akhirFrasa && posisi >= 12 ? 1 : 0) || (tegang && posisi % 2 === 1 ? 1 : 0);
+  if (sn) { derau(c, out, t, 0.09, sn === 2 ? 0.26 : 0.15, 'bandpass', 2400, 0.8); nada(c, out, 190, t, 0.05, 'triangle', sn === 2 ? 0.1 : 0.05, 150); }
+  // Timpani pada akar akor di awal birama
+  if (posisi === 0) nada(c, out, nf(C4 / 4, akor.akar), t, 0.7, 'sine', 0.3, nf(C4 / 4, akor.akar) * 0.92);
+  // Tuba: oom di ketukan 1 (akar) dan 3 (kuint)
+  if (posisi === 0 || posisi === 8) nada(c, out, nf(C4 / 2, akor.akar + (posisi === 8 ? 7 : 0)), t, durLangkah * 3.2, 'triangle', 0.28);
+  // Kuningan: pah di ketukan 2 dan 4
+  if (posisi === 4 || posisi === 12) akor.nada.forEach(s => nadaKuningan(c, out, nf(C4, akor.akar + s), t, durLangkah * 2.4, 0.03));
+  // Simbal pada awal tiap delapan birama dan di pengakhiran frasa
+  if (langkah % 128 === 0 || (birama === 7 && posisi === 12)) derau(c, out, t, 1.1, 0.14, 'highpass', 5500);
+  // Terompet: melodi fanfare dengan harmoni nada akor di bawahnya, oktaf naik pada putaran ganjil
+  const mel = MELODI[birama][posisi];
+  if (mel !== null) {
+    let tahan = 1; while (tahan < 4 && MELODI[birama][posisi + tahan] === N && posisi + tahan < 16) tahan++;
+    const dur = durLangkah * (tahan * 0.92 + 0.3), oktaf = putaran % 2 ? 12 : 0;
+    nadaKuningan(c, out, nf(C4 * 2, mel - 12 + oktaf), t, dur, 0.06, 6);
+    let har = mel - 3; while (!SEMI.includes((((har - akor.akar) % 12) + 12) % 12)) har--; // nada akor terdekat di bawah
+    nadaKuningan(c, out, nf(C4 * 2, har - 12 + oktaf), t, dur, 0.035, 6);
+    if (putaran % 2) nada(c, out, nf(C4 * 4, mel - 12), t, dur * 0.8, 'sine', 0.03); // gemerincing di putaran ganjil
+  }
+  // Kabut tebal: dengung rendah yang meresahkan
+  if (posisi === 0 && (suasana.kabut || 0) > 40) nada(c, out, C4 / 4, t, durLangkah * 16, 'sawtooth', 0.02 * Math.min(1, suasana.kabut / 100));
+}
+const tempo = s => 116 + (s.naik ? 14 : 0) + (s.tegang ? 8 : 0);
 
 // ---------- Pemutar langsung ----------
 let aktif = false, master = null, filter = null, timer = null, langkah = 0, tNext = 0, suasana = {}, audioLuar = null;

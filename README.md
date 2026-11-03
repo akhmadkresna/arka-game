@@ -30,7 +30,7 @@ Setiap interaksi punya efek visual dan suara: uang beterbangan ke kantong (atau 
 
 Tiap akhir bulan Bos menagih **setoran**. Tidak ada game over: kegagalan (dirotasi, dipanggil lembaga antikorupsi, demo besar) hanya berupa denda. Tiap 12 bulan muncul **Laporan Tahunan** yang membandingkan versi resmi dengan kenyataan (`R` untuk melihatnya kapan saja).
 
-**Musik latar** orisinal, disintesis di peramban (kendang, bass, gong, saron, melodi suling) tanpa berkas audio. Tempo naik saat mengendarai kendaraan dan warna bunyi menjadi pengap saat kabut tebal. Untuk memakai berkas musik milik sendiri, letakkan di `web/audio/` dan isi `web/audio/bgm.json` (lihat berkas itu). Pastikan Anda berhak menyebarkannya karena situs ini publik.
+**Musik latar** orisinal, disintesis di peramban (mars fanfare megah: genderang, snare, timpani, tuba, kuningan, terompet) tanpa berkas audio. Tempo naik saat mengendarai kendaraan dan warna bunyi menjadi pengap saat kabut tebal. Untuk memakai berkas musik milik sendiri, letakkan di `web/audio/` dan isi `web/audio/bgm.json` (lihat berkas itu). Pastikan Anda berhak menyebarkannya karena situs ini publik.
 
 **Dapur makan gratis dan kejadian keracunan:** dapur ini berstaf (juru masak), punya label sertifikat higiene, dan mengirim pengantar makan siang bermotor ke sekolah terdekat. Dapur tanpa berkas "sertifikat higiene di atas kertas" (1 berkas terpakai saat membangun) lebih rawan, apalagi di dekat sungai atau tempat pembuangan. Jika terjadi kejadian, ambulans bersirene meluncur ke dapur, mengangkut siswa ke klinik, dan wartawan datang. Dapur ditutup sementara dan jumlah siswa yang dirujuk tercatat. Di dunia ada dua sekolah (murid bermain, guru berjaga), klinik, dan tiga ambulans.
 
