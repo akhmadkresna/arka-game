@@ -112,7 +112,7 @@ export function buatNPC(d) {
   const AMBULANS = [];
   const jalurAmb = [JALAN[0], JALAN[2], null];
   jalurAmb.forEach((pts, i) => {
-    const g = ambulans(), label = labelSprite('AMBULANS', 'darurat'); label.position.set(0, 4.8, 0); g.add(label); scene.add(g);
+    const g = ambulans(), label = labelSprite('', 'darurat'); label.position.set(0, 4.8, 0); label.visible = false; g.add(label); scene.add(g);
     const a = { g, label, mode: 'patroli', v: 0, x: 0, z: 0, ry: 0, timer: 0, n: 0, rute: [], idx: 0, pts, seg: [], tot: 0, s: 0, arah: i % 2 ? 1 : -1 };
     if (pts) { for (let k = 0; k < pts.length - 1; k++) { const l = dist(pts[k][0], pts[k][1], pts[k + 1][0], pts[k + 1][1]); a.seg.push(l); a.tot += l; } a.s = Math.random() * a.tot; }
     else { a.mode = 'parkir'; a.x = parkir ? parkir.x : 0; a.z = parkir ? parkir.z : 0; a.ry = pk ? pk.ry : 0; }
@@ -142,20 +142,20 @@ export function buatNPC(d) {
         a.v += (9 - a.v) * Math.min(1, dt * 2);
         a.s += a.arah * a.v * dt; if (a.s > a.tot) { a.s = a.tot; a.arah = -1; } if (a.s < 0) { a.s = 0; a.arah = 1; }
         const p = titikJalur(a, a.s), hx = p.dx * a.arah, hz = p.dz * a.arah;
-        a.x = p.x + hz * 2.4; a.z = p.z - hx * 2.4; a.ry = Math.atan2(hx, hz); teksLabel(a, 'AMBULANS', 'tutup');
-      } else if (a.mode === 'parkir') { a.v = 0; teksLabel(a, 'AMBULANS', 'tutup'); }
-      else if (a.mode === 'menuju') { teksLabel(a, 'MENUJU DAPUR'); a.v = 19; if (ikuti(a, dt, 19)) { a.mode = 'muat'; a.timer = 3.5; } }
-      else if (a.mode === 'muat') { a.v = 0; teksLabel(a, `MUAT ${a.n} SISWA`); if ((a.timer -= dt) <= 0) { a.mode = 'antar'; a.rute = rute(a, parkir || { x: a.x, z: a.z }); a.idx = 0; } }
+        a.x = p.x + hz * 2.4; a.z = p.z - hx * 2.4; a.ry = Math.atan2(hx, hz); teksLabel(a, '', 'tutup');
+      } else if (a.mode === 'parkir') { a.v = 0; teksLabel(a, '', 'tutup'); }
+      else if (a.mode === 'menuju') { teksLabel(a, ''); a.v = 19; if (ikuti(a, dt, 19)) { a.mode = 'muat'; a.timer = 3.5; } }
+      else if (a.mode === 'muat') { a.v = 0; teksLabel(a, ''); if ((a.timer -= dt) <= 0) { a.mode = 'antar'; a.rute = rute(a, parkir || { x: a.x, z: a.z }); a.idx = 0; } }
       else if (a.mode === 'antar') {
-        teksLabel(a, `RUJUK ${a.n} SISWA`); a.v = 19;
+        teksLabel(a, `${a.n} siswa`); a.v = 19;
         if (ikuti(a, dt, 19)) { a.mode = 'tiba'; a.timer = 2.5; G.korban += a.n; E.teks(new THREE.Vector3(a.x, a.g.position.y + 5, a.z), `${a.n} siswa dirujuk`, 'besar buruk'); bunyi.pop(); }
-      } else if (a.mode === 'tiba') { a.v = 0; teksLabel(a, 'TIBA DI KLINIK', 'tutup'); if ((a.timer -= dt) <= 0) { a.n = 0; a.mode = 'kembali'; const t = a.pts ? titikTerdekat(a, a.x, a.z) : { x: parkir ? parkir.x : a.x, z: parkir ? parkir.z : a.z, s: 0 }; a.sKembali = t.s; a.rute = rute(a, t); a.idx = 0; } }
+      } else if (a.mode === 'tiba') { a.v = 0; teksLabel(a, '', 'tutup'); if ((a.timer -= dt) <= 0) { a.n = 0; a.mode = 'kembali'; const t = a.pts ? titikTerdekat(a, a.x, a.z) : { x: parkir ? parkir.x : a.x, z: parkir ? parkir.z : a.z, s: 0 }; a.sKembali = t.s; a.rute = rute(a, t); a.idx = 0; } }
       else if (a.mode === 'kembali') { a.v = 12; if (ikuti(a, dt, 12)) { if (a.pts) { a.s = a.sKembali; a.mode = 'patroli'; } else a.mode = 'parkir'; } }
       taruh(a, dt);
       a.g.userData.roda.forEach(r => { r.rotation.x += a.v * dt * 1.6; });
       const kedip = darurat || a.mode === 'muat' ? Math.sin(waktu * 14) > 0 : false;
       a.g.userData.lampuM.visible = kedip; a.g.userData.lampuB.visible = darurat || a.mode === 'muat' ? !kedip : false;
-      a.label.visible = a.mode !== 'patroli' && a.mode !== 'parkir' ? true : dist(a.x, a.z, pemain.position.x, pemain.position.z) < 40;
+      a.label.visible = a.mode === 'antar'; // hanya jumlah siswa saat mengantar
       if (darurat && dist(a.x, a.z, pemain.position.x, pemain.position.z) < 90) adaSirene = true;
     }
     if (adaSirene && (sirenTimer -= dt) <= 0) { sirenTimer = 0.9; bunyi.sirene(); }
@@ -170,13 +170,13 @@ export function buatNPC(d) {
 
   // ---------- Dapur: label sertifikat higiene, juru masak ----------
   function labelDapur(b) {
-    if (!b.label) { b.label = labelSprite('sertifikat higiene', 'proses'); b.label.position.set(0, 11.8, 0); b.g.add(b.label); }
+    if (!b.label) { b.label = labelSprite('', 'proses', 30); b.label.position.set(0, 11.8, 0); b.g.add(b.label); }
     const ditutup = G.t < (b.sampai || 0);
     const kunci = b.mangkrak ? 'mangkrak' : ditutup ? 'tutup' : 'proses';
     if (b.labelKunci === kunci) return;
     b.labelKunci = kunci;
     if (kunci === 'mangkrak') b.label.visible = false;
-    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP SEMENTARA' : 'Sertifikat higiene: PROSES (SEJAK 2024)', kunci); }
+    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP' : 'Sertifikat: PROSES', kunci); }
   }
   function tambahJuru(b) {
     const rot = b.g.rotation.y, f = [Math.sin(rot), Math.cos(rot)], r = [Math.cos(rot), -Math.sin(rot)];
@@ -196,7 +196,7 @@ export function buatNPC(d) {
   function kirimPengantar(b) {
     if (PENGANTAR.length >= 3 || !SEKOLAH.length) return;
     const s = SEKOLAH.slice().sort((p, q) => dist(p.x, p.z, b.x, b.z) - dist(q.x, q.z, b.x, b.z))[0];
-    const g = ojol(PENGANTAR.length + 5), lb = labelSprite('ANTAR MAKANAN', 'ada'); lb.position.set(0, 4.4, 0); g.add(lb); scene.add(g);
+    const g = ojol(PENGANTAR.length + 5); scene.add(g);
     const dari = { x: b.x + Math.sin(b.g.rotation.y) * 11, z: b.z + Math.cos(b.g.rotation.y) * 11 };
     PENGANTAR.push({ g, x: dari.x, z: dari.z, ry: 0, dapur: dari, sekolah: s, fase: 'pergi', rute: rute(dari, s.pusat), idx: 0, timer: 0 });
   }

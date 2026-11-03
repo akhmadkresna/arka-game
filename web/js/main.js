@@ -2,7 +2,7 @@
 import * as THREE from '../vendor/three.module.js';
 import { R, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, SPAWN, TITIK_BEBAS, sungaiX, UKURAN, ZONA, pusatZona, UMKM, PELUANG, JALAN, titikJalanTerdekat } from './konfig.js';
 import { tinggi, lantai, buatTerrain } from './terrain.js';
-import { M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite, motorPemain, mobilDinas } from './objek.js';
+import { perbaruiLabel, M, buatObjek, manusia, bangunanMBG, bangunanKopdes, mangkrakkan, baliho, pilar, kios, aparatSewaan, ojol, labelSprite, motorPemain, mobilDinas } from './objek.js';
 import { buatEfek } from './efek.js';
 import { buatNPC } from './npc.js';
 import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
@@ -83,7 +83,7 @@ const OJOL = [];
 [0, 0, 0, 1, 2, 2, 3, 4].forEach((ji, i) => {
   const pts = JALAN[ji], seg = []; let tot = 0;
   for (let k = 0; k < pts.length - 1; k++) { const l = Math.hypot(pts[k + 1][0] - pts[k][0], pts[k + 1][1] - pts[k][1]); seg.push(l); tot += l; }
-  const tipe = ['ramah', 'biasa', 'galak'][i % 3], g = ojol(i), label = labelSprite('OJOL ' + tipe.toUpperCase(), tipe);
+  const tipe = ['ramah', 'biasa', 'galak'][i % 3], g = ojol(i), label = labelSprite(tipe.toUpperCase(), tipe, 16);
   label.position.set(0, 4.4, 0); g.add(label); scene.add(g);
   OJOL.push({ jenis: 'ojol', nama: 'Abang Ojol', tipe, dasar: 20, g, label, pts, seg, tot, s: Math.random() * tot, arah: i % 2 ? 1 : -1, v: 0, vDasar: 7 + Math.random() * 3,
     cd: 0, berhasil: 0, tutup: false, sisaTutup: 0, marah: 0, klakson: 0, x: 0, z: 0 });
@@ -347,7 +347,7 @@ function klaksonMassal(sumber) {
 function tutupkan(u) {
   u.tutup = true; G.rakyat = batas(G.rakyat + 4);
   if (u.jenis === 'ojol') {
-    u.sisaTutup = 90; G.ojolMogok++; u.label.userData.set('OJOL MOGOK', 'mogok');
+    u.sisaTutup = 90; G.ojolMogok++; u.label.userData.set('MOGOK', 'mogok');
     toast('Abang ojol mogok.'); monolog('mogok');
   } else {
     u.sisaTutup = LAMA_TUTUP; G.gulungTikar++;
@@ -357,12 +357,12 @@ function tutupkan(u) {
   E.semburan(new THREE.Vector3(u.x, tinggi(u.x, u.z) + 1.5, u.z), 'debu', 14); bunyi.gagal();
 }
 function visualTutup(u, tutup) {
-  if (u.jenis === 'ojol') { u.label.userData.set(tutup ? 'OJOL MOGOK' : 'OJOL ' + u.tipe.toUpperCase(), tutup ? 'mogok' : u.tipe); return; }
+  if (u.jenis === 'ojol') { u.label.userData.set(tutup ? 'MOGOK' : u.tipe.toUpperCase(), tutup ? 'mogok' : u.tipe); return; }
   const d = u.g.userData; d.pemilik.visible = !tutup; d.tutup.visible = tutup; d.label.visible = !tutup; d.atap.color.setHex(tutup ? 0x777777 : d.warnaAsli);
 }
 function bukaLagi(u) {
   u.tutup = false; u.berhasil = 0; u.cd = 0;
-  if (u.jenis === 'ojol') { u.label.userData.set('OJOL ' + u.tipe.toUpperCase(), u.tipe); return; }
+  if (u.jenis === 'ojol') { u.label.userData.set(u.tipe.toUpperCase(), u.tipe); return; }
   const d = u.g.userData; d.pemilik.visible = true; d.tutup.visible = false; d.label.visible = true; d.atap.color.setHex(d.warnaAsli);
 }
 function sewaAparat() {
@@ -400,7 +400,7 @@ function bisaBayar(biaya) { if (G.cuan < biaya) { cuanKurang(biaya); return fals
 const easeBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 function tandaiEmas(b) {
   b.emas = true;
-  const lb = labelSprite('KOPERASI EMAS ×8', 'proses'); lb.position.set(0, 9.5, 0); b.g.add(lb); b.label = lb;
+  const lb = labelSprite('×8', 'proses', 40); lb.position.set(0, 9.5, 0); b.g.add(lb); b.label = lb;
 }
 function pasangBangunan(jenis, x, z, rotY, skalaAwal = 1) {
   const g = jenis === 'mbg' ? bangunanMBG() : bangunanKopdes();
@@ -896,7 +896,7 @@ function update(dt) {
   E.update(dt);
   if (wToast > 0 && (wToast -= dt) <= 0) $('toast').style.opacity = 0;
   if (wMono > 0 && (wMono -= dt) <= 0) $('monolog').style.opacity = 0;
-  perbaruiSosok(dt); satirTick(dt); PERESMIAN.update(dt); if (G.jalan && !G.jeda) DEMO.update(dt);
+  perbaruiSosok(dt); perbaruiLabel(pemain.position.x, pemain.position.z, dt); satirTick(dt); PERESMIAN.update(dt); if (G.jalan && !G.jeda) DEMO.update(dt);
   if (wMisiBaru > 0) wMisiBaru -= dt;
   if (!G.jalan || G.jeda) return;
 

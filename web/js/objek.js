@@ -529,7 +529,7 @@ export function pilar() { // penanda tujuan: balok cahaya (jauh), cincin dan pan
 
 // ---------- Kios UMKM ----------
 const WARNA_ATAP = [0xd6453d, 0x2f7a55, 0xe8b83c, 0x5aa0d6, 0xb36a2a, 0x8a5aa0];
-const LABEL = { ramah: ['PEMILIK RAMAH', '#9ad98f'], biasa: ['PEMILIK BIASA', '#f1d96a'], galak: ['PEMILIK GALAK', '#f08a80'] };
+const LABEL = { ramah: ['RAMAH', '#9ad98f'], biasa: ['BIASA', '#f1d96a'], galak: ['GALAK', '#f08a80'] };
 export function kios(nama, tipe, indeks) {
   const g = new THREE.Group();
   const atap = new THREE.MeshLambertMaterial({ color: WARNA_ATAP[indeks % WARNA_ATAP.length] });
@@ -577,7 +577,17 @@ export function aparatSewaan() {
 
 // ---------- Ojol (ojek online, generik) ----------
 const WARNA_LABEL = { ramah: '#9ad98f', biasa: '#f1d96a', galak: '#f08a80', mogok: '#a0a0a0', darurat: '#ff7a6a', ada: '#9ad98f', proses: '#f1d96a', tutup: '#ff7a6a' };
-export function labelSprite(teks, tipe) {
+// Label melayang: hanya muncul bila pemain berada dalam jarak r (m), memudar halus. r = 0: selalu tampil.
+const LABEL_DEKAT = [], vTmp = new THREE.Vector3();
+export function perbaruiLabel(px, pz, dt) {
+  for (const l of LABEL_DEKAT) {
+    if (!l.sp.parent) continue;
+    l.sp.getWorldPosition(vTmp);
+    const dekat = Math.hypot(vTmp.x - px, vTmp.z - pz) < l.r, m = l.sp.material;
+    m.opacity += ((dekat ? 1 : 0) - m.opacity) * Math.min(1, dt * 8);
+  }
+}
+export function labelSprite(teks, tipe, r = 0) {
   const c = document.createElement('canvas'); c.width = 320; c.height = 80;
   const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
@@ -590,6 +600,7 @@ export function labelSprite(teks, tipe) {
     tex.needsUpdate = true;
   };
   sp.userData.set(teks, tipe);
+  if (r) { sp.material.opacity = 0; LABEL_DEKAT.push({ sp, r }); }
   return sp;
 }
 // Roda motor: ganti silinder prosedural dengan roda Kenney (poros X, jadi bisa diputar lewat rotation.x)
@@ -615,7 +626,6 @@ export function ojol(indeks) {
     g.add(r); roda.push(r);
   });
   g.add(kotak(hijau, 0, 2.05, -1.15, 1.15, 1.0, 1.0));
-  const bp = papan('OJOL', 1.0, 0.55, { latar: '#2fa04a', warna: '#ffffff' }); bp.position.set(0, 2.05, -1.66); bp.rotation.y = Math.PI; g.add(bp);
   const pengendara = manusia(new THREE.MeshLambertMaterial({ color: 0x2fa04a }), false, 0.4);
   pengendara.position.set(0, 1.0, -0.2); pengendara.add(mesh(geo.bola, M.putih, 0, 3.9, 0, 0.72, 0.62, 0.72));
   g.add(pengendara);
@@ -665,9 +675,8 @@ export function mobilDinas() {
   [[-1.4, 1.9], [1.4, 1.9], [-1.4, -1.9], [1.4, -1.9]].forEach(([x, z]) => {
     const r = mesh(geo.silinder, M.hitam, x, 0.7, z, 0.72, 0.32, 0.72); r.rotation.z = Math.PI / 2; r.add(mesh(geo.box, M.putih, 0, 0, 0, 0.45, 1.05, 0.2)); g.add(r); roda.push(r);
   });
-  const pl = papan('MOBIL DINAS', 2.4, 0.6, { latar: '#e8b83c' }); pl.position.set(0, 1.9, 3.1); g.add(pl);
   g.userData = { roda, lampuM, lampuB };
-  gantiModel(g, 'car/sedan', 2.35, 2.2, 2.35, [lampuM, lampuB, pl], 0, 0x6c6c72);
+  gantiModel(g, 'car/sedan', 2.35, 2.2, 2.35, [lampuM, lampuB], 0, 0x6c6c72);
   return g;
 }
 
