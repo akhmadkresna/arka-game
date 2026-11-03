@@ -4,7 +4,7 @@ import { rng, fbm } from './noise.js';
 import { tinggi } from './terrain.js';
 import { TATA, FOOT } from './tata.js';
 import { klonModel, buatInstansModel, gantiDenganSosok, pasangSesuai } from './model.js';
-import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
+import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan, dalamKawasan } from './konfig.js';
 
 export const M = {
   air: new THREE.MeshLambertMaterial({ color: 0x2f93d3, transparent: true, opacity: 0.82 }),
@@ -213,8 +213,8 @@ export function buatObjek(scene, terrain) {
   // ----- Tumbuhan dekoratif (hutan di bukit, semak, batu) -----
   const zonaKena = (x, z, m = 0) => ZONA.some(zn => { const c = pusatZona(zn); return Math.abs(x - c.x) < 82 + m && Math.abs(z - c.z) < 68 + m; });
   const bebas = (x, z) => !zonaKena(x, z, 4) && jarakJalan(x, z) > 7
-    && !DESA.some(d => Math.hypot(x - d.x, z - d.z) < 52) && Math.hypot(x - TPA.x, z - TPA.z) > 40 && Math.hypot(x - TPU.x, z - TPU.z) > 34 && Math.hypot(x - ZONA_EMAS.x, z - ZONA_EMAS.z) > 20
-    && Math.hypot(x - KANTOR.x, z - 50) > 40 && !SAWAH.some(s => Math.abs(x - s.x) < s.w / 2 + 6 && Math.abs(z - s.z) < s.d / 2 + 6)
+    && !dalamKawasan(x, z, 10) && Math.hypot(x - TPA.x, z - TPA.z) > 40 && Math.hypot(x - TPU.x, z - TPU.z) > 34 && Math.hypot(x - ZONA_EMAS.x, z - ZONA_EMAS.z) > 20
+    && !SAWAH.some(s => Math.abs(x - s.x) < s.w / 2 + 6 && Math.abs(z - s.z) < s.d / 2 + 6)
     && Math.abs(x - sungaiX(z)) > 16 && FOOT.every(f => Math.hypot(f.x - x, f.z - z) > f.r + 4);
   const batangDekor = new Inst(geo.batang, M.batang, 1400), bulatDekor = new Inst(geo.tajukBulat, M.daun, 800, true), kerucutDekor = new Inst(geo.tajukKerucut, M.daun, 800, true);
   const batuDekor = new Inst(geo.batu, M.batu, 220);
@@ -336,7 +336,7 @@ export function buatObjek(scene, terrain) {
   const palemDesa = new Inst(geoSawit.batang, bahanSawit.batang, 80), palemDesaD = new Inst(geoSawit.tajuk, bahanSawit.tajuk, 80);
   DESA.forEach((d, di) => {
     const tt = TATA.desa[di];
-    tt.rumah.forEach(r => rumah(r.x, r.z, r.tipe, Math.atan2(d.x - r.x, d.z - r.z) + (acak() - 0.5) * 0.5)); // menghadap pusat desa
+    tt.rumah.forEach(r => rumah(r.x, r.z, r.tipe, r.ry)); // menghadap jalan
     const l = new THREE.Group(); l.add(tiang(M.kayu, 0, 1.6, 0, 1.6, 3.2), mesh(geo.kerucut, M.atapCoklat, 0, 4.2, 0, 2.1, 2.2, 2.1)); l.position.set(tt.lumbung.x, tinggi(tt.lumbung.x, tt.lumbung.z), tt.lumbung.z); dunia.add(l);
     const b = new THREE.Group(); b.add(kotak(M.krem, 0, 2, 0, 10, 4, 6), mesh(prisma(11, 3, 7), M.atapHijau, 0, 4, 0));
     const bp = papan('BALAI DESA', 6, 1.8); bp.position.set(0, 5, 3.2); b.add(bp);
@@ -348,6 +348,7 @@ export function buatObjek(scene, terrain) {
       palemDesa.tambah(x, h, z, 1, th, 1); palemDesaD.tambah(x, h + th, z, 1, 1, 1, acak() * 6);
     });
   });
+  TATA.kota.forEach(r => rumah(r.x, r.z, r.tipe, r.ry));
   dunia.add(palemDesa.mesh, palemDesaD.mesh);
 
   // ----- TPA -----

@@ -36,8 +36,19 @@ export async function pasangJalan(scene, lantai) {
         jarakLampu = ((jarakLampu - pjg) % 36 + 36) % 36;
       }
     }
-    // Bantalan persimpangan di tiap titik sambungan supaya sudut jalan tampak rapi
-    for (const jl of JALAN) for (const [x, z] of jl) { const y = lantai(x, z) + 0.14; m.compose(p.set(x, y, z), q.identity(), s.set(LEBAR * 1.12, LEBAR, LEBAR * 1.12)); simpang.tambahM(m); }
+    // Bantalan persimpangan hanya di titik temu jalan (tiga arah atau lebih); sudut siku diberi bantalan agar rapi
+    const simpul = new Map();
+    for (const jl of JALAN) jl.forEach(([x, z], i) => {
+      const k = x + ',' + z, n = simpul.get(k) || { x, z, arah: new Set() };
+      if (i > 0) n.arah.add(Math.sign(jl[i - 1][0] - x) + ':' + Math.sign(jl[i - 1][1] - z));
+      if (i < jl.length - 1) n.arah.add(Math.sign(jl[i + 1][0] - x) + ':' + Math.sign(jl[i + 1][1] - z));
+      simpul.set(k, n);
+    });
+    for (const { x, z, arah } of simpul.values()) {
+      const lurusSaja = arah.size === 2 && (arah.has('1:0') && arah.has('-1:0') || arah.has('0:1') && arah.has('0:-1'));
+      if (arah.size < 2 || lurusSaja) continue;
+      m.compose(p.set(x, lantai(x, z) + 0.14, z), q.identity(), s.set(LEBAR * 1.12, LEBAR, LEBAR * 1.12)); simpang.tambahM(m);
+    }
     simpang.pasangKe(scene); simpang.sinkron();
     lurus.pasangKe(scene); lampu.pasangKe(scene); lurus.sinkron(); lampu.sinkron();
   } catch (e) { console.warn('Jalan 3D gagal:', e && e.message); }

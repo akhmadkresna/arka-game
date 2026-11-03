@@ -72,7 +72,7 @@ const KIOS = UMKM.map((u, i) => {
   g.add(new THREE.Mesh(new THREE.BoxGeometry(6.4, 2.4, 4.6), M.batu)); g.children[g.children.length - 1].position.set(0, -0.8, 0);
   g.position.set(u.x, h, u.z);
   g.scale.setScalar(1.3);
-  const tj = titikJalanTerdekat(u.x, u.z); g.rotation.y = Math.atan2(tj.x - u.x, tj.z - u.z); // menghadap jalan terdekat
+  const tj = titikJalanTerdekat(u.x, u.z); g.rotation.y = Math.round(Math.atan2(tj.x - u.x, tj.z - u.z) / (Math.PI / 2)) * Math.PI / 2; // menghadap jalan terdekat
   scene.add(g);
   return { ...u, jenis: 'kios', g, cd: 0, berhasil: 0, tutup: false, sisaTutup: 0, marah: 0 };
 });
@@ -110,8 +110,8 @@ BALIHO_AWAL.forEach(b => pasangBaliho(b.x, b.z, b.ry, b.tema));
 
 // ---------- Kendaraan: motor dekat titik mulai, mobil dinas dekat Kantor Kementerian ----------
 const KENDARAAN = [
-  { jenis: 'motor', nama: 'Motor', g: motorPemain(), x: 8, z: 22, ry: 2.4, maks: 25, belok: 2.5, duduk: 0.55 },
-  { jenis: 'mobil', nama: 'Mobil Dinas', g: mobilDinas(), x: 26, z: 54, ry: Math.PI, maks: 34, belok: 1.6, duduk: 0 },
+  { jenis: 'motor', nama: 'Motor', g: motorPemain(), x: -2, z: 14, ry: 0, maks: 25, belok: 2.5, duduk: 0.55 },
+  { jenis: 'mobil', nama: 'Mobil Dinas', g: mobilDinas(), x: -14, z: 88, ry: 0, maks: 34, belok: 1.6, duduk: 0 },
 ];
 KENDARAAN.forEach(k => { k.v = 0; k.y = lantai(k.x, k.z); k.vy = 0; k.tanah = true; k.jejak = 0; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry; scene.add(k.g); });
 

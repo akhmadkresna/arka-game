@@ -1,56 +1,62 @@
 // Tata letak statis tanpa tumpang tindih: semua benda punya "jejak" lingkaran (FOOT).
-import { rng } from './noise.js';
-import { tinggi } from './terrain.js';
-import { DESA, KANTOR, TPA, TPU, SPAWN, UMKM, jarakJalan } from './konfig.js';
+import { DESA, SAWAH, KANTOR, TPA, TPU, SPAWN, UMKM, JEMBATAN, sungaiX, titikJalanTerdekat } from './konfig.js';
 
 export const FOOT = [];
 const bentrok = (x, z, r, sela = 0) => FOOT.some(f => Math.hypot(f.x - x, f.z - z) < f.r + r + sela);
 export const adaTempat = (x, z, r, sela = 0) => !bentrok(x, z, r, sela);
 export function tambahJejak(x, z, r, n = '') { FOOT.push({ x, z, r, n }); }
 
+// Baliho awal: berdiri di tepi jalan dan menghadap jalan
+const hadapJalan = (x, z) => { const t = titikJalanTerdekat(x, z); return Math.round(Math.atan2(t.x - x, t.z - z) / (Math.PI / 2)) * Math.PI / 2; };
 export const BALIHO_AWAL = [
-  { x: -30, z: 18, ry: 0.5 },
-  { x: 32, z: 26, ry: -0.5, tema: 'EMAS UNTUK\nSEMUA (KECUALI ANDA)' },
-  { x: 60, z: 24, ry: 0.2, tema: 'PAJAK ITU\nSUMBANGAN SUKARELA' },
-];
+  { x: 14, z: 20 }, { x: -32, z: 46, tema: 'EMAS UNTUK\nSEMUA (KECUALI ANDA)' }, { x: 112, z: 46, tema: 'PAJAK ITU\nSUMBANGAN SUKARELA' },
+].map(b => ({ ...b, ry: hadapJalan(b.x, b.z) }));
 
 // Benda tetap
 tambahJejak(SPAWN.x, SPAWN.z, 5, 'spawn');
 tambahJejak(KANTOR.x, KANTOR.z, 16, 'kantor');
 tambahJejak(TPA.x, TPA.z, 22, 'tpa');
 tambahJejak(TPU.x, TPU.z, 26, 'tpu');
-for (let i = 0; i < 5; i++) tambahJejak(20 + i * 10, 0, 5, 'jembatan');
-UMKM.forEach(u => tambahJejak(u.x, u.z, 5.5, u.nama));
+for (let i = 0; i < 5; i++) tambahJejak(sungaiX(JEMBATAN.z) - 20 + i * 10, JEMBATAN.z, 5, 'jembatan');
+UMKM.forEach(u => tambahJejak(u.x, u.z, 7, u.nama));
 BALIHO_AWAL.forEach((b, i) => tambahJejak(b.x, b.z, 6, 'baliho' + i));
 
-// Desa: rumah, balai, lumbung, palem ditebar acak (benih tetap) tanpa bertabrakan dan menjauhi jalan
-const acak = rng(777);
+// Kampung: bangunan umum di sudut persimpangan, rumah berderet rapi di kiri-kanan jalan dan menghadap jalan
+const dalamSawah = (x, z, m = 0) => SAWAH.some(s => Math.abs(x - s.x) < s.w / 2 + m && Math.abs(z - s.z) < s.d / 2 + m);
 export const TATA = { desa: [] };
 DESA.forEach((d, di) => {
   const t = { rumah: [], palem: [] };
-  t.balai = { x: d.x, z: d.z - 30 }; tambahJejak(t.balai.x, t.balai.z, 9, 'balai' + di);
-  t.lumbung = { x: d.x - 26, z: d.z - 24 }; tambahJejak(t.lumbung.x, t.lumbung.z, 4.5, 'lumbung' + di);
-  const cariPos = (r, dMin, dMax) => {
-    for (let k = 0; k < 500; k++) {
-      const a = acak() * 6.283, rad = dMin + acak() * (dMax - dMin), x = d.x + Math.cos(a) * rad, z = d.z + Math.sin(a) * rad;
-      if (!bentrok(x, z, r, 3) && jarakJalan(x, z) > r + 2 && tinggi(x, z) > 1) return { x, z, ry: Math.atan2(d.x - x, d.z - z) };
-    }
-    return null;
-  };
-  t.sekolah = cariPos(14, 24, 38); if (t.sekolah) tambahJejak(t.sekolah.x, t.sekolah.z, 14, 'sekolah' + di);
-  if (di === 0) { t.puskesmas = cariPos(11, 24, 38); if (t.puskesmas) tambahJejak(t.puskesmas.x, t.puskesmas.z, 11, 'puskesmas'); }
-  t.papan = { x: d.x - 46, z: d.z + 4 };
-  for (let k = 0; k < 900 && t.rumah.length < 9; k++) {
-    const a = acak() * 6.283, rad = 12 + acak() * 28, x = d.x + Math.cos(a) * rad, z = d.z + Math.sin(a) * rad;
-    if (bentrok(x, z, 6.5, 2) || jarakJalan(x, z) < 10 || tinggi(x, z) < 1) continue;
-    const tipe = t.rumah.length % 3;
-    t.rumah.push({ x, z, tipe, ry: Math.round(acak() * 4) * Math.PI / 2 + (acak() - 0.5) * 0.4 });
-    tambahJejak(x, z, 6.5, 'rumah');
+  const taruh = (x, z, r, n) => { if (bentrok(x, z, r, 1) || dalamSawah(x, z, r)) return null; tambahJejak(x, z, r, n); return { x, z, ry: hadapJalan(x, z) }; };
+  t.balai = { x: d.x + 24, z: d.z - 22 }; tambahJejak(t.balai.x, t.balai.z, 9, 'balai' + di);
+  t.lumbung = { x: d.x - 22, z: d.z - 22 }; tambahJejak(t.lumbung.x, t.lumbung.z, 4.5, 'lumbung' + di);
+  t.sekolah = taruh(d.x - 30, d.z + 32, 14, 'sekolah' + di);
+  if (di === 0) t.puskesmas = taruh(d.x + 32, d.z + 34, 11, 'puskesmas');
+  if (t.puskesmas) { const q = t.puskesmas, f = [Math.sin(q.ry), Math.cos(q.ry)], r = [Math.cos(q.ry), -Math.sin(q.ry)]; tambahJejak(q.x + f[0] * 14 + r[0] * 9, q.z + f[1] * 14 + r[1] * 9, 5, 'parkir ambulans'); }
+  t.papan = { x: d.x - 56, z: d.z + 8 };
+  const kand = [];
+  for (const ox of [-62, -51, -40, -29, 29, 40, 51, 62]) for (const oz of [-13, 13]) kand.push([d.x + ox, d.z + oz]);
+  for (const oz of [-70, -58, -46, 46, 58, 70]) for (const ox of [-13, 13]) kand.push([d.x + ox, d.z + oz]);
+  for (const [x, z] of kand) {
+    if (t.rumah.length >= 14) break;
+    const r = taruh(x, z, 5.5, 'rumah'); if (r) t.rumah.push({ ...r, tipe: t.rumah.length % 3 });
   }
-  for (let k = 0; k < 300 && t.palem.length < 7; k++) {
-    const a = acak() * 6.283, rad = 10 + acak() * 34, x = d.x + Math.cos(a) * rad, z = d.z + Math.sin(a) * rad;
-    if (bentrok(x, z, 1.8, 1) || jarakJalan(x, z) < 5) continue;
-    t.palem.push({ x, z }); tambahJejak(x, z, 1.8, 'palem');
+  // palem berjajar rapi di pinggir jalan kampung
+  for (const [x, z] of [[d.x - 9, d.z - 40], [d.x + 9, d.z - 40], [d.x - 9, d.z + 60], [d.x + 9, d.z + 60], [d.x - 62, d.z - 8], [d.x + 62, d.z - 8]]) {
+    if (!bentrok(x, z, 1.8, 1) && !dalamSawah(x, z, 2)) { t.palem.push({ x, z }); tambahJejak(x, z, 1.8, 'palem'); }
   }
   TATA.desa.push(t);
 });
+
+// Rumah warga di kota barat: berderet di tepi jalan (jarak tetap dari sumbu jalan), menghadap jalan
+tambahJejak(KANTOR.x, KANTOR.z + 20, 10, 'halaman kantor');
+TATA.kota = [];
+{
+  const baris = [];
+  for (let z = 56; z <= 160; z += 13) { baris.push([-63, z]); baris.push([-89, z]); }   // sisi dalam Jl. Kebun
+  for (let z = 58; z <= 160; z += 13) { baris.push([13, z]); baris.push([-13, z]); }     // kedua sisi Jl. Raya
+  for (let x = -62; x <= -14; x += 13) { baris.push([x, 108]); baris.push([x, 156]); }  // Jl. Selatan dan Jl. TPA
+  for (const [x, z] of baris) {
+    if (x < -80 || bentrok(x, z, 5.5, 1) || Math.abs(x - sungaiX(z)) < 30) continue;
+    tambahJejak(x, z, 5.5, 'rumah'); TATA.kota.push({ x, z, ry: hadapJalan(x, z), tipe: TATA.kota.length % 3 });
+  }
+}
