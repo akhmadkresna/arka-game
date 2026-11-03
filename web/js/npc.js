@@ -5,6 +5,7 @@ import * as THREE from '../vendor/three.module.js';
 import { M, papan, bangunanSekolah, bangunanPuskesmas, ambulans, manusiaMini, ojol, labelSprite } from './objek.js';
 import { JALAN, sungaiX, JEMBATAN } from './konfig.js';
 import { TATA } from './tata.js';
+import { gantiDenganSosok } from './model.js';
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const dist = (ax, az, bx, bz) => Math.hypot(ax - bx, az - bz);
@@ -57,9 +58,11 @@ export function buatNPC(d) {
     for (let i = 0; i < 8; i++) {
       const u = rand(-10, 10), v = rand(-6, 6), x = s.pusat.x + r[0] * u + f[0] * v, z = s.pusat.z + r[1] * u + f[1] * v;
       const m = manusiaMini(putih, merah, 0.32); grup.add(m);
+      gantiDenganSosok(m, 'orang/char-' + 'bcefkm'[i % 6], 0.9, [], 'idle');
       s.anak.push({ g: m, x, z, ry: rand(0, 6.28), tx: x, tz: z, tunggu: rand(0, 2) });
     }
     const guru = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x9a7a4a }), new THREE.MeshLambertMaterial({ color: 0x3a2a1a }), 0.5); grup.add(guru);
+    gantiDenganSosok(guru, 'orang/char-i', 1.5, [], 'idle');
     s.guru = { g: guru, x: sk.x + f[0] * 8.5 + r[0] * 5, z: sk.z + f[1] * 8.5 + r[1] * 5, ry: sk.ry };
     const pl = papan('KEGIATAN BELAJAR LIBUR\nSiswa sedang dirawat', 9, 2.6, { latar: '#f2b8a8', warna: '#5a1208' });
     pl.position.set(0, 3.4, 9.4); pl.visible = false; g.add(pl);
@@ -89,10 +92,12 @@ export function buatNPC(d) {
         if (jr > 0.4) { const l = Math.min(jr, (s.kumpul ? 4 : 2) * dt); a.x += dx / jr * l; a.z += dz / jr * l; a.ry = Math.atan2(dx, dz); bergerak = true; }
         a.g.position.set(a.x, lantai(a.x, a.z) + (bergerak ? Math.abs(Math.sin(waktu * 10 + a.tx)) * 0.08 : 0), a.z);
         a.g.rotation.y += wrap(a.ry - a.g.rotation.y) * Math.min(1, dt * 8);
-        const u = a.g.userData, ay = bergerak ? Math.sin(waktu * 9 + a.tx) * 0.7 : 0; u.lenganK.rotation.x = ay; u.lenganN.rotation.x = -ay;
+        if (a.g.userData.sosok) a.g.userData.sosok.mainkan(bergerak ? 'walk' : 'idle');
+        else { const u = a.g.userData, ay = bergerak ? Math.sin(waktu * 9 + a.tx) * 0.7 : 0; u.lenganK.rotation.x = ay; u.lenganN.rotation.x = -ay; }
       }
       const gu = s.guru; gu.g.position.set(gu.x, lantai(gu.x, gu.z), gu.z); gu.g.rotation.y = gu.ry;
-      gu.g.userData.lenganK.rotation.x = s.kumpul ? -2.4 + Math.sin(waktu * 5) * 0.3 : 0; // melambai saat makan siang
+      if (gu.g.userData.sosok) gu.g.userData.sosok.mainkan(s.kumpul ? 'emote-yes' : 'idle'); // mengangguk saat makan siang
+      else gu.g.userData.lenganK.rotation.x = s.kumpul ? -2.4 + Math.sin(waktu * 5) * 0.3 : 0;
     }
   }
 
@@ -178,7 +183,9 @@ export function buatNPC(d) {
     const putih = new THREE.MeshLambertMaterial({ color: 0xf2f2f2 }), topi = new THREE.MeshLambertMaterial({ color: 0xf2f2f2 });
     b.juru = [-3, 3].map((u, i) => {
       const g = manusiaMini(putih, M.hitam, 0.5, topi); const x = b.x + f[0] * 8 + r[0] * u, z = b.z + f[1] * 8 + r[1] * u;
-      g.position.set(x, lantai(x, z), z); g.rotation.y = rot + Math.PI; grup.add(g); return { g, fase: i * 1.7 };
+      g.position.set(x, lantai(x, z), z); g.rotation.y = rot + Math.PI; grup.add(g);
+      gantiDenganSosok(g, 'orang/char-c', 1.5, [], 'interact-right');
+      return { g, fase: i * 1.7 };
     });
   }
   function hapusJuru(b) { (b.juru || []).forEach(j => grup.remove(j.g)); b.juru = null; }
@@ -212,6 +219,7 @@ export function buatNPC(d) {
     const rompi = new THREE.MeshLambertMaterial({ color: 0x3a6aa0 }), g = manusiaMini(rompi, M.hitam, 0.5);
     g.add(new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.7, 1.1), M.hitam)); g.children[g.children.length - 1].position.set(1.5, 3.4, 1.0);
     grup.add(g);
+    gantiDenganSosok(g, 'orang/char-k', 1.6, [g.children[g.children.length - 1]], 'walk');
     const tujuan = { x: b.x + Math.sin(b.g.rotation.y) * 16 + rand(-3, 3), z: b.z + Math.cos(b.g.rotation.y) * 16 + rand(-3, 3) };
     WARTAWAN.push({ g, x, z, ry: 0, awal: { x, z }, rute: rute({ x, z }, tujuan), idx: 0, fase: 'datang', timer: 0 });
   }
@@ -222,7 +230,8 @@ export function buatNPC(d) {
       else if (w.fase === 'liput') { if ((w.timer -= dt) <= 0) { w.fase = 'pergi'; w.rute = rute(w, w.awal); w.idx = 0; } }
       else if (ikuti(w, dt, 7)) { grup.remove(w.g); WARTAWAN.splice(i, 1); continue; }
       w.g.position.set(w.x, lantai(w.x, w.z), w.z); w.g.rotation.y += wrap(w.ry - w.g.rotation.y) * Math.min(1, dt * 8);
-      w.g.userData.lenganK.rotation.x = w.fase === 'liput' ? -1.5 : 0; w.g.userData.lenganN.rotation.x = w.fase === 'liput' ? -1.5 : 0;
+      if (w.g.userData.sosok) w.g.userData.sosok.mainkan(w.fase === 'liput' ? 'holding-both' : 'walk');
+      else { w.g.userData.lenganK.rotation.x = w.fase === 'liput' ? -1.5 : 0; w.g.userData.lenganN.rotation.x = w.fase === 'liput' ? -1.5 : 0; }
     }
   }
 
@@ -243,6 +252,7 @@ export function buatNPC(d) {
     const g = manusiaMini(new THREE.MeshLambertMaterial({ color: 0x7a4a2a }), M.hitam, 0.5);
     const karung = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), new THREE.MeshLambertMaterial({ color: 0xd9b66a }));
     karung.position.set(0, 3.2, -0.9); g.add(karung); grup.add(g);
+    gantiDenganSosok(g, 'orang/char-q', 1.6, [karung], 'sprint');
     const a = rand(0, 6.28), tujuan = { x: b.x + Math.cos(a) * 70, z: b.z + Math.sin(a) * 70 };
     PENGURUS.push({ g, x: b.x, z: b.z, ry: 0, rute: rute({ x: b.x, z: b.z }, tujuan), idx: 0, fase: 0 });
   }
@@ -251,7 +261,7 @@ export function buatNPC(d) {
       const w = PENGURUS[i];
       if (ikuti(w, dt, 13)) { grup.remove(w.g); PENGURUS.splice(i, 1); continue; }
       w.fase += dt * 14; taruh(w, dt);
-      const u = w.g.userData; u.lenganK.rotation.x = Math.sin(w.fase) * 1.1; u.lenganN.rotation.x = -Math.sin(w.fase) * 1.1;
+      const u = w.g.userData; if (!u.sosok) { u.lenganK.rotation.x = Math.sin(w.fase) * 1.1; u.lenganN.rotation.x = -Math.sin(w.fase) * 1.1; }
     }
   }
   function perbaruiKopdes(dt) {
@@ -287,7 +297,7 @@ export function buatNPC(d) {
       if (b.mangkrak) { if (b.juru) hapusJuru(b); continue; }
       if (b.pop < 1) continue;
       if (!b.juru) tambahJuru(b);
-      b.juru.forEach(j => { const u = j.g.userData; u.lenganK.rotation.x = -1.2 + Math.sin(waktu * 6 + j.fase) * 0.5; u.lenganN.rotation.x = -1.2 + Math.sin(waktu * 6 + j.fase + 3.1) * 0.5; });
+      b.juru.forEach(j => { const u = j.g.userData; if (u.sosok) return; u.lenganK.rotation.x = -1.2 + Math.sin(waktu * 6 + j.fase) * 0.5; u.lenganN.rotation.x = -1.2 + Math.sin(waktu * 6 + j.fase + 3.1) * 0.5; });
       if (G.t < (b.sampai || 0)) continue;
       b.antar = (b.antar ?? 8) - dt; if (b.antar <= 0) { b.antar = rand(30, 45); kirimPengantar(b); }
       b.cek = (b.cek ?? 15) - dt;
