@@ -1,6 +1,7 @@
 // Upacara peresmian: pita merah, tamu undangan bertepuk tangan, lalu gunting pita.
 import * as THREE from '../vendor/three.module.js';
 import { M, manusiaMini } from './objek.js';
+import { gantiDenganSosok } from './model.js';
 
 const MERAH = new THREE.MeshLambertMaterial({ color: 0xd6252d });
 const EMAS = new THREE.MeshLambertMaterial({ color: 0xe8b83c });
@@ -21,6 +22,7 @@ export function buatPeresmian({ scene, lantai, E, bunyi, V }) {
     for (let i = 0; i < 3; i++) {
       const sisi = i === 0 ? -1 : 1, geser = i === 2 ? 7.4 : 6, baris = i === 2 ? -1.2 : 0;
       const m = manusiaMini(JAS[i % 3], M.hitam, 0.5, M.hitam); m.position.set(sisi * geser, 0, baris - 1); m.rotation.y = Math.PI; g.add(m); tamu.push(m);
+      gantiDenganSosok(m, 'orang/char-' + ['q', 'm', 'i'][i % 3], 1.7, [], 'emote-yes'); // tamu berjas Kenney bila berhasil dimuat
     }
     aktif.push({ g, pitaK, pitaN, tamu, t: 0, gunting: false, x: px, z: pz, y, selesai, fase: Math.random() * 6 });
   }

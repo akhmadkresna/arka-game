@@ -3,6 +3,8 @@
 import * as THREE from '../vendor/three.module.js';
 import { M, papan, manusiaMini } from './objek.js';
 import { sungaiX, KANTOR } from './konfig.js';
+import { gantiDenganSosok, lepasSosok } from './model.js';
+const WARGA = ['b', 'c', 'e', 'f', 'k', 'm', 'i'];
 
 const TULISAN = ['TURUNKAN\nHARGA!', 'HUTAN\nKAMI!', 'SAWIT BUKAN\nHUTAN', 'MANA\nJANJI?', 'UDARA\nBERSIH!', 'KOPERASI\nKOSONG!', 'MAKAN GRATIS\nYANG BENAR!'];
 const SERUAN = ['TURUNKAN HARGA!', 'MANA JANJIMU?', 'HUTAN KAMI!', 'UDARA BERSIH!', 'KOPERASI KOSONG!', 'JANGAN KABUR, PAK!'];
@@ -25,7 +27,9 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
       let x = x0 + rand(-sebar, sebar), z = z0 + rand(-sebar, sebar);
       if (lantai(x, z) < 0.8) { x = x0; z = z0; }
       g.position.set(x, lantai(x, z), z); scene.add(g);
-      massa.push({ g, x, z, ry: 0, v: rand(6.2, 7.4), fase: rand(0, 6), takut: false, keluar: false, lama: 0 });
+      const mem = { g, x, z, ry: 0, v: rand(6.2, 7.4), fase: rand(0, 6), takut: false, keluar: false, lama: 0, sosok: null };
+      massa.push(mem);
+      gantiDenganSosok(g, 'orang/char-' + WARGA[massa.length % WARGA.length], 1.6, [t, tongkat], 'sprint').then(s => { mem.sosok = s; if (s && !massa.includes(mem)) lepasSosok(s); });
     }
   }
   // Titik di sekitar pemain, di sisi sungai yang sama, tempat bala bantuan muncul
@@ -47,7 +51,7 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
     if (!petunjuk) { petunjuk = true; setTimeout(() => toast('Demo reda bila Amarah < 28.'), 6500); }
   }
   function selesai() { fase = 'pulang'; pulang = 14; toast('Demo bubar. Untuk sementara.'); }
-  function lepas() { for (const m of massa) scene.remove(m.g); massa.length = 0; aktif = false; fase = 'tidur'; jeda = 70 + rand(0, 40); }
+  function lepas() { for (const m of massa) { scene.remove(m.g); lepasSosok(m.sosok); } massa.length = 0; aktif = false; fase = 'tidur'; jeda = 70 + rand(0, 40); }
 
   function update(dt) {
     if (kebal > 0) kebal -= dt;
@@ -110,7 +114,8 @@ export function buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kil
       m.fase += dt * 12;
       m.g.position.set(m.x, lantai(m.x, m.z) + (al > 0.05 ? Math.abs(Math.sin(m.fase)) * 0.12 : 0), m.z);
       m.g.rotation.y += (((m.ry - m.g.rotation.y + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * Math.min(1, dt * 8);
-      const u = m.g.userData; u.lenganK.rotation.x = -2.6 + Math.sin(m.fase * 0.5) * 0.3; u.lenganN.rotation.x = al > 0.05 ? Math.sin(m.fase) * 0.8 : 0;
+      if (m.sosok) m.sosok.mainkan(al > 0.05 ? (v > 9 ? 'sprint' : 'walk') : 'idle', 1);
+      else { const u = m.g.userData; u.lenganK.rotation.x = -2.6 + Math.sin(m.fase * 0.5) * 0.3; u.lenganN.rotation.x = al > 0.05 ? Math.sin(m.fase) * 0.8 : 0; }
       if (d < 2.4) dekat++;
     }
     if (pantau && !tercatat) { tercatat = true; G.dibubarkan = (G.dibubarkan || 0) + 1; G.citra = Math.max(0, G.citra - 3); toast('Aparat berbaris. Massa mundur. Citra -3.'); }

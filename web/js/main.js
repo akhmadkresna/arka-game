@@ -9,6 +9,7 @@ import { bunyi, aktifkan, setBisu, bisuSekarang, mesin } from './bunyi.js';
 import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik } from './musik.js';
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { buatPeresmian } from './peresmian.js';
+import { perbaruiSosok } from './model.js';
 import { buatWaypath } from './waypath.js';
 import { buatDemo } from './demo.js';
 import { PRESTASI, PANGKAT, pangkatDari, pilihBerita, ucapan, SAMBUTAN, DENIAL } from './satir.js';
@@ -883,7 +884,7 @@ function update(dt) {
   E.update(dt);
   if (wToast > 0 && (wToast -= dt) <= 0) $('toast').style.opacity = 0;
   if (wMono > 0 && (wMono -= dt) <= 0) $('monolog').style.opacity = 0;
-  satirTick(dt); PERESMIAN.update(dt); if (G.jalan && !G.jeda) DEMO.update(dt);
+  perbaruiSosok(dt); satirTick(dt); PERESMIAN.update(dt); if (G.jalan && !G.jeda) DEMO.update(dt);
   if (wMisiBaru > 0) wMisiBaru -= dt;
   if (!G.jalan || G.jeda) return;
 

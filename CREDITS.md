@@ -16,6 +16,7 @@ Teks lisensi asli ada di tiap folder (`LICENSE-*.txt`).
 |---|---|---|---|
 | Graveyard Kit | nisan, pagar besi, krip, pinus, tiang lampu pemakaman | [OpenGameArt](https://opengameart.org/content/graveyard-kit) | `web/assets/kenney/model/grave/` |
 | Car Kit | mobil dinas dan ambulans | [OpenGameArt](https://opengameart.org/content/car-kit) | `web/assets/kenney/model/car/` |
+| Blocky Characters | massa demo, aparat sewaan (polisi), dan tamu peresmian, dengan animasi jalan, lari, dan diam | [OpenGameArt](https://opengameart.org/content/blocky-characters) | `web/assets/kenney/model/orang/` |
 | Nature Kit | semak, bunga, batu, tunggul, dan batang kayu pengisi dunia | [OpenGameArt](https://opengameart.org/content/nature-kit) | `web/assets/kenney/model/nature/` |
 
 Pemuat glTF (`GLTFLoader`, `BufferGeometryUtils`) berasal dari three.js r160 (lisensi MIT) dan ada di `web/vendor/`.

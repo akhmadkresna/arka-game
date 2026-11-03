@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 import { rng, fbm } from './noise.js';
 import { tinggi } from './terrain.js';
 import { TATA, FOOT } from './tata.js';
-import { klonModel, buatInstansModel } from './model.js';
+import { klonModel, buatInstansModel, gantiDenganSosok } from './model.js';
 import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
 
 export const M = {
@@ -542,6 +542,7 @@ export function aparatSewaan() {
   const jaket = new THREE.MeshLambertMaterial({ color: 0x1f3a6a });
   const g = manusia(jaket, false, 0.52);
   g.add(mesh(geo.silinder, jaket, 0, 4.2, 0, 0.62, 0.3, 0.62));
+  gantiDenganSosok(g, 'orang/char-j', 1.7, [], 'walk'); // polisi Kenney bila berhasil dimuat
   return g;
 }
 
