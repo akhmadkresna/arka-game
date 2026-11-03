@@ -20,3 +20,9 @@ Teks lisensi asli ada di tiap folder (`LICENSE-*.txt`).
 | Nature Kit | semak, bunga, batu, tunggul, dan batang kayu pengisi dunia | [OpenGameArt](https://opengameart.org/content/nature-kit) | `web/assets/kenney/model/nature/` |
 
 Pemuat glTF (`GLTFLoader`, `BufferGeometryUtils`) berasal dari three.js r160 (lisensi MIT) dan ada di `web/vendor/`.
+
+## Tambahan aset Kenney (CC0)
+- City Kit (Roads, Suburban, Commercial) — jalan, lampu, rumah dan toko (assets/kenney/model/roads, sub, kom)
+- Mini Shop (toko) dan Food Kit (food) — dagangan kios
+- Car Kit — roda motor/mobil, kart (assets/kenney/model/car)
+Lisensi tiap paket ada di LICENSE.txt dalam foldernya.

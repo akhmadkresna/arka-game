@@ -34,6 +34,12 @@ export class InstansModel {
     for (const b of this.bagian) b.setMatrixAt(i, tampil ? m : NOL);
     this.kotor = true; return i;
   }
+  tambahM(m, tampil = true) { // dengan matriks bebas (miring mengikuti lereng)
+    if (this.n >= this.kap) return -1;
+    const i = this.n++; this.mats[i] = m.clone();
+    for (const b of this.bagian) b.setMatrixAt(i, tampil ? m : NOL);
+    this.kotor = true; return i;
+  }
   tampil(i, ya) { for (const b of this.bagian) b.setMatrixAt(i, ya ? this.mats[i] : NOL); this.kotor = true; }
   sinkron() { if (this.kotor) { for (const b of this.bagian) b.instanceMatrix.needsUpdate = true; this.kotor = false; } }
   pasangKe(induk) { for (const b of this.bagian) induk.add(b); }
@@ -74,4 +80,14 @@ export async function gantiDenganSosok(g, nama, skala, simpan = [], klip = 'idle
     g.children.forEach(c => { if (!c.isSprite && !simpan.includes(c)) c.visible = false; });
     g.add(s.g); s.mainkan(klip); g.userData.sosok = s; return s;
   } catch (e) { return null; }
+}
+
+// Pasang model dengan lebar (sumbu x/z terbesar) tertentu; pusat di x/z = 0 dan dasar di y = 0
+export async function pasangSesuai(nama, lebar) {
+  const m = await klonModel(nama); m.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(m), ukur = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  const s = lebar / Math.max(ukur.x, ukur.z, 0.001), w = new THREE.Group();
+  m.position.set(-c.x, -box.min.y, -c.z); const dalam = new THREE.Group(); dalam.add(m); dalam.scale.setScalar(s); w.add(dalam);
+  w.userData.ukuran = { x: ukur.x * s, y: ukur.y * s, z: ukur.z * s };
+  return w;
 }

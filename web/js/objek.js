@@ -3,7 +3,7 @@ import * as THREE from '../vendor/three.module.js';
 import { rng, fbm } from './noise.js';
 import { tinggi } from './terrain.js';
 import { TATA, FOOT } from './tata.js';
-import { klonModel, buatInstansModel, gantiDenganSosok } from './model.js';
+import { klonModel, buatInstansModel, gantiDenganSosok, pasangSesuai } from './model.js';
 import { R, sungaiX, ZONA, pusatZona, KOLOM, BARIS, JARAK, UKURAN, DESA, SAWAH, TPA, KANTOR, TPU, ZONA_EMAS, JEMBATAN, JALAN, jarakJalan } from './konfig.js';
 
 export const M = {
@@ -325,11 +325,18 @@ export function buatObjek(scene, terrain) {
     }
     g.scale.setScalar(1.3);
     g.position.set(x, h, z); g.rotation.y = ry; dunia.add(g);
+    // Rumah Kenney (City Kit Suburban) yang beragam; rumah prosedural di atas menjadi cadangan
+    const huruf = 'abcdefghijklmnopqrstu'[Math.floor(Math.abs(x * 7 + z * 13)) % 21];
+    pasangSesuai('sub/h-' + huruf, 6.0).then(rm => {
+      g.children.forEach(c => { c.visible = false; }); g.add(rm);
+      if (Math.floor(Math.abs(x * 3 + z * 5)) % 3 === 0) pasangSesuai('sub/tree-small', 3.2).then(t => { t.position.set(4.3, 0, 1.2); g.add(t); }).catch(() => {});
+      if (Math.floor(Math.abs(x + z * 11)) % 2 === 0) pasangSesuai('sub/planter', 2.2).then(t => { t.position.set(-3.6, 0, 3.2); g.add(t); }).catch(() => {});
+    }).catch(() => { /* tetap rumah prosedural */ });
   }
   const palemDesa = new Inst(geoSawit.batang, bahanSawit.batang, 80), palemDesaD = new Inst(geoSawit.tajuk, bahanSawit.tajuk, 80);
   DESA.forEach((d, di) => {
     const tt = TATA.desa[di];
-    tt.rumah.forEach(r => rumah(r.x, r.z, r.tipe, r.ry));
+    tt.rumah.forEach(r => rumah(r.x, r.z, r.tipe, Math.atan2(d.x - r.x, d.z - r.z) + (acak() - 0.5) * 0.5)); // menghadap pusat desa
     const l = new THREE.Group(); l.add(tiang(M.kayu, 0, 1.6, 0, 1.6, 3.2), mesh(geo.kerucut, M.atapCoklat, 0, 4.2, 0, 2.1, 2.2, 2.1)); l.position.set(tt.lumbung.x, tinggi(tt.lumbung.x, tt.lumbung.z), tt.lumbung.z); dunia.add(l);
     const b = new THREE.Group(); b.add(kotak(M.krem, 0, 2, 0, 10, 4, 6), mesh(prisma(11, 3, 7), M.atapHijau, 0, 4, 0));
     const bp = papan('BALAI DESA', 6, 1.8); bp.position.set(0, 5, 3.2); b.add(bp);
@@ -535,8 +542,29 @@ export function kios(nama, tipe, indeks) {
   const [teksL, warnaL] = LABEL[tipe];
   const label = papan(teksL, 4, 0.9, { latar: warnaL }); label.position.set(0, 5.3, 1.95); g.add(label);
   const tutup = papan('TUTUP (GULUNG TIKAR)', 4.4, 1, { latar: '#9a9a9a' }); tutup.position.set(0, 2.2, 1.9); tutup.visible = false; g.add(tutup);
-  g.userData = { pemilik, atap, kanopi, label, tutup, warnaAsli: atap.color.getHex() };
+  g.userData = { pemilik, atap, kanopi, label, tutup, nm, warnaAsli: atap.color.getHex() };
+  perkayaKios(g, indeks);
   return g;
+}
+// Kios beraset Kenney: rumah toko yang berbeda-beda, etalase dagangan, dan penjual berwajah (cadangan: kios prosedural di atas)
+const RUMAH_KIOS = ['a', 'c', 'e', 'g', 'j', 'l', 'n', 'p', 'b', 'f', 'h', 'k', 'm', 'r'];
+const PENJUAL = ['b', 'c', 'e', 'f', 'k', 'm', 'i', 'b', 'e', 'c', 'f', 'k', 'm', 'i'];
+const DAGANGAN = [
+  ['food/fries', 'food/donut', 'food/cupcake'], ['food/bowl-soup', 'food/bowl-soup', 'food/bowl-soup'], ['toko/cash-register'], ['roads/construction-cone', 'roads/construction-cone'],
+  ['food/pan-stew', 'food/bowl', 'food/bowl-soup'], ['toko/cash-register'], ['roads/construction-cone', 'roads/construction-barrier'], ['toko/shopping-basket', 'food/apple', 'food/orange'],
+  ['food/cup-tea', 'food/cup-coffee', 'food/bread'], ['toko/cash-register', 'toko/clothing-rack'], ['food/pan-stew', 'food/banana'], ['food/bowl-soup', 'food/bowl-soup'], ['toko/shopping-basket'], ['food/cup-coffee', 'food/cup-coffee', 'food/cup-coffee'],
+];
+async function perkayaKios(g, indeks) {
+  try {
+    const d = g.userData, barang = DAGANGAN[indeks % DAGANGAN.length];
+    const [rumah, ...bar] = await Promise.all([pasangSesuai('sub/h-' + RUMAH_KIOS[indeks % RUMAH_KIOS.length], 6.4), ...barang.map(n => pasangSesuai(n, n.startsWith('toko/cash') ? 1.5 : n.startsWith('roads/') ? 1.1 : 1.15))]);
+    g.children[0].visible = false;          // dinding belakang prosedural
+    g.children.forEach(c => { if (c.isMesh && Math.abs(c.scale.x - 0.7) < 1e-3 && Math.abs(c.scale.z - 0.6) < 1e-3) c.visible = false; }); // kotak warna dagangan lama
+    rumah.position.set(0, 0, -4.2); g.add(rumah);
+    bar.forEach((b, i) => { b.position.set((i - (bar.length - 1) / 2) * 1.5, 1.12, 0.5); b.rotation.y = i * 0.7; g.add(b); });
+    d.nm.position.set(0, 4.6, -1.6); d.label.position.set(0, 5.9, -1.6);
+    gantiDenganSosok(d.pemilik, 'orang/char-' + PENJUAL[indeks % PENJUAL.length], 2.6, [], 'idle'); // grup pemilik berskala 0.385
+  } catch (e) { /* tetap kios prosedural */ }
 }
 export function aparatSewaan() {
   const jaket = new THREE.MeshLambertMaterial({ color: 0x1f3a6a });
@@ -563,6 +591,18 @@ export function labelSprite(teks, tipe) {
   sp.userData.set(teks, tipe);
   return sp;
 }
+// Roda motor: ganti silinder prosedural dengan roda Kenney (poros X, jadi bisa diputar lewat rotation.x)
+function gantiRodaMotor(g, roda, garis) {
+  klonModel('car/wheel-dark').then(w0 => {
+    roda.forEach((r, i) => {
+      r.visible = false;
+      const pivot = new THREE.Group(); pivot.position.copy(r.position);
+      const w = i === 0 ? w0 : w0.clone(true);
+      w.scale.set(garis * 1.1, garis, garis); pivot.add(w); g.add(pivot);
+      roda[i] = pivot;
+    });
+  }).catch(() => { /* tetap prosedural */ });
+}
 export function ojol(indeks) {
   const g = new THREE.Group();
   const hijau = new THREE.MeshLambertMaterial({ color: 0x2fa04a }), motor = new THREE.MeshLambertMaterial({ color: [0x3a4a6a, 0x8a3a3a, 0x4a4a4a][indeks % 3] });
@@ -580,6 +620,7 @@ export function ojol(indeks) {
   g.add(pengendara);
   g.scale.setScalar(1.15);
   g.userData = { pemilik: pengendara, roda };
+  gantiRodaMotor(g, roda, 1.85);
   return g;
 }
 
@@ -597,6 +638,7 @@ export function motorPemain() {
   });
   g.scale.setScalar(1.15);
   g.userData = { roda };
+  gantiRodaMotor(g, roda, 1.95);
   return g;
 }
 // Ganti tampilan kendaraan prosedural dengan model Kenney bila berhasil dimuat (roda dikenali dari nama simpul)
