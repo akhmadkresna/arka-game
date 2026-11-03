@@ -167,11 +167,11 @@ export function buatNPC(d) {
   function labelDapur(b) {
     if (!b.label) { b.label = labelSprite('sertifikat higiene', 'proses'); b.label.position.set(0, 11.8, 0); b.g.add(b.label); }
     const ditutup = G.t < (b.sampai || 0);
-    const kunci = b.mangkrak ? 'mangkrak' : ditutup ? 'tutup' : b.slhs ? 'ada' : 'proses';
+    const kunci = b.mangkrak ? 'mangkrak' : ditutup ? 'tutup' : 'proses';
     if (b.labelKunci === kunci) return;
     b.labelKunci = kunci;
     if (kunci === 'mangkrak') b.label.visible = false;
-    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP SEMENTARA' : kunci === 'ada' ? 'Sertifikat higiene: ADA (DI KERTAS)' : 'Sertifikat higiene: PROSES (SEJAK 2024)', kunci); }
+    else { b.label.visible = true; b.label.userData.set(kunci === 'tutup' ? 'DITUTUP SEMENTARA' : 'Sertifikat higiene: PROSES (SEJAK 2024)', kunci); }
   }
   function tambahJuru(b) {
     const rot = b.g.rotation.y, f = [Math.sin(rot), Math.cos(rot)], r = [Math.cos(rot), -Math.sin(rot)];
@@ -294,7 +294,7 @@ export function buatNPC(d) {
       if (b.cek <= 0) {
         b.cek = 18;
         const faktor = b.lok === 'tpa' ? 2 : b.lok === 'sungai' ? 1.5 : 1;
-        if (b.umur > 20 && Math.random() < (b.slhs ? 0.08 : 0.38) * faktor) picuInsiden(b);
+        if (b.umur > 20 && Math.random() < 0.3 * faktor) picuInsiden(b);
       }
     }
   }

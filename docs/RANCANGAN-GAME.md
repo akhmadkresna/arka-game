@@ -8,7 +8,7 @@ Anda menteri narsistik yang berjanji menciptakan generasi emas. Sistem menilai A
 ## Sistem inti
 - **Cuan**: uang dari memalak usaha kecil dan ojek, membakar hutan lalu menanam sawit, serta membangun dapur makan gratis dan koperasi di tempat sembarang. Membangun dengan benar (dekat desa) diblokir birokrasi.
 - **Setoran bulanan** kepada Bos. Tidak ada game over: kegagalan berupa denda (dirotasi, dipanggil lembaga antikorupsi, demo besar).
-- **Meter**: Restu Bos, Panas Hukum, Amarah Rakyat, Kabut, Citra, Berkas, Gizi buruk, kasus ISPA.
+- **Meter**: Restu Bos, Panas Hukum, Amarah Rakyat, Kabut, Citra, Gizi buruk, kasus ISPA.
 - **Laporan Tahunan**: versi resmi melawan kenyataan.
 - **Misi pengantar** (8 langkah) dengan jejak panah di tanah, lalu **Penugasan Bos** bertenggat (inspeksi mendadak, target pajak, penghijauan).
 - **Lapisan satir**: berita dan juru bicara yang menanggapi keadaan, 18 prestasi, pangkat kehormatan, dialog pemilik kios.

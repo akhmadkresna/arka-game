@@ -11,7 +11,6 @@ export const MONOLOG = {
   setoranOk: ['Bos senang. Berarti saya hebat.', 'Setoran lancar. Bakat memang tidak bisa dibeli (kecuali gelarnya).'],
   setoranKurang: ['Setoran kurang? Itu salah oknum di bagian setoran.', 'Bos kecewa. Pasti ada yang menyabotase kehebatan saya.'],
   ngeles: ['"Itu hoaks, tapi sudah kami evaluasi." Selalu manjur.'],
-  berkas: ['Berkas rapi adalah perisai. Saya bawa dua.'],
   pupuk: ['Pupuk bersubsidi, hasil non-subsidi. Itu namanya efisiensi.'],
   oknum: ['Rekrut oknum baru. Dia bekerja, saya bertanggung jawab (atas fotonya).'],
   gelar: ['Gelar baru. Ilmu? Itu urusan belakangan.'],
@@ -49,12 +48,12 @@ export const LOKASI = {
 // Kartu denda: kegagalan di mode santai hanyalah kerugian
 export const DENDA = {
   restu: ['Dirotasi (jabatan baru, nasib sama)', 'Bos kehilangan kepercayaan. Anda dipindah ke kementerian yang sama dengan nama berbeda. Denda administrasi 40% Cuan. Restu Bos dipulihkan ke 45.'],
-  panas: ['Dipanggil Lembaga Antikorupsi (hanya sebagai saksi)', 'Berkas diperiksa, kambing hitam disita. Denda 40% Cuan. Berkas habis. Panas Hukum turun ke 25.'],
+  panas: ['Dipanggil Lembaga Antikorupsi (hanya sebagai saksi)', 'Denda 40% Cuan. Panas Hukum turun ke 25.'],
   rakyat: ['Demo besar di depan kantor', 'Rakyat turun ke jalan membawa panci. Anda "berdialog" dengan mereka, 30% Cuan hilang sebagai biaya dialog. Amarah turun ke 35.'],
 };
 
 // Panduan misi. {x} dst. diganti nama tombol sesuai perangkat. buka = tombol yang relevan (null = semua).
-export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'Dapur', '2': 'Koperasi', f: 'Selfie', c: 'Pers', e: 'Berkas', k: 'Kambing', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
+export const NAMA_TOMBOL = { n: 'Naik', j: 'Lompat', h: 'Klakson', x: 'Palak', v: 'Aparat', b: 'Bakar', t: 'Tebang', p: 'Tanam', '1': 'Dapur', '2': 'Koperasi', f: 'Selfie', c: 'Pers', g: 'Gelar', u: 'Pupuk', o: 'Oknum' };
 export const MISI = [
   { ringkas: 'Palak warung/ojol: ketuk {x}.', teks: 'Tidak punya modal? Jalan ke warung atau ojol terdekat yang ditandai panah kuning, lalu tekan {x} untuk menarik "pajak". Pemilik galak bisa melawan. {v} (sewa aparat) menjamin berhasil.', buka: ['x', 'v'] },
   { ringkas: 'Bakar hutan bertanda: ketuk {b}.', teks: 'Sudah ada Cuan. Jalan ke hutan yang ditandai panah kuning, berdiri di dalamnya, lalu tekan {b} (gratis).', buka: ['b', 't', 'x', 'v'] },

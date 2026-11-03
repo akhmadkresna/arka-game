@@ -443,7 +443,7 @@ export function buatObjek(scene, terrain) {
   k.add(kotak(M.kantor, 0, 6, 0, 22, 12, 12), mesh(prisma(24, 4, 13), M.atapAbu, 0, 12, 0), kotak(M.batu, 0, 0.4, 6.8, 24, 0.8, 3));
   for (let i = -2; i <= 2; i++) k.add(tiang(M.putih, i * 4.4, 5.6, 7.6, 0.6, 11));
   for (let i = -2; i <= 2; i++) k.add(kotak(M.kaca, i * 4.4, 8, 6.05, 2.2, 3, 0.1));
-  const pk = papan('KANTOR KEMENTERIAN\nBerkas & Kambing Hitam', 14, 4.4); pk.position.set(0, 13.6, 7.2); k.add(pk);
+  const pk = papan('KANTOR KEMENTERIAN\nSetoran Diterima Kapan Saja', 14, 4.4); pk.position.set(0, 13.6, 7.2); k.add(pk);
   k.position.set(KANTOR.x, tinggi(KANTOR.x, KANTOR.z), KANTOR.z); dunia.add(k);
 
   // ----- Pesisir: perahu kecil dan rambu -----

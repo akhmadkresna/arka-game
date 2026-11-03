@@ -18,7 +18,7 @@ import { MONOLOG, BLOKIR, LOKASI, DENDA, MISI, PAJAK, GAGAL, NAMA_TOMBOL, PAJAK_
 const DETIK_PER_BULAN = 30;
 // Bos menagih nilai dasar ditambah 25% dari penghasilan bulanan (mengikuti ukuran bisnis Anda)
 const kuotaBulan = b => Math.round(80 + 40 * (b - 1) + 0.25 * G.penghasilan * DETIK_PER_BULAN);
-const HARGA = { tebang: 60, tanam: 40, mbg: 60, kopdes: 50, berkas: 50, kambing: 150, aparat: 120 };
+const HARGA = { tebang: 60, tanam: 40, mbg: 60, kopdes: 50, aparat: 120 };
 const hargaGelar = n => 300 * (n + 1);
 const hargaPupuk = n => 200 * 2 ** n;
 const hargaOknum = n => 300 * (n + 1);
@@ -30,7 +30,7 @@ const COOLDOWN_UMKM = 25, TUTUP_SETELAH = 3, LAMA_TUTUP = 120, DURASI_APARAT = 6
 // ---------- Keadaan ----------
 const G = {
   t: 0, bulan: 1, jalan: false, jeda: false,
-  cuan: 20, restu: 60, panas: 5, rakyat: 5, kabut: 0, citra: 0, berkas: 1,
+  cuan: 20, restu: 60, panas: 5, rakyat: 5, kabut: 0, citra: 0,
   stunting: 20, pupuk: 0, oknum: 0, gelar: 0, aparat: 0, ojolMogok: 0, korban: 0, insiden: 0, kasRaib: 0, tugasOk: 0, ispa: 0, demoKali: 0, dibubarkan: 0, dikepung: 0, prestasi: [], pangkat: 0, naik: null, balihoList: [],
   bangunan: [], baliho: 0, selfie: 0, kabutPuncak: 0, gulungTikar: 0, misi: 0,
   stat: { bakar: 0, tanam: 0, bangun: 0, blokir: 0, palak: 0, panen: 0, naik: 0, lompat: 0 },
@@ -186,9 +186,9 @@ const WAYPATH = buatWaypath({ scene, lantai });
 const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kilat, titik: WAYPATH.titik });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
 let fxSumber = null, fxTujuan = null;
-const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas Hukum'], ['rakyat', 'Amarah'], ['citra', 'Citra'], ['berkas', 'Berkas']];
-const SIFAT = { cuan: true, restu: true, panas: false, rakyat: false, citra: true, berkas: true };
-const ambil = () => ({ cuan: G.cuan, restu: G.restu, panas: G.panas, rakyat: G.rakyat, citra: G.citra, berkas: G.berkas });
+const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas Hukum'], ['rakyat', 'Amarah'], ['citra', 'Citra']];
+const SIFAT = { cuan: true, restu: true, panas: false, rakyat: false, citra: true };
+const ambil = () => ({ cuan: G.cuan, restu: G.restu, panas: G.panas, rakyat: G.rakyat, citra: G.citra });
 function umumkan(a, b) {
   const pos = pemain.position.clone(); pos.y += 3.2;
   let i = 0;
@@ -218,7 +218,6 @@ function klasifikasi(x, z) {
   return { k: 'kosong' };
 }
 const kiosDekat = () => sasaranPalak();
-const dekatKantor = () => jarakDua(pemain.position.x, pemain.position.z, KANTOR.x, KANTOR.z) < 24;
 
 // ---------- Palak usaha kecil dan ojol ----------
 function sasaranPalak() {
@@ -366,8 +365,7 @@ function ubahStatus(p, status) { p.status = status; dunia.tampilkan(p); }
 const pusatPetak = (p, y = 1) => V(p.cx, p.cz, y);
 function bakar(p) {
   if (!p || p.status !== 'hutan') return;
-  if (G.berkas > 0) { G.berkas--; G.panas = batas(G.panas + 1); toast('Dibakar sesuai prosedur. Berkas -1.'); }
-  else { G.panas = batas(G.panas + 3); toast('Tanpa berkas: Panas Hukum naik.'); }
+  G.panas = batas(G.panas + 2); toast('Dibakar. Panas Hukum +2.');
   G.stat.bakar++; p.api = DURASI_API; ubahStatus(p, 'api'); monolog('bakar');
   E.semburan(pusatPetak(p, 1), 'api', 34); E.semburan(pusatPetak(p, 3), 'asap', 8); E.getar(0.3); bunyi.api();
 }
@@ -417,10 +415,8 @@ function bangun(jenis) {
   }
   G.cuan += (jenis === 'mbg' ? 160 : 130) - biaya;
   G.restu = batas(G.restu + 4); G.panas = batas(G.panas + 2); G.citra += 3; G.stat.bangun++;
-  const slhs = jenis === 'mbg' && G.berkas > 0;
-  if (slhs) G.berkas--;
   const rec = pasangBangunan(jenis, x, z, ry + Math.PI, 0.01);
-  rec.slhs = slhs; rec.lok = l.k; NPC.dapurBaru(rec);
+  rec.lok = l.k; NPC.dapurBaru(rec);
   if (jenis === 'kopdes' && jarakDua(x, z, ZONA_EMAS.x, ZONA_EMAS.z) < ZONA_EMAS.r + 3) {
     tandaiEmas(rec); G.cuan += 100; G.panas = batas(G.panas + 6); G.rakyat = batas(G.rakyat + 5);
     setTimeout(() => toast('LAHAN STRATEGIS! Hibah +100 Cuan, hasil 8×.'), 600);
@@ -433,7 +429,7 @@ function bangun(jenis) {
   fxSumber = pusat; E.semburan(pusat, 'debu', 34); E.semburan(V(x, z, 6), 'konfeti', 36); E.getar(0.5); bunyi.bangun();
   E.teks(V(x, z, 9), jenis === 'mbg' ? 'DAPUR EMAS!' : 'KOPERASI EMAS!', 'besar emas');
   PERESMIAN.mulai(x, z, rot, () => { G.cuan += rec.emas ? 60 : 12; G.citra += 2; G.panas = batas(G.panas + 1); ucapTeks('Sambutan Menteri', SAMBUTAN[Math.floor(Math.random() * SAMBUTAN.length)]); toast(rec.emas ? 'Amplop +60 Cuan, Citra +2.' : 'Amplop +12 Cuan, Citra +2.'); });
-  toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MAKAN GRATIS)' : 'KOPERASI EMAS'} berdiri ${LOKASI[l.k]}${jenis === 'mbg' ? (slhs ? ' Sertifikat higiene: lengkap, di atas kertas (1 berkas terpakai).' : ' Sertifikat higiene: sedang diproses (sejak 2024).') : ''}`); monolog('bangun');
+  toast(`${jenis === 'mbg' ? 'DAPUR EMAS (MAKAN GRATIS)' : 'KOPERASI EMAS'} berdiri ${LOKASI[l.k]}`); monolog('bangun');
 }
 function selfie() {
   const dekat = G.bangunan.some(b => jarakDua(pemain.position.x, pemain.position.z, b.x, b.z) < 18);
@@ -479,8 +475,6 @@ function jalankanAksi(k) {
   else if (k === 'g') beliGelar(); else if (k === 'u') beliPupuk(); else if (k === 'o') rekrutOknum();
   else if (k === 'j') lompat(); else if (k === 'n') naikTurun(); else if (k === 'h') klakson();
   else if (k === 'r') laporan(false);
-  else if (k === 'e') { if (!dekatKantor()) toast('Ke Kantor Kementerian dulu.'); else if (bisaBayar(HARGA.berkas)) { G.cuan -= HARGA.berkas; G.berkas++; fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Berkas rapi dibeli. Perisai +1.'); monolog('berkas'); } }
-  else if (k === 'k') { if (!dekatKantor()) toast('Ke Kantor Kementerian dulu.'); else if (bisaBayar(HARGA.kambing)) { G.cuan -= HARGA.kambing; G.panas = batas(G.panas - 30); G.restu = batas(G.restu - 2); fxTujuan = V(KANTOR.x, KANTOR.z, 6); bunyi.pop(); toast('Kambing hitam dimutasi. Panas Hukum -30.'); } }
 }
 function aksiTombol(k) {
   if (!G.jalan || G.jeda) return;
@@ -552,11 +546,11 @@ function perbaruiMisi() {
 }
 
 // Tombol sentuh: satu tombol utama besar sesuai konteks, chip untuk aksi kedua, dan lembar "semua aksi"
-const PRIORITAS = ['x', 'b', 'p', 'e', 'n', 'bangun', 'k', 't', 'h', 'f'];
+const PRIORITAS = ['x', 'b', 'p', 'n', 'bangun', 't', 'h', 'f'];
 let sigAksi = '';
 const NAMA = { ...NAMA_TOMBOL, bangun: 'Bangun' };
 const hargaTombol = k => document.querySelector(`#aksiSentuh button[data-k="${k}"] small`)?.textContent || '';
-const IKON_TOMBOL = { x: 'shoppingBasket', v: 'medal1', b: 'warning', t: 'wrench', p: 'plus', '1': 'home', '2': 'shoppingCart', bangun: 'home', f: 'movie', c: 'information', e: 'save', k: 'target', u: 'barsVertical', o: 'multiplayer', g: 'trophy', n: 'up', j: 'arrowUp', h: 'audioOn' };
+const IKON_TOMBOL = { x: 'shoppingBasket', v: 'medal1', b: 'warning', t: 'wrench', p: 'plus', '1': 'home', '2': 'shoppingCart', bangun: 'home', f: 'movie', c: 'information', u: 'barsVertical', o: 'multiplayer', g: 'trophy', n: 'up', j: 'arrowUp', h: 'audioOn' };
 const namaTombol = k => (k === 'n' && G.naik ? 'Turun' : NAMA[k]);
 const labelTombol = (k, tema = 'White') => { const hg = hargaTombol(k), ik = IKON_TOMBOL[k]; return (ik ? `<img class="ik" src="assets/kenney/ikon/${tema}/${ik}.png" alt="">` : '') + `<span>${namaTombol(k)}</span>` + (hg ? `<small>${hg}</small>` : ''); };
 let aksiBoleh = () => true, relSekarang = new Set();
@@ -592,9 +586,9 @@ function perbaruiTombol(s, rel = new Set()) {
 function bukaLembar() {
   const utama = $('aksiUtama').dataset.k, bagian = [];
   const ada = k => aksiBoleh(k) && k !== utama && k !== 'j';
-  const sini = ['x', 'b', 'p', 'e', 'k', 't', 'v', 'n'].filter(k => relSekarang.has(k) || (k === 'v' && relSekarang.has('x'))).filter(ada);
+  const sini = ['x', 'b', 'p', 't', 'v', 'n'].filter(k => relSekarang.has(k) || (k === 'v' && relSekarang.has('x'))).filter(ada);
   if (relSekarang.has('bangun') && utama !== 'bangun' && aksiBoleh('bangun')) sini.push('bangun');
-  const belanja = ['v', 'u', 'o', 'g', 'e', 'k'].filter(k => !sini.includes(k) && ada(k));
+  const belanja = ['v', 'u', 'o', 'g'].filter(k => !sini.includes(k) && ada(k));
   const lain = ['f', 'c', 't', 'h', 'n'].filter(k => !sini.includes(k) && ada(k));
   const buat = (judul, daftar) => daftar.length ? `<h4 class="seksi">${judul}</h4>` + daftar.map(k => `<button data-k="${k}">${labelTombol(k)}</button>`).join('') : '';
   $('lembarJudul').textContent = 'Menu aksi';
@@ -1021,7 +1015,7 @@ function update(dt) {
     else if (p.status === 'lahan') h = `Lahan terbuka: ${tb('p')} Tanam sawit (${HARGA.tanam})`;
     else if (p.status === 'sawit') h = 'Kebun sawit: panen otomatis. Jauhkan dari api.';
     else if (p.status === 'api') h = 'Api sedang menyala. Itu "pembukaan lahan".';
-  } else if (dekatKantor()) h = `Kantor Kementerian: ${tb('e')} Berkas (${HARGA.berkas}) · ${tb('k')} Kambing hitam (${HARGA.kambing})`;
+  }
   setPrompt(h);
   if (u && !u.tutup && u !== uSapa && G.t > (u.sapaLagi || 0) && !(wToast > 0 || bannerAktif || wUcap > 0)) { ucap(u, 's'); u.sapaLagi = G.t + 60; }
   uSapa = u || null;
@@ -1038,8 +1032,7 @@ function update(dt) {
   if (G.naik) { rel.add('n'); rel.add('h'); } else if (kd) rel.add('n');
   if (u && !u.tutup) { rel.add('x'); rel.add('v'); }
   if (p && p.status === 'hutan') { rel.add('b'); rel.add('t'); } else if (p && p.status === 'lahan') rel.add('p'); else if (p && p.status === 'sawit') rel.add('t');
-  if (dekatKantor()) { rel.add('e'); rel.add('k'); }
-  if (!G.naik && !u && !dekatKantor() && !(p && p.status !== 'lahan')) { rel.add('1'); rel.add('2'); }
+  if (!G.naik && !u && !(p && p.status !== 'lahan')) { rel.add('1'); rel.add('2'); }
   perbaruiTombol(s, rel);
 }
 
@@ -1061,7 +1054,7 @@ function akhirBulan() {
 function denda(sebab) {
   const [judul, teks] = DENDA[sebab];
   if (sebab === 'restu') { G.cuan *= 0.6; G.restu = 45; G.rakyat = batas(G.rakyat - 10); }
-  else if (sebab === 'panas') { G.cuan *= 0.6; G.panas = 25; G.berkas = 0; }
+  else if (sebab === 'panas') { G.cuan *= 0.6; G.panas = 25; }
   else { G.cuan *= 0.7; G.rakyat = 35; G.restu = batas(G.restu - 10); }
   G.cuan = Math.floor(G.cuan);
   E.getar(0.6); bunyi.denda(); E.koinKeluar(depanPemain(6, 2), 10);
@@ -1092,7 +1085,6 @@ function hud() {
   $('cuan').textContent = Math.floor(G.cuan);
   $('penghasilan').textContent = '+' + G.penghasilan.toFixed(1) + '/dtk';
   $('citra').textContent = Math.floor(G.citra);
-  $('berkas').textContent = G.berkas;
   $('bulan').textContent = `Bulan ${G.bulan} (tahun ${Math.floor((G.bulan - 1) / 12) + 1})`;
   $('kuota').textContent = kuotaBulan(G.bulan);
   $('sisaBulan').textContent = Math.max(0, Math.ceil(G.bulan * DETIK_PER_BULAN - G.t)) + ' dtk';
@@ -1160,13 +1152,13 @@ const KUNCI = 'republikEmas.simpan.v1';
 let simpanGagal = false, jedaSimpan = 0, wInfoSimpan = 0;
 function infoSimpan(teks) { $('simpanInfo').textContent = teks; $('simpanInfo').style.opacity = 1; wInfoSimpan = 2.2; }
 function kumpul() {
-  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'ispa', 'demoKali', 'dibubarkan', 'dikepung', 'misi', 'selfie'];
+  const KUNCI_G = ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'ispa', 'demoKali', 'dibubarkan', 'dikepung', 'misi', 'selfie'];
   const g = {}; KUNCI_G.forEach(k => { g[k] = G[k]; }); g.stat = { ...G.stat }; g.prestasi = G.prestasi.slice(); g.pangkat = G.pangkat;
   return {
     v: 1, waktuSimpan: Date.now(), G: g,
     pemain: { x: pemain.position.x, z: pemain.position.z, ry: pemain.rotation.y, yaw, pitch, jarak },
     petak: PETAK.map(p => [p.status, p.siklus, p.umurLahan, p.api]),
-    bangunan: G.bangunan.map(b => ({ jenis: b.jenis, x: b.x, z: b.z, rot: b.g.rotation.y, umur: b.umur, mangkrak: b.mangkrak, slhs: !!b.slhs, emas: !!b.emas, lok: b.lok, sisa: Math.max(0, (b.sampai || 0) - G.t) })),
+    bangunan: G.bangunan.map(b => ({ jenis: b.jenis, x: b.x, z: b.z, rot: b.g.rotation.y, umur: b.umur, mangkrak: b.mangkrak, emas: !!b.emas, lok: b.lok, sisa: Math.max(0, (b.sampai || 0) - G.t) })),
     baliho: G.balihoList.slice(),
     kios: KIOS.map(u => [u.cd, u.berhasil, u.tutup, u.sisaTutup]),
     ojol: OJOL.map(o => [o.s, o.arah, o.tutup, o.sisaTutup, o.berhasil]),
@@ -1188,12 +1180,12 @@ function baca() {
   try { const s = localStorage.getItem(KUNCI); if (!s) return null; const d = JSON.parse(s); return d && d.v === 1 && d.G ? d : null; } catch (e) { return null; }
 }
 function muat(d) {
-  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'berkas', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'ispa', 'demoKali', 'dibubarkan', 'dikepung', 'misi', 'selfie']
+  ['t', 'bulan', 'cuan', 'restu', 'panas', 'rakyat', 'kabut', 'citra', 'stunting', 'pupuk', 'oknum', 'gelar', 'kabutPuncak', 'gulungTikar', 'ojolMogok', 'korban', 'insiden', 'kasRaib', 'tugasOk', 'ispa', 'demoKali', 'dibubarkan', 'dikepung', 'misi', 'selfie']
     .forEach(k => { if (typeof d.G[k] === 'number' && isFinite(d.G[k])) G[k] = d.G[k]; });
   Object.assign(G.stat, d.G.stat || {});
   G.prestasi = Array.isArray(d.G.prestasi) ? d.G.prestasi.slice() : []; G.pangkat = typeof d.G.pangkat === 'number' ? d.G.pangkat : pangkatDari(G.citra);
   (d.petak || []).forEach((s, i) => { const p = PETAK[i]; if (!p) return; p.siklus = s[1] || 0; p.umurLahan = s[2] || 0; p.api = s[3] || 0; ubahStatus(p, s[0]); });
-  (d.bangunan || []).forEach(b => { const r = pasangBangunan(b.jenis, b.x, b.z, b.rot, 1); r.umur = b.umur || 0; r.slhs = !!b.slhs; r.lok = b.lok; r.sampai = G.t + (b.sisa || 0); NPC.dapurBaru(r); if (b.emas) tandaiEmas(r); if (b.mangkrak) { r.mangkrak = true; mangkrakkan(r.g); } });
+  (d.bangunan || []).forEach(b => { const r = pasangBangunan(b.jenis, b.x, b.z, b.rot, 1); r.umur = b.umur || 0; r.lok = b.lok; r.sampai = G.t + (b.sisa || 0); NPC.dapurBaru(r); if (b.emas) tandaiEmas(r); if (b.mangkrak) { r.mangkrak = true; mangkrakkan(r.g); } });
   (d.baliho || []).forEach(b => pasangBaliho(b.x, b.z, b.hadap, b.tema, true));
   (d.kios || []).forEach((s, i) => { const u = KIOS[i]; if (!u) return; u.cd = s[0] || 0; u.berhasil = s[1] || 0; u.tutup = !!s[2]; u.sisaTutup = s[3] || 0; if (u.tutup) visualTutup(u, true); });
   (d.ojol || []).forEach((s, i) => { const o = OJOL[i]; if (!o) return; o.s = Math.max(0, Math.min(o.tot, s[0] || 0)); o.arah = s[1] || 1; o.tutup = !!s[2]; o.sisaTutup = s[3] || 0; o.berhasil = s[4] || 0; if (o.tutup) visualTutup(o, true); });
