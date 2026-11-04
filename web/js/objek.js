@@ -539,9 +539,9 @@ export function kios(nama, tipe, indeks) {
   [0xe8b83c, 0xd6453d, 0x5fb36a, 0x5aa0d6].forEach((c, i) => g.add(kotak(new THREE.MeshLambertMaterial({ color: c }), -1.6 + i * 1.07, 1.35, 0.5, 0.7, 0.5, 0.6)));
   const pemilik = manusia(new THREE.MeshLambertMaterial({ color: [0x4a7ab0, 0xb04a6a, 0x6a9a4a][indeks % 3] }), false, 0.385);
   pemilik.position.set(0, 0, -0.4); g.add(pemilik);
-  const nm = papan(nama, 5.4, 1.2, { latar: '#f3e8c8' }); nm.position.set(0, 4.1, 1.95); g.add(nm);
   const [teksL, warnaL] = LABEL[tipe];
-  const label = papan(teksL, 4, 0.9, { latar: warnaL }); label.position.set(0, 5.3, 1.95); g.add(label);
+  const nm = papan(nama + '\n' + teksL, 5.6, 1.7, { latar: warnaL }); nm.position.set(0, 4.3, 1.95); g.add(nm); // satu papan: nama + watak pemilik (warna sesuai watak)
+  const label = new THREE.Object3D(); g.add(label); // tetap ada agar kode lama tidak patah
   const tutup = papan('TUTUP (GULUNG TIKAR)', 4.4, 1, { latar: '#9a9a9a' }); tutup.position.set(0, 2.2, 1.9); tutup.visible = false; g.add(tutup);
   g.userData = { pemilik, atap, kanopi, label, tutup, nm, warnaAsli: atap.color.getHex() };
   perkayaKios(g, indeks);

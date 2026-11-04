@@ -9,7 +9,7 @@ export function tambahJejak(x, z, r, n = '') { FOOT.push({ x, z, r, n }); }
 // Baliho awal: berdiri di tepi jalan dan menghadap jalan
 const hadapJalan = (x, z) => { const t = titikJalanTerdekat(x, z); return Math.round(Math.atan2(t.x - x, t.z - z) / (Math.PI / 2)) * Math.PI / 2; };
 export const BALIHO_AWAL = [
-  { x: 14, z: 20 }, { x: -32, z: 46, tema: 'EMAS UNTUK\nSEMUA (KECUALI ANDA)' }, { x: 112, z: 46, tema: 'PAJAK ITU\nSUMBANGAN SUKARELA' },
+  { x: 14, z: 20 }, { x: -32, z: 46, tema: 'EMAS UNTUK\nSEMUA (KECUALI ANDA)' }, { x: 94, z: 46, tema: 'PAJAK ITU\nSUMBANGAN SUKARELA' },
 ].map(b => ({ ...b, ry: hadapJalan(b.x, b.z) }));
 
 // Benda tetap
@@ -29,7 +29,7 @@ DESA.forEach((d, di) => {
   const taruh = (x, z, r, n) => { if (bentrok(x, z, r, 1) || dalamSawah(x, z, r)) return null; tambahJejak(x, z, r, n); return { x, z, ry: hadapJalan(x, z) }; };
   t.balai = { x: d.x + 24, z: d.z - 22 }; tambahJejak(t.balai.x, t.balai.z, 9, 'balai' + di);
   t.lumbung = { x: d.x - 22, z: d.z - 22 }; tambahJejak(t.lumbung.x, t.lumbung.z, 4.5, 'lumbung' + di);
-  t.sekolah = taruh(d.x - 30, d.z + 32, 14, 'sekolah' + di);
+  for (const [ox, oz] of [[-30, 32], [-30, 38], [-32, 46], [-30, -44], [30, 46], [30, -44]]) { t.sekolah = taruh(d.x + ox, d.z + oz, 14, 'sekolah' + di); if (t.sekolah) break; }
   if (di === 0) t.puskesmas = taruh(d.x + 32, d.z + 34, 11, 'puskesmas');
   if (t.puskesmas) { const q = t.puskesmas, f = [Math.sin(q.ry), Math.cos(q.ry)], r = [Math.cos(q.ry), -Math.sin(q.ry)]; tambahJejak(q.x + f[0] * 14 + r[0] * 9, q.z + f[1] * 14 + r[1] * 9, 5, 'parkir ambulans'); }
   t.papan = { x: d.x - 56, z: d.z + 8 };
