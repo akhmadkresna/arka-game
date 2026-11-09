@@ -21,6 +21,8 @@ export const TPU = { x: -48, z: -14 };
 export const ZONA_EMAS = { x: -16, z: -12, r: 11 };
 export const SPAWN = { x: -10, z: 24 };
 export const JEMBATAN = { z: 32, panjang: 46, lebar: 8, tinggi: 2.6 };
+// Vila Pak Sigap (eks kepala polisi), di sisi selatan Jl. Hutan Timur, menghadap utara ke jalan
+export const VILA = { x: 178, z: -60 };
 export const TITIK_BEBAS = { x: 70, z: -66 };
 // Jalan: garis lurus sejajar sumbu (kisi). Titik sambung antarjalan harus persis sama agar persimpangan terbentuk.
 export const JALAN = [
@@ -28,12 +30,13 @@ export const JALAN = [
   [[150, -84], [150, 32], [150, 128], [150, 168]],              // 1 Jl. Kampung (utara-selatan)
   [[0, -32], [0, 32], [0, 96], [0, 168]],                       // 2 Jl. Raya
   [[-76, -128], [-76, 32], [-76, 96], [-76, 168]],              // 3 Jl. Kebun (di tepi timur kebun sawit)
-  [[70, -84], [150, -84], [210, -84]],                          // 4 Jl. Hutan Timur (di tepi selatan kebun)
+  [[70, -84], [150, -84], [178, -84], [210, -84]],                          // 4 Jl. Hutan Timur (di tepi selatan kebun)
   [[-76, 96], [0, 96]],                                         // 5 Jl. Selatan
   [[-76, 168], [-36, 168], [0, 168]],                           // 6 Jl. TPA
   [[102, 128], [150, 128], [198, 128]],                         // 7 Jl. Sukamaju
   [[-48, 32], [-48, 6]],                                        // 8 jalan masuk TPU
   [[-36, 168], [-36, 178]],                                     // 9 jalan masuk TPA
+  [[178, -84], [178, -70]],                                     // 10 jalan masuk vila
 ];
 export function jarakKeSegmen(px, pz, ax, az, bx, bz) {
   const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1;

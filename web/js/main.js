@@ -10,6 +10,7 @@ import { mulaiMusik, setMusikBisu, musikBisu, suasanaMusik, infoMusik, ujiMusik 
 import { FOOT, BALIHO_AWAL, adaTempat, tambahJejak } from './tata.js';
 import { buatPeresmian } from './peresmian.js';
 import { perbaruiSosok } from './model.js';
+import { buatSadap } from './sadap.js';
 import { buatWaypath } from './waypath.js';
 import { pasangJalan } from './jalan3d.js';
 import { buatDemo } from './demo.js';
@@ -198,6 +199,12 @@ const WAYPATH = buatWaypath({ scene, lantai });
 pasangJalan(scene, lantai);
 const DEMO = buatDemo({ scene, G, lantai, E, bunyi, toast, pemain, batas, kilat, titik: WAYPATH.titik });
 const PERESMIAN = buatPeresmian({ scene, lantai, E, bunyi, V });
+function bukaPilihan(judul, opsi) {
+  bunyi.buka(); $('lembarJudul').textContent = judul; $('lembarGrid').className = 'satu';
+  $('lembarGrid').innerHTML = opsi.map(o => `<button class="kartuBangun" data-k="${o.k}"><span class="ikE" style="font-size:1.7rem;margin-right:10px">${o.ikon}</span><span><b>${o.judul}</b><small>${o.ket}</small></span></button>`).join('');
+  $('lembar').hidden = false;
+}
+const SADAP = buatSadap({ scene, G, pemain, E, bunyi, toast, banner, ucapTeks, batas, posMobil: () => KENDARAAN[1].g.position, bukaPilihan, lembarTerbuka: () => !$('lembar').hidden, segarkan: () => { misiTampil = -1; } });
 let fxSumber = null, fxTujuan = null;
 const KEY_DELTA = [['cuan', 'Cuan'], ['restu', 'Restu'], ['panas', 'Panas Hukum'], ['rakyat', 'Amarah'], ['citra', 'Citra']];
 const SIFAT = { cuan: true, restu: true, panas: false, rakyat: false, citra: true };
@@ -491,6 +498,7 @@ function jalankanAksi(k) {
 }
 function aksiTombol(k) {
   if (!G.jalan || G.jeda) return;
+  if (TUGAS && TUGAS.pilih && TUGAS.pilih(k)) return;
   const sebelum = ambil();
   jalankanAksi(k);
   umumkan(sebelum, ambil());
@@ -641,8 +649,9 @@ const KEGAGALAN_BOS = [
 ];
 function mulaiTugas() {
   const id = ++idTugas, daftar = G.bangunan.length ? ['kunjungan', 'pajak', 'hijau'] : ['pajak', 'hijau'];
-  const jenis = daftar[Math.floor(Math.random() * daftar.length)];
-  if (jenis === 'kunjungan') {
+  const jenis = !G.sadapSelesai && Math.random() < 0.5 ? 'sadap' : daftar[Math.floor(Math.random() * daftar.length)];
+  if (jenis === 'sadap') TUGAS = SADAP.buat(id);
+  else if (jenis === 'kunjungan') {
     const b = G.bangunan[Math.floor(Math.random() * G.bangunan.length)], selfie0 = G.selfie;
     TUGAS = { id, jenis, sisa: 70, target: () => b,
       teks: `Bos datang mendadak ke ${namaBangunan(b)}! Segera ke sana dan ketuk {f} (swafoto) sebelum waktu habis.`, ringkas: `Bos tinjau ${namaBangunan(b)}! Ketuk {f} di sana.`,
@@ -668,11 +677,12 @@ function mulaiTugas() {
 function tugasTick(dt) {
   if (G.misi < MISI_DEF.length - 1) return;
   if (!TUGAS) { if ((wTugas -= dt) <= 0) mulaiTugas(); return; }
-  TUGAS.sisa -= dt;
+  TUGAS.sisa -= dt; if (TUGAS.tick) TUGAS.tick(dt);
   if (TUGAS.selesai()) {
     TUGAS.hadiah(); G.tugasOk++; E.semburan(pemain.position.clone().setY(pemain.position.y + 3), 'konfeti', 40); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS SELESAI!', 'besar emas'); bunyi.misi();
     TUGAS = null; wTugas = 70 + Math.random() * 30; misiTampil = -1;
   } else if (TUGAS.sisa <= 0) {
+    if (TUGAS.jenis === 'sadap') SADAP.bersih();
     G.restu = batas(G.restu - 8); G.panas = batas(G.panas + 2); toast('Tugas gagal. Restu -8.'); E.teks(pemain.position.clone().setY(pemain.position.y + 4.5), 'TUGAS GAGAL', 'besar buruk'); bunyi.gagal();
     TUGAS = null; wTugas = 60 + Math.random() * 30; misiTampil = -1;
   }
@@ -1309,5 +1319,5 @@ if (sentuh) document.body.classList.add('sentuh');
 })();
 
 // Kait untuk pengujian otomatis
-window.__g = { DEMO, setKameraBebas(pos, tgt) { kameraBebas = pos ? { pos, tgt } : null; }, setKamera(y, p, j) { yaw = y; pitch = p; jarak = j; }, NPC, infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
+window.__g = { uji: { mulaiSadap() { G.misi = MISI_DEF.length - 1; TUGAS = SADAP.buat(++idTugas); misiTampil = -1; }, get tugas() { return TUGAS; }, pemain }, DEMO, setKameraBebas(pos, tgt) { kameraBebas = pos ? { pos, tgt } : null; }, setKamera(y, p, j) { yaw = y; pitch = p; jarak = j; }, NPC, infoMusik, ujiMusik, simpan, muat, baca, KUNCI, KENDARAAN, naikTurun, lompat, klakson, fis, kamera, OJOL, tujuan, info: () => ({ panggilan: renderer.info.render.calls, segitiga: renderer.info.render.triangles }), G, PETAK, KIOS, pemain, update, palak, sewaAparat, bakar, tebang, tanam, bangun, klasifikasi, petakDi, selfie, ngeles, aksiTombol, terrain, dunia,
   maju(detik) { for (let i = 0; i < detik * 20; i++) update(0.05); }, setYaw(v) { yaw = v; }, ke(x, z) { pemain.position.set(x, lantai(x, z), z); }, kartuLanjut() { $('kartuLanjut').click(); }, lanjutLaporan() { $('lanjut').click(); } };

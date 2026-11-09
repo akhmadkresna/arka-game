@@ -90,5 +90,6 @@ export const bunyi = {
   tutup() { if (!sampel('close_001', 0.5)) nada(700, 0.08, 'triangle', 0.08, 450); },
   togel() { if (!sampel('toggle_001', 0.45)) nada(600, 0.05, 'square', 0.04); },
   pilih() { if (!sampel('select_003', 0.45)) nada(660, 0.06, 'triangle', 0.08); },
+  bip() { nada(1500, 0.05, 'square', 0.05); },
   pop() { nada(300, 0.1, 'sine', 0.1, 900); },
 };

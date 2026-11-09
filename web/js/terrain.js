@@ -1,6 +1,6 @@
 import * as THREE from '../vendor/three.module.js';
 import { fbm, smooth, lerp } from './noise.js';
-import { R, SUNGAI, sungaiX, ZONA, pusatZona, TPA, TPU, ZONA_EMAS, JEMBATAN, KOTA, KAMPUNG, TINGGI_DATAR, jarakJalan } from './konfig.js';
+import { R, SUNGAI, sungaiX, ZONA, pusatZona, TPA, TPU, ZONA_EMAS, VILA, JEMBATAN, KOTA, KAMPUNG, TINGGI_DATAR, jarakJalan } from './konfig.js';
 
 // Area yang diratakan: persegi (rx, rz) dengan tinggi sasaran h. rata = tanpa riak.
 const H = TINGGI_DATAR;
@@ -11,6 +11,7 @@ const DATAR = [
   { x: TPA.x, z: TPA.z, rx: 32, rz: 32, h: H, rata: true },
   { x: TPU.x, z: TPU.z, rx: 28, rz: 24, h: H, rata: true },
   { x: ZONA_EMAS.x, z: ZONA_EMAS.z, rx: 18, rz: 18, h: H, rata: true },
+  { x: VILA.x, z: VILA.z, rx: 26, rz: 22, h: H, rata: true },
   { x: sungaiX(JEMBATAN.z), z: JEMBATAN.z, rx: 46, rz: 10, h: JEMBATAN.tinggi - 0.4 },
 ];
 

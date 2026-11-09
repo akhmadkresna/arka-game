@@ -1,5 +1,5 @@
 // Tata letak statis tanpa tumpang tindih: semua benda punya "jejak" lingkaran (FOOT).
-import { DESA, SAWAH, KANTOR, TPA, TPU, SPAWN, UMKM, JEMBATAN, sungaiX, titikJalanTerdekat } from './konfig.js';
+import { VILA, DESA, SAWAH, KANTOR, TPA, TPU, SPAWN, UMKM, JEMBATAN, sungaiX, titikJalanTerdekat } from './konfig.js';
 
 export const FOOT = [];
 const bentrok = (x, z, r, sela = 0) => FOOT.some(f => Math.hypot(f.x - x, f.z - z) < f.r + r + sela);
@@ -17,6 +17,7 @@ tambahJejak(SPAWN.x, SPAWN.z, 5, 'spawn');
 tambahJejak(KANTOR.x, KANTOR.z, 16, 'kantor');
 tambahJejak(TPA.x, TPA.z, 22, 'tpa');
 tambahJejak(TPU.x, TPU.z, 26, 'tpu');
+tambahJejak(VILA.x, VILA.z, 18, 'vila');
 for (let i = 0; i < 5; i++) tambahJejak(sungaiX(JEMBATAN.z) - 20 + i * 10, JEMBATAN.z, 5, 'jembatan');
 UMKM.forEach(u => tambahJejak(u.x, u.z, 7, u.nama));
 BALIHO_AWAL.forEach((b, i) => tambahJejak(b.x, b.z, 6, 'baliho' + i));
